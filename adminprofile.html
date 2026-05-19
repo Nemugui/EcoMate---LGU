@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - EcoMate</title>
+    <link rel="stylesheet" href="../css/adminprofile.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Main Full Sidebar for Admin -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="admindashboard.html">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="adminreportmngt.html">
+                <i data-lucide="clipboard-list"></i> Reports Management
+            </a>
+            <a href="adminschedfleet.html">
+                <i data-lucide="truck"></i> Schedule & Fleet
+            </a>
+            <a href="admineducational.html">
+                <i data-lucide="book-open"></i> Educational Content
+            </a>
+            <a href="adminusermngt.html">
+                <i data-lucide="users"></i> Users
+            </a>
+        </nav>
+
+        <button class="btn-new-dispatch">
+            <i data-lucide="plus"></i> New Dispatch
+        </button>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="admin-main">
+        <!-- Top Header Area -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Admin Profile</h2>
+                <p>Manage your account and monitor your activity</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="icon-box">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot"></div>
+                </div>
+                <div class="icon-box" id="settings-trigger">
+                    <i data-lucide="settings"></i>
+                </div>
+                <div class="avatar-circle">
+                    <img src="../images/supot.png" alt="Admin Profile" style="width: 100%; object-fit: cover;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Profile Grid Layout -->
+        <div class="profile-grid">
+            
+            <!-- Left Column: User Card -->
+            <div class="col-left">
+                <div class="profile-card">
+                    <div class="profile-avatar-container">
+                        <img src="../images/supot.png" alt="Admin Carl" class="large-avatar">
+                        <button class="btn-edit-avatar"><i data-lucide="edit-2"></i></button>
+                    </div>
+                    
+                    <h3 class="profile-name">Admin Carl</h3>
+                    <p class="profile-email">admin@ecomate.gov</p>
+                    
+                    <div class="profile-badges">
+                        <div class="badge-item">
+                            <span class="badge-label">ROLE</span>
+                            <span class="badge-value">LGU Admin</span>
+                        </div>
+                        <div class="badge-item">
+                            <span class="badge-label">OFFICE</span>
+                            <span class="badge-value">Central District LGU</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-edit-profile">Edit Profile</button>
+                    <button class="btn-sign-out" id="btn-sign-out">Log out</button>
+                </div>
+            </div>
+
+            <!-- Right Column: Settings and Info -->
+            <div class="col-right">
+                
+                <!-- Account Information Card -->
+                <div class="info-card">
+                    <h4 class="card-title">Account Information</h4>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>FULLNAME</label>
+                            <input type="text" class="form-input" value="Admin Carl" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>EMAIL ADDRESS</label>
+                            <input type="email" class="form-input" value="admin@ecomate.gov" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>OFFICE / BARANGAY</label>
+                            <input type="text" class="form-input" value="Central District LGU" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>CONTACT NUMBER</label>
+                            <input type="text" class="form-input" value="+63 912 345 6789" readonly>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-save-changes">
+                        <i data-lucide="save"></i> Save Changes
+                    </button>
+                </div>
+                
+                <!-- Security Settings Card -->
+                <div class="info-card security-card">
+                    <h4 class="card-title"><i data-lucide="shield"></i> Security Settings</h4>
+                    
+                    <div class="security-actions-grid">
+                        <div class="security-action-item">
+                            <div class="sa-icon"><i data-lucide="settings"></i></div>
+                            <div class="sa-text">
+                                <h5>Change Password</h5>
+                                <p>Update your account password</p>
+                            </div>
+                            <i data-lucide="chevron-right" class="chevron"></i>
+                        </div>
+                        
+                        <div class="security-action-item">
+                            <div class="sa-icon logout-icon"><i data-lucide="monitor-off"></i></div>
+                            <div class="sa-text">
+                                <h5>Logout all sessions</h5>
+                                <p>Sign out from other devices</p>
+                            </div>
+                            <i data-lucide="chevron-right" class="chevron"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

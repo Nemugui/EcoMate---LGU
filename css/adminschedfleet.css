@@ -1,0 +1,565 @@
+/* adminschedfleet.css */
+
+/* ─────────────────────────────────────────────────────────
+   METRICS ROW
+───────────────────────────────────────────────────────── */
+.sched-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.sched-metric-card {
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.sched-metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.smc-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.smc-icon i { width: 20px; height: 20px; }
+
+.smc-body span {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    opacity: 0.75;
+}
+.smc-body h3 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1;
+    font-family: 'Space Mono', monospace;
+}
+
+.smc-blue   { background: var(--info);        color: var(--info-text); border-color: #BBDEFB; }
+.smc-blue   .smc-icon { background: rgba(2,119,189,0.12); color: var(--info-text); }
+
+.smc-green  { background: var(--light-green); color: var(--dark-green); border-color: #C8E6C9; }
+.smc-green  .smc-icon { background: rgba(46,125,50,0.12); color: var(--accent-green); }
+
+.smc-orange { background: var(--warn);        color: var(--warn-text);  border-color: #FFE0B2; }
+.smc-orange .smc-icon { background: rgba(230,81,0,0.12); color: var(--warn-text); }
+
+.smc-grey   { background: #F5F5F5;            color: #424242;           border-color: #E0E0E0; }
+.smc-grey   .smc-icon { background: rgba(66,66,66,0.08); color: #616161; }
+
+/* ─────────────────────────────────────────────────────────
+   FLEET GRID
+───────────────────────────────────────────────────────── */
+.fleet-grid {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ─────────────────────────────────────────────────────────
+   SECTION HEADER
+───────────────────────────────────────────────────────── */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.section-header h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.live-monitor-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.btn-add-sched-sm {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-add-sched-sm:hover { background: var(--dark-green); }
+
+/* ─────────────────────────────────────────────────────────
+   TRUCK CARDS
+───────────────────────────────────────────────────────── */
+.fleet-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.truck-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    transition: border-color 0.2s;
+}
+.truck-card:hover { border-color: var(--accent-green); }
+
+.truck-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.tc-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.tc-icon.active { background: var(--light-green); color: var(--accent-green); }
+.tc-icon.idle   { background: #F5F5F5;            color: #9E9E9E; }
+.tc-icon.maint  { background: var(--warn);        color: var(--warn-text); }
+
+.tc-info { flex: 1; min-width: 0; }
+.tc-info h4 { font-size: 0.95rem; font-weight: 800; color: var(--text-primary); }
+.tc-info p  { font-size: 0.7rem;  font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+
+.tc-status {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+.tc-status.active { background: var(--light-green); color: var(--dark-green); }
+.tc-status.idle   { background: #F5F5F5;            color: #616161; }
+.tc-status.maint  { background: var(--warn);        color: var(--warn-text); }
+
+.truck-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.tc-route span { font-size: 0.58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+.tc-route p    { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+.tc-route p i  { width: 13px; height: 13px; color: var(--text-muted); }
+
+.tc-idle-note { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+.tc-fuel span { font-size: 0.58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; text-align: right; }
+.fuel-bar  { width: 72px; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.fuel-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+
+.tc-edit-btn {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    width: 28px; height: 28px;
+    background: var(--admin-bg);
+    border: none;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tc-edit-btn:hover { background: var(--light-green); color: var(--accent-green); }
+
+.btn-add-schedule {
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(46,125,50,0.25);
+}
+.btn-add-schedule:hover { background: var(--dark-green); transform: translateY(-2px); }
+
+/* ─────────────────────────────────────────────────────────
+   SCHEDULE TABLE
+───────────────────────────────────────────────────────── */
+.schedule-list-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    /* overflow:hidden clips the horizontal scroll wrapper on mobile.
+       Use overflow:clip so border-radius still works on desktop but
+       we can override to visible on mobile. */
+    overflow: clip;
+}
+
+.schedule-list-card .loading-state,
+.schedule-list-card .empty-state { padding: 2.5rem; }
+
+.sl-table { width: 100%; border-collapse: collapse; }
+
+.sl-table th {
+    background: #F8F9FA;
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sl-table td {
+    padding: 1.1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #F7F9FA;
+    font-size: 0.85rem;
+}
+
+.sl-table tr:last-child td { border-bottom: none; }
+.sl-table tbody tr:hover td { background: #FAFBFC; }
+
+.sl-route-col { display: flex; align-items: center; gap: 10px; }
+.sl-icon {
+    width: 30px; height: 30px;
+    background: var(--info);
+    color: var(--info-text);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.sl-icon i { width: 13px; height: 13px; }
+.sl-route-col p { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+
+.sl-truck { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+.sl-date  { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.sl-time  { font-size: 0.7rem;  color: var(--text-muted); }
+
+.sl-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+}
+.sl-pill.ongoing   { background: var(--light-green); color: var(--dark-green); border: 1px solid #C8E6C9; }
+.sl-pill.upcoming  { background: var(--info);        color: var(--info-text);  border: 1px solid #BBDEFB; }
+.sl-pill.completed { background: #F5F5F5;            color: var(--text-muted); border: 1px solid #E0E0E0; }
+
+.sl-edit-btn {
+    width: 28px; height: 28px;
+    background: var(--admin-bg);
+    border: none;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.sl-edit-btn:hover { background: var(--light-green); color: var(--accent-green); }
+
+/* ─────────────────────────────────────────────────────────
+   FORM MODAL
+───────────────────────────────────────────────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+.form-field label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-field input,
+.form-field select {
+    background: var(--admin-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+    width: 100%;
+}
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    background: var(--white);
+}
+
+.btn-modal-delete {
+    flex: 0.6;
+    background: #FFEBEE;
+    color: #C62828;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+}
+.btn-modal-delete:hover { background: #FFCDD2; }
+
+/* ─────────────────────────────────────────────────────────
+   RESPONSIVE  (original breakpoints kept, new ones added)
+───────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .fleet-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+    .sched-metrics-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+    .sched-metrics-row { grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+    .smc-body h3 { font-size: 1.4rem; }
+    .smc-icon { width: 36px; height: 36px; border-radius: 10px; }
+
+    .sl-table { min-width: 500px; }
+    .schedule-list-card { overflow-x: auto; }
+
+    .form-grid { grid-template-columns: 1fr; }
+    .form-field:last-child:nth-child(odd) { grid-column: 1; }
+}
+
+/* ─── AUTO-GENERATED ID DISPLAY ─────────────────────────── */
+.auto-label {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 700;
+    background: var(--light-green);
+    color: var(--accent-green);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+
+.auto-id-display {
+    background: var(--admin-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 0.875rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent-green);
+    letter-spacing: 1px;
+    cursor: default;
+    user-select: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE ADDITIONS — small phone fixes (≤ 480px / ≤ 390px)
+   Nothing above is changed. These rules only add/tighten
+   behaviour for widths the original breakpoints didn't cover.
+═══════════════════════════════════════════════════════════ */
+
+/* ── 480px: general small-phone cleanup ── */
+@media (max-width: 480px) {
+
+    /* Metrics: 2-col grid, smaller icon + number so 4th card fits */
+    .sched-metrics-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .sched-metric-card {
+        padding: 0.875rem 0.75rem;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .smc-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .smc-body span { font-size: 0.52rem; }
+    .smc-body h3   { font-size: 1.25rem; }
+
+    /* Schedule table: the card must NOT clip the inner scroll.
+       Override overflow:clip → overflow:visible so .sl-table-wrap
+       can scroll horizontally, then apply the scroll on the wrapper. */
+    .schedule-list-card { overflow: visible; border-radius: var(--radius-lg); }
+    .sl-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+    .sl-table { min-width: 520px; }
+
+    /* Truck cards: tighter padding */
+    .truck-card { padding: 1rem; }
+    .tc-icon { width: 38px; height: 38px; }
+
+    /* Section headers: keep label + button on one row */
+    .section-header { flex-wrap: nowrap; gap: 0.5rem; }
+    .section-header h3 { font-size: 0.9rem; white-space: nowrap; }
+    .btn-add-sched-sm { padding: 5px 10px; font-size: 0.72rem; white-space: nowrap; }
+
+    /* Add Truck button: normal size */
+    .btn-add-truck { font-size: 0.8rem; padding: 0.75rem 1rem; }
+
+    /* Modal form: single column */
+    .form-grid { grid-template-columns: 1fr; }
+    .form-field.full { grid-column: 1; }
+}
+
+/* ── 390px / iPhone SE: tightest viewport ── */
+@media (max-width: 390px) {
+
+    /* Metrics numbers slightly smaller so they never overflow */
+    .smc-body h3   { font-size: 1.1rem; }
+    .smc-body span { font-size: 0.5rem; letter-spacing: 0; }
+    .sched-metric-card { padding: 0.75rem 0.625rem; gap: 6px; }
+    .smc-icon { width: 28px; height: 28px; border-radius: 7px; }
+
+    /* Main content padding reduction so cards breathe */
+    .admin-main { padding: 0.75rem; }
+
+    /* Top header: keep title and actions on same row, shrink text */
+    .top-header { padding: 0.75rem 1rem; gap: 0.625rem; }
+    .header-title h2 { font-size: 0.95rem; }
+    .header-title p  { font-size: 0.65rem; }
+
+    /* Fleet section headers */
+    .section-header h3 { font-size: 0.85rem; }
+
+    /* Truck card details */
+    .tc-info h4 { font-size: 0.85rem; }
+    .tc-info p  { font-size: 0.65rem; }
+    .tc-status  { font-size: 0.55rem; padding: 2px 7px; }
+    .tc-route p { font-size: 0.75rem; }
+    .fuel-bar   { width: 56px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCHEDULE TABLE + TRUCK CARD — small screen text-wrap fixes
+   Added to stop cell content (route, date, truck ID) from
+   wrapping on 375–480px viewports.
+═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+
+    /* ── Schedule table: give each column a fixed min-width so
+          text doesn't wrap inside the cell ── */
+    .sl-table th,
+    .sl-table td { padding: 0.75rem 0.875rem; }
+
+    /* Route column: enough for "Barangay VIII" */
+    .sl-table th:nth-child(1),
+    .sl-table td:nth-child(1) { min-width: 130px; }
+
+    /* Truck column: enough for "TRK-001" in monospace */
+    .sl-table th:nth-child(2),
+    .sl-table td:nth-child(2) { min-width: 80px; white-space: nowrap; }
+
+    /* Date & Time column: keep date on one line, time on next */
+    .sl-table th:nth-child(3),
+    .sl-table td:nth-child(3) { min-width: 110px; }
+
+    /* Status pill column */
+    .sl-table th:nth-child(4),
+    .sl-table td:nth-child(4) { min-width: 80px; }
+
+    /* min-width on columns is enough — white-space:nowrap is NOT used
+       because it compounds with min-width and makes the table unscrollably wide */
+    .sl-route-col p { white-space: normal; }
+    .sl-truck { white-space: nowrap; } /* TRK-001 is short, safe to nowrap */
+    .sl-date  { white-space: nowrap; }
+    .sl-time  { white-space: nowrap; }
+
+    /* ── Truck card: keep the status pill from pushing content ── */
+    .truck-card-top { flex-wrap: nowrap; align-items: flex-start; }
+
+    /* Prevent truck ID and model from being squeezed by the status badge */
+    .tc-info { min-width: 0; overflow: hidden; }
+    .tc-info h4 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tc-info p  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Status badge: never wraps */
+    .tc-status { white-space: nowrap; flex-shrink: 0; }
+
+    /* Route text in truck card bottom row */
+    .tc-route p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+}
+
+@media (max-width: 390px) {
+
+    /* Even tighter — Route column gets a bit less room but still no wrap */
+    .sl-table th:nth-child(1),
+    .sl-table td:nth-child(1) { min-width: 110px; }
+
+    .sl-table th:nth-child(2),
+    .sl-table td:nth-child(2) { min-width: 70px; }
+
+    .sl-table th:nth-child(3),
+    .sl-table td:nth-child(3) { min-width: 100px; }
+
+    /* Truck card route text max-width tighter */
+    .tc-route p { max-width: 130px; }
+}
+

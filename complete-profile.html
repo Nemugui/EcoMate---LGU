@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - Complete Your Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary-green:  #2E7D32;
+            --accent-green:   #4CAF50;
+            --light-green:    #E8F5E9;
+            --text-dark:      #1B1B1B;
+            --text-muted:     #757575;
+            --resident-peach: #FFDCA9;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background: #F4F6F4;
+            color: var(--text-dark);
+        }
+
+        /* ── Layout shell ── */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--primary-green);
+            padding: 0 1.5rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Main scrollable area ── */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* ── Profile completion card ── */
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 520px;
+            padding: 2rem;
+            text-align: left;
+        }
+
+        .profile-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .profile-card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-green);
+            flex-shrink: 0;
+        }
+
+        .profile-card-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .profile-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .profile-card-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* ── Field labels ── */
+        .field-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        /* ── Input wrappers ── */
+        .profile-input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        /* Icon span sits absolutely inside the wrapper */
+        .profile-input-wrapper .input-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            color: #9E9E9E;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .profile-input-wrapper .input-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .profile-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.75rem;
+            background: #EEEEEE;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: border-color 0.2s, background 0.2s;
+            outline: none;
+        }
+
+        .profile-input:focus {
+            border-color: var(--accent-green);
+            background: white;
+        }
+
+        .profile-input::placeholder {
+            color: #BDBDBD;
+        }
+
+        /* ── Select dropdown ── */
+        .profile-select {
+            width: 100%;
+            padding: 0.8rem 2.5rem 0.8rem 2.75rem;
+            background: #EEEEEE;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            outline: none;
+        }
+
+        .profile-select:focus {
+            border-color: var(--accent-green);
+            background: white;
+        }
+
+        .profile-select option[value=""] { color: #BDBDBD; }
+
+        /* chevron arrow on the right */
+        .select-arrow {
+            position: absolute;
+            right: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #9E9E9E;
+            display: flex;
+            align-items: center;
+        }
+
+        .select-arrow svg { width: 16px; height: 16px; }
+
+        /* ── Role mini-cards ── */
+        .role-pick-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .role-pick-card {
+            background: #F5F5F5;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 0.9rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            user-select: none;
+        }
+
+        .role-pick-card:hover { background: #EBEBEB; }
+        .role-pick-card:active { transform: scale(0.97); }
+
+        .role-pick-card.active {
+            background: var(--resident-peach);
+            border-color: #FFA726;
+        }
+
+        .role-pick-card .rp-icon {
+            width: 38px;
+            height: 38px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+        }
+
+        .role-pick-card .rp-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .role-pick-card .rp-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        /* ── Error banner ── */
+        .profile-error {
+            background: #FFEBEE;
+            color: #C62828;
+            border-radius: 10px;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.82rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .profile-error.show { display: block; }
+
+        /* ── Submit button ── */
+        .btn-complete {
+            width: 100%;
+            background: var(--primary-green);
+            color: white;
+            padding: 0.9rem 1rem;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 14px rgba(46,125,50,0.28);
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            margin-top: 0.25rem;
+        }
+
+        .btn-complete svg { width: 20px; height: 20px; }
+
+        .btn-complete:hover:not(:disabled) {
+            background: #256427;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46,125,50,0.35);
+        }
+
+        .btn-complete:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #9E9E9E;
+            flex-shrink: 0;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            main { padding: 1.25rem 0.75rem; }
+            .profile-card { padding: 1.5rem 1.25rem; border-radius: 18px; }
+            .profile-card-title { font-size: 1.1rem; }
+            .role-pick-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>EcoMate</h1>
+    </header>
+
+    <main>
+        <div class="profile-card">
+
+            <div class="profile-card-header">
+                <div class="profile-card-icon">
+                    <!-- user-round-plus icon (inline SVG — no library dependency) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <line x1="19" y1="8" x2="19" y2="14"/>
+                        <line x1="22" y1="11" x2="16" y2="11"/>
+                    </svg>
+                </div>
+                <span class="profile-card-title">Complete your profile</span>
+            </div>
+
+            <p class="profile-card-subtitle">
+                Just a few details and you're good to go. This helps us connect you to the right dashboard.
+            </p>
+
+            <div class="profile-error" id="profile-error"></div>
+
+            <!-- Full Name -->
+            <label class="field-label" for="full-name">Full Name</label>
+            <div class="profile-input-wrapper">
+                <span class="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </span>
+                <input class="profile-input" id="full-name" type="text" placeholder="e.g. Juan Dela Cruz" required>
+            </div>
+
+            <!-- Area / Barangay -->
+            <label class="field-label" for="area">Area / Barangay</label>
+            <div class="profile-input-wrapper">
+                <span class="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </span>
+                <select class="profile-select" id="area" required>
+                    <option value="" disabled selected>Select your area</option>
+                    <option value="Alawihao">Alawihao</option>
+                    <option value="Awitan">Awitan</option>
+                    <option value="Bagasbas">Bagasbas</option>
+                    <option value="Bibirao">Bibirao</option>
+                    <option value="Borabod">Borabod</option>
+                    <option value="Calasgasan">Calasgasan</option>
+                    <option value="Camambugan">Camambugan</option>
+                    <option value="Cobangbang">Cobangbang</option>
+                    <option value="Dogongan">Dogongan</option>
+                    <option value="Gahonon">Gahonon</option>
+                    <option value="Gubat">Gubat</option>
+                    <option value="Lag-on">Lag-on</option>
+                    <option value="Magang">Magang</option>
+                    <option value="Mambalite">Mambalite</option>
+                    <option value="Mancruz">Mancruz</option>
+                    <option value="Pamorangon">Pamorangon</option>
+                    <option value="Barangay I">Barangay I</option>
+                    <option value="Barangay II">Barangay II</option>
+                    <option value="Barangay III">Barangay III</option>
+                    <option value="Barangay IV">Barangay IV</option>
+                    <option value="Barangay V">Barangay V</option>
+                    <option value="Barangay VI">Barangay VI</option>
+                    <option value="Barangay VII">Barangay VII</option>
+                    <option value="Barangay VIII">Barangay VIII</option>
+                    <option value="San Isidro">San Isidro</option>
+                </select>
+                <span class="select-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Role -->
+            <label class="field-label">I am a…</label>
+            <div class="role-pick-grid">
+
+                <div class="role-pick-card active" data-role="res">
+                    <div class="rp-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <span class="rp-label">Resident</span>
+                </div>
+
+                <div class="role-pick-card" data-role="admin">
+                    <div class="rp-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                            <circle cx="19" cy="11" r="3"/>
+                            <path d="M19 8v1m0 4v1m-1.5-2.5h3"/>
+                        </svg>
+                    </div>
+                    <span class="rp-label">LGU Admin</span>
+                </div>
+
+                <div class="role-pick-card" data-role="worker">
+                    <div class="rp-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14H6L5 6"/>
+                            <path d="M10 11v6m4-6v6"/>
+                            <path d="M9 6V4h6v2"/>
+                        </svg>
+                    </div>
+                    <span class="rp-label">Worker</span>
+                </div>
+
+            </div>
+
+            <button class="btn-complete" id="complete-btn">
+                Go to my Dashboard
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 16 16 12 12 8"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+            </button>
+
+        </div>
+    </main>
+
+    <footer>
+        © 2026 EcoMate Integration Team. All rights reserved.
+    </footer>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ── Guard: redirect back if no pending Google session ──
+        const uid   = sessionStorage.getItem('pendingGoogleUID');
+        const email = sessionStorage.getItem('pendingGoogleEmail');
+        const name  = sessionStorage.getItem('pendingGoogleName');
+
+        if (!uid || !email) {
+            window.location.href = 'login.html';
+        }
+
+        // Pre-fill name from Google display name if available
+        const nameInput = document.getElementById('full-name');
+        if (name) nameInput.value = name;
+
+        // ── Role selection ──
+        let selectedRole = 'res';
+        const roleCards  = document.querySelectorAll('.role-pick-card');
+
+        roleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                roleCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                selectedRole = card.dataset.role;
+            });
+        });
+
+        // ── Submit ──
+        const completeBtn = document.getElementById('complete-btn');
+        const errorBanner = document.getElementById('profile-error');
+
+        function showError(msg) {
+            errorBanner.textContent = msg;
+            errorBanner.classList.add('show');
+        }
+
+        function hideError() {
+            errorBanner.classList.remove('show');
+        }
+
+        completeBtn.addEventListener('click', async () => {
+            hideError();
+
+            const fullName = nameInput.value.trim();
+            const area     = document.getElementById('area').value.trim();
+
+            if (!fullName) { showError('Please enter your full name.'); return; }
+            if (!area)     { showError('Please select your area or barangay.'); return; }
+
+            completeBtn.disabled     = true;
+            completeBtn.textContent  = 'Saving…';
+
+            try {
+                await setDoc(doc(db, 'users', uid), {
+                    fullName,
+                    area,
+                    role:                 selectedRole,
+                    email,
+                    createdAt:            serverTimestamp(),
+                    recycledCount:        0,
+                    resolvedReportsCount: 0,
+                    scannedCount:         0,
+                });
+
+                sessionStorage.removeItem('pendingGoogleUID');
+                sessionStorage.removeItem('pendingGoogleEmail');
+                sessionStorage.removeItem('pendingGoogleName');
+
+                const dashMap = { res: 'resdashboard', worker: 'workerdashboard', admin: 'admindashboard' };
+                window.location.href = `./${dashMap[selectedRole]}.html`;
+
+            } catch (err) {
+                console.error('Profile save error:', err);
+                showError('Something went wrong saving your profile. Please try again.');
+                completeBtn.disabled    = false;
+                completeBtn.textContent = 'Go to my Dashboard';
+            }
+        });
+    </script>
+
+</body>
+</html>

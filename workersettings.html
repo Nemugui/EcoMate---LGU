@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker's Settings - EcoMate</title>
+    <link rel="stylesheet" href="../css/workersettings.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Mobile sidebar toggle button (matches resdashboard structure) -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Worker Sidebar Nav -->
+    <aside class="worker-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Worker</span>
+            </div>
+        </div>
+
+        <nav class="worker-nav">
+            <a href="workerdashboard.html">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="workerschedule.html">
+                <i data-lucide="calendar"></i> Schedule
+            </a>
+            <a href="workerreports.html">
+                <i data-lucide="clipboard-list"></i> Reports & Tasks
+            </a>
+            <a href="workerguideline.html">
+                <i data-lucide="shield"></i> Safety Guidelines
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Settings</h2>
+            </div>
+            
+            <div class="header-actions">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="icon-box">
+                    <i data-lucide="bell"></i>
+                </div>
+                <div class="icon-box active" id="settings-trigger">
+                    <i data-lucide="settings"></i>
+                </div>
+                <div class="avatar-circle">
+                    <img src="../images/supot.png" alt="Worker Profile" style="width: 100%; object-fit: cover;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Container Layout -->
+        <div class="settings-container">
+            <!-- Main Configurations Column -->
+            <div class="config-group">
+                <!-- Notifications -->
+                <div class="category-header">
+                    <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+                    Notification Preferences
+                </div>
+                <div class="config-item">
+                    <span>Schedule & Route Updates</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="config-item">
+                    <span>New Community Reports</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="config-item">
+                    <span>Safety Reminders</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Security -->
+                <div class="category-header">
+                    <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+                    Security
+                </div>
+                <div class="config-item">
+                    <span>Two-Factor Authentication</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Preferences -->
+                <div class="category-header">
+                    <i data-lucide="sliders" style="width: 18px; height: 18px;"></i>
+                    App Preferences
+                </div>
+                <div class="config-item">
+                    <span>Dark Mode</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="config-item">
+                    <span>Data Sync with Firestore</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Pin Save Button to bottom right of container -->
+                <button class="btn-save-settings">
+                    <i data-lucide="save" style="width: 18px; height: 18px;"></i> Save Changes
+                </button>
+            </div>
+
+            <!-- Right Sidebar Panel -->
+            <div class="right-col">
+                <!-- Account Actions Box -->
+                <div class="actions-box">
+                    <h4>Account Actions</h4>
+                    
+                    <button class="action-btn">
+                        <i data-lucide="list"></i> View Activity Log
+                    </button>
+                    
+                    <button class="action-btn">
+                        <i data-lucide="download"></i> Export My Data
+                    </button>
+                    
+                    <button class="action-btn logout">
+                        <i data-lucide="log-out"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Sync Box Indicator -->
+                <div class="sync-box">
+                    <div class="sync-icon-circle">
+                        <i data-lucide="cloud-lightning"></i>
+                    </div>
+                    <p>All changes saved to Cloud Firestore<br>in real-time</p>
+                </div>
+
+                <!-- Support Box -->
+                <div class="support-box">
+                    <i data-lucide="help-circle" class="support-bg-icon"></i>
+                    <div class="support-box-content">
+                        <span>SUPPORT</span>
+                        <h3>Need help with your<br>profile?</h3>
+                        <button class="btn-contact">Contact Support</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile sidebar toggle (matches resdashboard pattern)
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('open');    }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.worker-nav a').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeSidebar();
+            });
+        });
+    </script>
+</body>
+</html>

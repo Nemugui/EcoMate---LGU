@@ -1,0 +1,312 @@
+/* Report Issue Modal Styling - EcoMate */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(33, 33, 33, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.report-modal {
+    background: #FFFFFF;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 24px;
+    padding: 2rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    border: 1px solid #E0E0E0;
+}
+
+.modal-overlay.active .report-modal {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h3 {
+    color: #2E7D32;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #546E7A;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: #F5F5F5;
+    color: #E53935;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #546E7A;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+/* Upload Area */
+.upload-proof-box {
+    border: 2px dashed #A5D6A7;
+    background: #F9FBF9;
+    border-radius: 20px;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-proof-box:hover {
+    background: #F1F8F1;
+    border-color: #4CAF50;
+}
+
+.upload-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: #A5D6A7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1B5E20;
+    margin: 0 auto 1rem auto;
+}
+
+.upload-proof-box h4 {
+    color: #2E7D32;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.upload-proof-box p {
+    color: #78909C;
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+/* Location Fields */
+.location-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.location-input {
+    flex: 1;
+    background: #ECEFF1;
+    border: none;
+    padding: 1rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    color: #37474F;
+}
+.location-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #A5D6A7;
+}
+
+.btn-current-location {
+    background: #0277BD;
+    color: white;
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-current-location:hover {
+    background: #01579B;
+}
+
+/* Map Placeholder */
+.map-placeholder {
+    width: 100%;
+    height: 150px;
+    background-image: url('../images/map_bg.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    color: #1B5E20;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+
+.map-controls {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.map-controls button {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: 1px solid #E0E0E0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #546E7A;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.map-controls button:hover {
+    background: #F5F5F5;
+}
+
+/* Waste Types */
+.waste-types-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.waste-badge {
+    background: #ECEFF1;
+    color: #455A64;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.waste-badge.active {
+    background: #2E7D32;
+    color: white;
+}
+
+.waste-badge:hover:not(.active) {
+    background: #CFD8DC;
+}
+
+/* Description Textarea */
+.desc-textarea {
+    width: 100%;
+    background: #ECEFF1;
+    border: none;
+    border-radius: 20px;
+    padding: 1.25rem;
+    min-height: 120px;
+    font-size: 0.95rem;
+    color: #37474F;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.desc-textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #A5D6A7;
+}
+
+/* Footer Actions */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #F5F5F5;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: none;
+    color: #546E7A;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-cancel:hover {
+    color: #2E7D32;
+}
+
+.btn-submit-report {
+    background: #2E7D32;
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-submit-report:hover {
+    background: #1B5E20;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(46, 125, 50, 0.3);
+}
+
+@media (max-width: 600px) {
+    .location-row { flex-direction: column; }
+    .btn-current-location { padding: 1rem; justify-content: center; }
+}

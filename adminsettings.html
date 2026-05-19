@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings - EcoMate</title>
+    <link rel="stylesheet" href="../css/adminsettings.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Main Full Sidebar for Admin -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="admindashboard.html">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="adminreportmngt.html">
+                <i data-lucide="clipboard-list"></i> Reports Management
+            </a>
+            <a href="adminschedfleet.html">
+                <i data-lucide="truck"></i> Schedule & Fleet
+            </a>
+            <a href="admineducational.html">
+                <i data-lucide="book-open"></i> Educational Content
+            </a>
+            <a href="adminusermngt.html">
+                <i data-lucide="users"></i> Users
+            </a>
+        </nav>
+
+        <button class="btn-new-dispatch">
+            <i data-lucide="plus"></i> New Dispatch
+        </button>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="admin-main">
+        <!-- Top Header Area -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Admin Settings</h2>
+                <p>Configure system preferences and notifications</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="icon-box">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot"></div>
+                </div>
+                <div class="icon-box active" id="settings-trigger">
+                    <i data-lucide="settings"></i>
+                </div>
+                <div class="avatar-circle">
+                    <img src="../images/supot.png" alt="Admin Profile" style="width: 100%; object-fit: cover;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Grid Layout -->
+        <div class="settings-grid">
+            
+            <!-- Left Column: Main Settings Form -->
+            <div class="col-left">
+                <div class="settings-card">
+                    
+                    <!-- Notifications Section -->
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <i data-lucide="bell"></i>
+                            <h3>Notifications</h3>
+                        </div>
+                        
+                        <div class="settings-2x2-grid">
+                            <div class="setting-item">
+                                <div class="si-text">
+                                    <h4>Community Reports</h4>
+                                    <p>Alerts for citizen-submitted waste issues</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="si-text">
+                                    <h4>Schedule Changes</h4>
+                                    <p>Fleet logistics and route modifications</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="si-text">
+                                    <h4>Illegal Dumping</h4>
+                                    <p>High priority AI camera detections</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="si-text">
+                                    <h4>Educational Updates</h4>
+                                    <p>Content performance and feedback</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <i data-lucide="shield"></i>
+                            <h3>Security</h3>
+                        </div>
+                        
+                        <div class="security-banner">
+                            <div class="sb-icon"><i data-lucide="fingerprint"></i></div>
+                            <div class="sb-text">
+                                <h4>Two-Factor Authentication (2FA)</h4>
+                                <p>Enhance security with mobile confirmation</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <button class="btn-outline">Change Password</button>
+                        </div>
+                    </div>
+
+                    <!-- System Preferences Section -->
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <i data-lucide="settings"></i>
+                            <h3>System Preferences</h3>
+                        </div>
+                        
+                        <div class="preferences-list">
+                            <div class="pref-item">
+                                <div class="pref-text">
+                                    <i data-lucide="refresh-cw"></i>
+                                    <h4>Auto-sync cloud data</h4>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="pref-item">
+                                <div class="pref-text">
+                                    <i data-lucide="map"></i>
+                                    <h4>Real-time GPS Tracking Map</h4>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="pref-item">
+                                <div class="pref-text">
+                                    <i data-lucide="moon"></i>
+                                    <h4>System-wide Dark Mode</h4>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right Column: Quick Actions & Storage -->
+            <div class="col-right">
+                
+                <!-- Admin Actions Card -->
+                <div class="action-card">
+                    <h3 class="card-title">Admin Actions</h3>
+                    
+                    <div class="action-links">
+                        <a href="adminusermngt.html" class="action-link">
+                            <div class="al-icon"><i data-lucide="users"></i></div>
+                            <span>Manage All Users</span>
+                            <i data-lucide="chevron-right" class="chevron"></i>
+                        </a>
+                        <a href="#" class="action-link">
+                            <div class="al-icon"><i data-lucide="download"></i></div>
+                            <span>Export System Data</span>
+                            <i data-lucide="chevron-right" class="chevron"></i>
+                        </a>
+                        <a href="history.html" class="action-link">
+                            <div class="al-icon"><i data-lucide="clock"></i></div>
+                            <span>View Activity Log</span>
+                            <i data-lucide="chevron-right" class="chevron"></i>
+                        </a>
+                    </div>
+                    
+                    <button class="btn-logout-card" id="btn-sign-out">
+                        <i data-lucide="log-out"></i> Logout
+                    </button>
+                </div>
+                
+                <!-- Cloud Storage Card -->
+                <div class="storage-card">
+                    <h4>Cloud Storage</h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 75.2%;"></div>
+                    </div>
+                    <p class="storage-used">75.2 GB OF 100 GB USED</p>
+                    <p class="backup-status">Auto-backup status: March 12, 2024</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

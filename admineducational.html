@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Content - EcoMate Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/admindashboard.css">
+    <link rel="stylesheet" href="../css/admineducational.css">
+    <style>
+        /* ── NOTIFICATION DROPDOWN ── */
+        .notif-wrapper { position: relative; }
+        .notif-dropdown {
+            display: none;
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: #fff; border: 1px solid #E8EAED;
+            border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            width: 320px; z-index: 250; overflow: hidden;
+        }
+        .notif-dropdown.open { display: block; }
+        .notif-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.25rem 0.75rem;
+            border-bottom: 1px solid #E8EAED;
+        }
+        .notif-header span { font-size: 0.82rem; font-weight: 800; color: #1A1A2E; }
+        .notif-mark-all {
+            background: none; border: none;
+            font-size: 0.65rem; font-weight: 700; color: #2E7D32;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            padding: 4px 8px; border-radius: 6px; transition: background 0.2s;
+        }
+        .notif-mark-all:hover { background: #E8F5E9; }
+        .notif-list { max-height: 280px; overflow-y: auto; }
+        .notif-empty {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 2rem; color: #7B8FA1;
+            font-size: 0.8rem; font-weight: 600;
+        }
+        .notif-empty svg { width: 28px; height: 28px; opacity: 0.3; }
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 0.875rem 1.25rem; border-bottom: 1px solid #F7F9FA;
+            cursor: pointer; transition: background 0.15s; position: relative;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #FAFBFC; }
+        .notif-item.unread { background: #F0FBF0; }
+        .notif-icon-wrap {
+            width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .notif-icon-wrap.pending { background: #FFF3E0; }
+        .notif-icon-wrap.urgent  { background: #FFEBEE; }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-title { font-size: 0.78rem; font-weight: 700; color: #1A1A2E; margin-bottom: 2px; }
+        .notif-sub   { font-size: 0.7rem; color: #7B8FA1; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notif-time  { font-size: 0.65rem; color: #7B8FA1; }
+        .notif-unread-dot {
+            width: 7px; height: 7px; background: #2E7D32;
+            border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+        }
+        .notif-stat-pill {
+            font-size: 0.55rem; font-weight: 800; padding: 2px 7px;
+            border-radius: 20px; text-transform: uppercase;
+        }
+        .notif-stat-pill.pending { background: #FFF3E0; color: #E65100; }
+        .notif-stat-pill.urgent  { background: #FFEBEE; color: #C62828; }
+        .notif-footer { padding: 0.625rem 1.25rem; border-top: 1px solid #E8EAED; }
+        .notif-footer a {
+            font-size: 0.72rem; font-weight: 700;
+            color: #2E7D32; text-decoration: none;
+        }
+        .notif-footer a:hover { text-decoration: underline; }
+        @media (max-width: 600px) {
+            .notif-dropdown { width: 290px; right: -40px; }
+        }
+        @media (max-width: 480px) {
+            .notif-dropdown { width: 270px; right: -60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark"><i data-lucide="leaf"></i></div>
+            <div class="sidebar-header-info">
+                <h1>EcoMate</h1>
+                <span>LGU Administrator</span>
+            </div>
+        </div>
+        <nav class="admin-nav">
+            <a href="admindashboard.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+            <a href="adminreportmngt.html"><i data-lucide="clipboard-list"></i><span>Reports</span></a>
+            <a href="adminschedfleet.html"><i data-lucide="truck"></i><span>Schedule & Fleet</span></a>
+            <a href="admineducational.html" class="active"><i data-lucide="book-open"></i><span>Educational</span></a>
+            <a href="adminusermngt.html"><i data-lucide="users"></i><span>Users</span></a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+        <!-- HEADER -->
+        <header class="top-header">
+            <button class="hamburger" id="hamburgerBtn"><i data-lucide="menu"></i></button>
+            <div class="header-title">
+                <h2>Educational Content</h2>
+                <p id="liveDateTime">Loading...</p>
+            </div>
+            <div class="header-actions">
+
+                <!-- ── NOTIFICATION BELL ── -->
+                <div class="icon-box notif-wrapper" id="notif-bell">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot" id="notifDot" style="display:none;"></div>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i data-lucide="inbox"></i>
+                                <span>No new notifications</span>
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="adminreportmngt.html">View all reports →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatarBtn"><i data-lucide="user-circle"></i></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-info">
+                            <span>Signed in as</span>
+                            <strong id="adminEmail">Admin</strong>
+                        </div>
+                        <button class="dropdown-item danger" id="dropLogout"><i data-lucide="log-out"></i> Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- METRICS -->
+        <div class="edu-metrics-row">
+            <div class="edu-metric-card emc-blue">
+                <div class="emc-icon"><i data-lucide="file-text"></i></div>
+                <span>TOTAL CONTENT</span>
+                <h3 id="m-total">—</h3>
+            </div>
+            <div class="edu-metric-card emc-green">
+                <div class="emc-icon"><i data-lucide="check-circle"></i></div>
+                <span>PUBLISHED</span>
+                <h3 id="m-published">—</h3>
+            </div>
+            <div class="edu-metric-card emc-grey">
+                <div class="emc-icon"><i data-lucide="file"></i></div>
+                <span>DRAFTS</span>
+                <h3 id="m-drafts">—</h3>
+            </div>
+        </div>
+
+        <!-- TABLE CARD -->
+        <div class="edu-table-card">
+            <div class="edu-table-header">
+                <h3>Content Inventory</h3>
+                <button class="btn-add-content-solid" id="btnAddContent">
+                    <i data-lucide="plus" style="width:16px;"></i> Add Content
+                </button>
+            </div>
+
+            <!-- FILTER BAR -->
+            <div class="edu-filter-bar">
+                <div class="edu-search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchInput" placeholder="Search title or category...">
+                </div>
+                <div class="edu-filter-group">
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="Recycling">Recycling</option>
+                        <option value="Safety">Safety</option>
+                        <option value="Ecology">Ecology</option>
+                        <option value="Composting">Composting</option>
+                        <option value="Waste Segregation">Waste Segregation</option>
+                        <option value="General">General</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- LOADING -->
+            <div id="table-loading" class="loading-state">
+                <div class="spinner"></div><span>Loading content...</span>
+            </div>
+
+            <!-- EMPTY -->
+            <div id="table-empty" class="empty-state" style="display:none;">
+                <i data-lucide="inbox"></i><span>No content found</span>
+            </div>
+
+            <!-- DESKTOP TABLE -->
+            <div class="edu-table-wrap" id="tableWrap" style="display:none;">
+                <table class="edu-grid-table">
+                    <thead>
+                        <tr>
+                            <th>TITLE</th>
+                            <th>CATEGORY</th>
+                            <th>DATE CREATED</th>
+                            <th>STATUS</th>
+                            <th style="text-align:right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contentBody"></tbody>
+                </table>
+            </div>
+
+            <!-- MOBILE CARDS -->
+            <div class="edu-mobile-cards" id="mobileCards"></div>
+
+            <!-- PAGINATION -->
+            <div class="rm-pagination" id="paginationBar" style="display:none;">
+                <p id="paginationInfo">Showing 0 results</p>
+                <div class="pager-controls" id="pagerControls"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADD / EDIT MODAL -->
+    <div class="modal-overlay" id="contentModal" style="display:none;">
+        <div class="modal-card modal-card-lg">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Content</h3>
+                <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="edu-form-grid">
+                    <div class="form-field full">
+                        <label>Title</label>
+                        <input type="text" id="f-title" placeholder="e.g. 101 Guide to Home Composting">
+                    </div>
+                    <div class="form-field">
+                        <label>Category</label>
+                        <select id="f-category">
+                            <option value="">Select category...</option>
+                            <option value="Recycling">Recycling</option>
+                            <option value="Safety">Safety</option>
+                            <option value="Ecology">Ecology</option>
+                            <option value="Composting">Composting</option>
+                            <option value="Waste Segregation">Waste Segregation</option>
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Status</label>
+                        <select id="f-status">
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
+                    <div class="form-field full">
+                        <label>Description / Body</label>
+                        <textarea id="f-body" rows="5" placeholder="Write the content here..."></textarea>
+                    </div>
+                    <div class="form-field full">
+                        <label>Image URL <span class="opt-label">Optional</span></label>
+                        <input type="text" id="f-image" placeholder="https://...">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-resolve" id="btnSave">Save Content</button>
+                <button class="btn-modal-delete" id="btnDelete" style="display:none;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const app  = initializeApp({
+            apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain:        "ecomate-4c54f.firebaseapp.com",
+            projectId:         "ecomate-4c54f",
+            storageBucket:     "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10"
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        lucide.createIcons();
+        document.body.style.visibility = 'hidden';
+
+        // ── AUTH GUARD ─────────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const snap = await getDoc(doc(db, 'users', user.uid));
+            if (!snap.exists() || snap.data().role !== 'admin') {
+                await signOut(auth); window.location.href = 'login.html'; return;
+            }
+            document.body.style.visibility = 'visible';
+            document.getElementById('adminEmail').textContent = user.email || 'Admin';
+            initPage();
+        });
+
+        // ── AVATAR DROPDOWN ────────────────────────────────────────────────
+        document.getElementById('avatarBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('avatarDropdown').classList.toggle('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+            lucide.createIcons();
+        });
+        document.addEventListener('click', () => {
+            document.getElementById('avatarDropdown').classList.remove('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+        });
+        document.getElementById('dropLogout').addEventListener('click', async () => {
+            await signOut(auth); window.location.href = 'login.html';
+        });
+
+        // ── HAMBURGER ──────────────────────────────────────────────────────
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('hamburgerBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('open'); overlay.classList.toggle('show');
+            lucide.createIcons();
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        });
+        sidebar.querySelectorAll('.admin-nav a').forEach(l => l.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        }));
+
+        // ── DATE/TIME ──────────────────────────────────────────────────────
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('liveDateTime').textContent =
+                now.toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                + ' · ' + now.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+        }
+        updateDateTime(); setInterval(updateDateTime, 60000);
+
+        // ── HELPERS ────────────────────────────────────────────────────────
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function formatTimeAgo(date) {
+            const s = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (s < 60)    return `${s}s ago`;
+            if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+            if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+            return `${Math.floor(s/86400)}d ago`;
+        }
+
+        const CATEGORY_COLORS = {
+            'Recycling':        { bg:'#E1F5FE', color:'#0277BD' },
+            'Safety':           { bg:'#FFF3E0', color:'#E65100' },
+            'Ecology':          { bg:'#E3F2FD', color:'#1565C0' },
+            'Composting':       { bg:'#E8F5E9', color:'#2E7D32' },
+            'Waste Segregation':{ bg:'#F3E5F5', color:'#7B1FA2' },
+            'General':          { bg:'#EEEEEE', color:'#424242' },
+        };
+        const ICON_MAP = {
+            'Recycling':'recycle','Safety':'alert-triangle',
+            'Ecology':'droplet','Composting':'leaf',
+            'Waste Segregation':'trash-2','General':'book-open',
+        };
+        const ICON_COLORS = {
+            'Recycling':'blue','Safety':'yellow','Ecology':'blue',
+            'Composting':'green','Waste Segregation':'purple','General':'green',
+        };
+        function catStyle(cat) {
+            return CATEGORY_COLORS[cat] || { bg:'#EEEEEE', color:'#424242' };
+        }
+
+        // ── MAIN ───────────────────────────────────────────────────────────
+        function initPage() {
+            const ROWS_PER_PAGE = 8;
+            let allContent  = [];
+            let allReportDocs = [];
+            let filtered    = [];
+            let currentPage = 1;
+            let editingId   = null;
+
+            // ── NOTIFICATION STATE ────────────────────────────────────────
+            let dismissedReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('edu_dismissedReportIds') || '[]')
+            );
+            let seenReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('edu_seenReportIds') || '[]')
+            );
+
+            function saveDismissed() {
+                sessionStorage.setItem('edu_dismissedReportIds', JSON.stringify([...dismissedReportIds]));
+            }
+            function saveSeen() {
+                sessionStorage.setItem('edu_seenReportIds', JSON.stringify([...seenReportIds]));
+            }
+            function markNotifsSeen() {
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveSeen();
+            }
+
+            // ── BELL TOGGLE ───────────────────────────────────────────────
+            const notifBell     = document.getElementById('notif-bell');
+            const notifDropdown = document.getElementById('notifDropdown');
+
+            notifBell.addEventListener('click', e => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('open');
+                document.getElementById('avatarDropdown').classList.remove('open');
+                if (notifDropdown.classList.contains('open')) {
+                    document.getElementById('notifDot').style.display = 'none';
+                    markNotifsSeen();
+                }
+                lucide.createIcons();
+            });
+            notifDropdown.addEventListener('click', e => e.stopPropagation());
+
+            // ── MARK ALL READ ─────────────────────────────────────────────
+            document.getElementById('markAllRead').addEventListener('click', e => {
+                e.stopPropagation();
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    dismissedReportIds.add(el.dataset.id);
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveDismissed(); saveSeen();
+                document.getElementById('notifDot').style.display = 'none';
+                document.getElementById('notifList').innerHTML = `
+                    <div class="notif-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No new notifications</span>
+                    </div>`;
+                lucide.createIcons();
+            });
+
+            // ── RENDER NOTIF LIST ─────────────────────────────────────────
+            function renderNotifList(reports) {
+                const listEl = document.getElementById('notifList');
+                if (!reports.length) {
+                    listEl.innerHTML = `
+                        <div class="notif-empty">
+                            <i data-lucide="inbox"></i>
+                            <span>No new notifications</span>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+                listEl.innerHTML = reports.map(r => {
+                    const ts     = r.timestamp?.toDate?.();
+                    const ago    = ts ? formatTimeAgo(ts) : '—';
+                    const isNew  = !seenReportIds.has(r.id);
+                    const urgCls = r.status === 'urgent' ? 'urgent' : 'pending';
+                    const icon   = r.status === 'urgent' ? '🚨' : '📋';
+                    return `
+                        <div class="notif-item ${isNew ? 'unread' : ''}" data-id="${r.id}">
+                            <div class="notif-icon-wrap ${urgCls}">${icon}</div>
+                            <div class="notif-content">
+                                <p class="notif-title">${r.wasteType || 'New Report'} · <span class="notif-stat-pill ${urgCls}">${(r.status||'pending').toUpperCase()}</span></p>
+                                <p class="notif-sub">${r.location || '—'} · ${r.reporterName || '—'}</p>
+                                <p class="notif-time">${ago}</p>
+                            </div>
+                            ${isNew ? '<div class="notif-unread-dot"></div>' : ''}
+                        </div>`;
+                }).join('');
+                lucide.createIcons();
+
+                listEl.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    el.addEventListener('click', e => {
+                        e.stopPropagation();
+                        seenReportIds.add(el.dataset.id);
+                        saveSeen();
+                        el.classList.remove('unread');
+                        el.querySelector('.notif-unread-dot')?.remove();
+                        notifDropdown.classList.remove('open');
+                    });
+                });
+            }
+
+            // ── LIVE REPORTS LISTENER ─────────────────────────────────────
+            onSnapshot(collection(db, 'reports'), snap => {
+                allReportDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                const notifReports = allReportDocs
+                    .filter(d => (d.status === 'pending' || d.status === 'urgent') && !dismissedReportIds.has(d.id))
+                    .sort((a, b) => (b.timestamp?.toDate?.() || new Date(0)) - (a.timestamp?.toDate?.() || new Date(0)))
+                    .slice(0, 20);
+
+                const unreadCount = notifReports.filter(r => !seenReportIds.has(r.id)).length;
+                document.getElementById('notifDot').style.display = unreadCount > 0 ? 'block' : 'none';
+                renderNotifList(notifReports);
+            });
+
+            // ── EDUCATIONAL CONTENT LISTENER ──────────────────────────────
+            onSnapshot(collection(db, 'educational'), (snap) => {
+                allContent = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) =>
+                        (b.createdAt?.toDate?.() || new Date(0)) -
+                        (a.createdAt?.toDate?.() || new Date(0))
+                    );
+
+                document.getElementById('m-total').textContent     = allContent.length;
+                document.getElementById('m-published').textContent = allContent.filter(c => c.status === 'published').length;
+                document.getElementById('m-drafts').textContent    = allContent.filter(c => c.status === 'draft').length;
+
+                applyFilters();
+            });
+
+            // ── FILTERS ───────────────────────────────────────────────────
+            function applyFilters() {
+                const search   = document.getElementById('searchInput').value.toLowerCase();
+                const category = document.getElementById('categoryFilter').value;
+                const status   = document.getElementById('statusFilter').value;
+
+                filtered = allContent.filter(c => {
+                    const matchCat    = category === 'all' || c.category === category;
+                    const matchStatus = status   === 'all' || c.status   === status;
+                    const matchSearch = !search  ||
+                        (c.title    || '').toLowerCase().includes(search) ||
+                        (c.category || '').toLowerCase().includes(search) ||
+                        (c.body     || '').toLowerCase().includes(search);
+                    return matchCat && matchStatus && matchSearch;
+                });
+
+                currentPage = 1;
+                renderTable();
+            }
+
+            document.getElementById('searchInput').addEventListener('input',    applyFilters);
+            document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change',   applyFilters);
+
+            // ── RENDER TABLE ──────────────────────────────────────────────
+            function renderTable() {
+                document.getElementById('table-loading').style.display = 'none';
+
+                if (!filtered.length) {
+                    document.getElementById('table-empty').style.display   = 'flex';
+                    document.getElementById('tableWrap').style.display     = 'none';
+                    document.getElementById('mobileCards').style.display   = 'none';
+                    document.getElementById('paginationBar').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('table-empty').style.display   = 'none';
+                document.getElementById('tableWrap').style.display      = '';
+                document.getElementById('mobileCards').style.display    = '';
+                document.getElementById('paginationBar').style.display  = 'flex';
+
+                const start    = (currentPage - 1) * ROWS_PER_PAGE;
+                const pageRows = filtered.slice(start, start + ROWS_PER_PAGE);
+                const total    = filtered.length;
+                const pages    = Math.ceil(total / ROWS_PER_PAGE);
+
+                document.getElementById('paginationInfo').textContent =
+                    `Showing ${start + 1}–${Math.min(start + ROWS_PER_PAGE, total)} of ${total} entries`;
+
+                // Pagination
+                const pager = document.getElementById('pagerControls');
+                pager.innerHTML = '';
+                const addBtn = (label, page, isActive, isDisabled) => {
+                    const btn = document.createElement('button');
+                    btn.innerHTML = label;
+                    if (isActive)   btn.classList.add('active');
+                    if (isDisabled) btn.disabled = true;
+                    btn.addEventListener('click', () => { currentPage = page; renderTable(); });
+                    pager.appendChild(btn);
+                };
+                addBtn('<i data-lucide="chevron-left" style="width:14px;height:14px;"></i>', currentPage-1, false, currentPage===1);
+                let startP = Math.max(1, currentPage-2), endP = Math.min(pages, startP+4);
+                if (endP - startP < 4) startP = Math.max(1, endP-4);
+                for (let i = startP; i <= endP; i++) addBtn(i, i, i===currentPage, false);
+                addBtn('<i data-lucide="chevron-right" style="width:14px;height:14px;"></i>', currentPage+1, false, currentPage===pages);
+
+                // Desktop table
+                const tbody = document.getElementById('contentBody');
+                tbody.innerHTML = '';
+                pageRows.forEach(c => {
+                    const ts      = c.createdAt?.toDate?.();
+                    const dateStr = ts ? ts.toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : '—';
+                    const yearStr = ts ? ts.getFullYear() : '';
+                    const cs      = catStyle(c.category);
+                    const icon    = ICON_MAP[c.category] || 'book-open';
+                    const iconCls = ICON_COLORS[c.category] || 'green';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="td-title-col">
+                                <div class="t-icon ${iconCls}"><i data-lucide="${icon}"></i></div>
+                                <div class="td-title-info">
+                                    <h5>${c.title || '—'}</h5>
+                                    <p>${c.category || '—'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tag-pill" style="background:${cs.bg}; color:${cs.color};">
+                                ${(c.category || '—').toUpperCase()}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dt-date">${dateStr}</div>
+                            <div class="dt-year">${yearStr}</div>
+                        </td>
+                        <td>
+                            <span class="stat-tag ${c.status === 'published' ? 'published' : 'draft'}">
+                                ${c.status === 'published' ? '<i data-lucide="check" style="width:10px;"></i> Published' : 'Draft'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-btns" style="justify-content:flex-end;">
+                                <button class="btn-edit" data-id="${c.id}" title="Edit">
+                                    <i data-lucide="edit-3" style="width:16px;"></i>
+                                </button>
+                                <button class="btn-del" data-id="${c.id}" title="Delete">
+                                    <i data-lucide="trash-2" style="width:16px;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Mobile cards
+                const mc = document.getElementById('mobileCards');
+                mc.innerHTML = '';
+                pageRows.forEach(c => {
+                    const ts      = c.createdAt?.toDate?.();
+                    const dateStr = ts ? ts.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' }) : '—';
+                    const cs      = catStyle(c.category);
+                    const icon    = ICON_MAP[c.category] || 'book-open';
+                    const iconCls = ICON_COLORS[c.category] || 'green';
+
+                    const card = document.createElement('div');
+                    card.className = 'edu-mobile-card';
+                    card.innerHTML = `
+                        <div class="emc-top">
+                            <div class="t-icon ${iconCls}"><i data-lucide="${icon}"></i></div>
+                            <div class="emc-info">
+                                <div class="emc-title">${c.title || '—'}</div>
+                                <div class="emc-sub">${c.category || '—'} · ${dateStr}</div>
+                            </div>
+                            <span class="stat-tag ${c.status === 'published' ? 'published' : 'draft'}">
+                                ${c.status === 'published' ? 'Published' : 'Draft'}
+                            </span>
+                        </div>
+                        <div class="emc-bottom">
+                            <span class="tag-pill" style="background:${cs.bg}; color:${cs.color};">
+                                ${(c.category || '').toUpperCase()}
+                            </span>
+                            <div class="action-btns">
+                                <button class="btn-edit" data-id="${c.id}"><i data-lucide="edit-3" style="width:15px;"></i></button>
+                                <button class="btn-del"  data-id="${c.id}"><i data-lucide="trash-2" style="width:15px;"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    mc.appendChild(card);
+                });
+
+                lucide.createIcons();
+
+                // Edit buttons
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const c = allContent.find(x => x.id === btn.dataset.id);
+                        if (c) openModal(c);
+                    });
+                });
+
+                // Delete buttons
+                document.querySelectorAll('.btn-del').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (!confirm('Delete this content?')) return;
+                        await deleteDoc(doc(db, 'educational', btn.dataset.id));
+                        showToast('Content deleted');
+                    });
+                });
+            }
+
+            // ── MODAL ─────────────────────────────────────────────────────
+            function openModal(content = null) {
+                editingId = content ? content.id : null;
+                document.getElementById('modalTitle').textContent    = content ? 'Edit Content' : 'Add Content';
+                document.getElementById('f-title').value    = content?.title    || '';
+                document.getElementById('f-category').value = content?.category || '';
+                document.getElementById('f-status').value   = content?.status   || 'draft';
+                document.getElementById('f-body').value     = content?.body     || '';
+                document.getElementById('f-image').value    = content?.imageUrl || '';
+                document.getElementById('btnDelete').style.display = content ? 'block' : 'none';
+                document.getElementById('contentModal').style.display = 'flex';
+                lucide.createIcons();
+            }
+
+            document.getElementById('btnAddContent').addEventListener('click', () => openModal());
+            document.getElementById('modalClose').addEventListener('click', () =>
+                document.getElementById('contentModal').style.display = 'none');
+            document.getElementById('contentModal').addEventListener('click', (e) => {
+                if (e.target.id === 'contentModal')
+                    document.getElementById('contentModal').style.display = 'none';
+            });
+
+            document.getElementById('btnSave').addEventListener('click', async () => {
+                const title    = document.getElementById('f-title').value.trim();
+                const category = document.getElementById('f-category').value;
+                const status   = document.getElementById('f-status').value;
+                const body     = document.getElementById('f-body').value.trim();
+                const imageUrl = document.getElementById('f-image').value.trim();
+
+                if (!title)    { showToast('Title is required'); return; }
+                if (!category) { showToast('Please select a category'); return; }
+
+                const data = { title, category, status, body, imageUrl };
+
+                if (editingId) {
+                    await updateDoc(doc(db, 'educational', editingId), data);
+                    showToast('Content updated ✓');
+                } else {
+                    await addDoc(collection(db, 'educational'), { ...data, createdAt: serverTimestamp() });
+                    showToast('Content added ✓');
+                }
+                document.getElementById('contentModal').style.display = 'none';
+            });
+
+            document.getElementById('btnDelete').addEventListener('click', async () => {
+                if (!editingId) return;
+                if (!confirm('Delete this content?')) return;
+                await deleteDoc(doc(db, 'educational', editingId));
+                document.getElementById('contentModal').style.display = 'none';
+                showToast('Content deleted');
+            });
+
+        } // end initPage
+    </script> 
+</body>
+</html>

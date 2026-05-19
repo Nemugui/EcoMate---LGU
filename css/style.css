@@ -1,0 +1,561 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-green: #2E7D32;
+    --accent-green: #4CAF50;
+    --light-green: #E8F5E9;
+    --next-bg: #C8E6C9;
+    --text-dark: #1B5E20;
+    --text-muted: #546E7A;
+    --bg-white: #FFFFFF;
+    --bg-gradient: radial-gradient(circle at top left, #F1F8F1 0%, #FFFFFF 100%);
+    --font-main: 'Outfit', sans-serif;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --resident-peach: #FFDCA9;
+
+    --header-h: 10vh;
+    --footer-h: 10vh;
+    --main-h: calc(100vh - var(--header-h) - var(--footer-h));
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background: var(--bg-gradient);
+    color: var(--text-dark);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+    background-color: var(--primary-green);
+    color: white;
+    height: var(--header-h);
+    min-height: 50px;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+header h1 {
+    font-size: clamp(1rem, 3vh, 1.25rem);
+    font-weight: 600;
+}
+
+.help-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* ── Main ── */
+main {
+    height: var(--main-h);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem 2rem;
+    animation: fadeIn 0.8s ease-out;
+    overflow: hidden;
+}
+
+.onboarding-content {
+    max-width: 900px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-container {
+    margin-bottom: 2vh;
+}
+
+.logo-container img {
+    max-height: 25vh;
+    width: auto;
+}
+
+.onboarding-title {
+    font-size: clamp(1.5rem, 5vh, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 1vh;
+    color: var(--text-dark);
+    line-height: 1.1;
+}
+
+.onboarding-title .highlight {
+    color: #455A64;
+}
+
+.onboarding-subtitle {
+    font-size: clamp(0.85rem, 1.8vh, 1.1rem);
+    color: var(--text-muted);
+    margin-bottom: 2vh;
+    line-height: 1.4;
+    max-width: 500px;
+}
+
+.onboarding-subtitle.small {
+    margin-bottom: 1.5vh;
+}
+
+/* ── Badge ── */
+.badge-blue {
+    background: #E3F2FD;
+    color: #1E88E5;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 1vh;
+    display: inline-block;
+}
+
+/* ── AI Vision Layout ── */
+.ai-vision-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3vw;
+    width: 100%;
+    margin-bottom: 2vh;
+    height: 50vh;
+    min-height: 0;          /* let flex children shrink properly */
+}
+
+.ai-text-content {
+    flex: 1;
+    text-align: left;
+    min-width: 0;           /* prevent text blowout in flex */
+}
+
+.phone-mockup-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+}
+
+.phone-mockup {
+    height: 100%;
+    max-height: 100%;       /* respect the 50vh parent cap */
+    aspect-ratio: 9/18;
+    background: #000;
+    border-radius: 30px;
+    border: 6px solid #333;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+}
+
+.phone-mockup img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Scanning circle (kept as-is) ── */
+.scanning-circle {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    aspect-ratio: 1;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 50%;
+}
+
+/* ── Map Visualization ── */
+.map-visualization {
+    width: 100%;
+    max-width: 800px;
+    height: 40vh;
+    background: url('../images/map_bg.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 2vh;
+}
+
+/* ── Info & Status Cards ── */
+.info-cards-grid,
+.status-cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+}
+
+.status-cards-container {
+    grid-template-columns: 1fr 1fr;
+    max-width: 800px;
+}
+
+.info-card,
+.status-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    min-width: 0;           /* prevent card text from overflowing grid */
+}
+
+.info-card-icon {
+    margin-bottom: 0.5rem;
+    color: var(--primary-green);
+}
+
+.info-card-title {
+    font-size: clamp(0.8rem, 1.5vh, 1rem);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-dark);
+}
+
+.info-card-desc {
+    font-size: clamp(0.7rem, 1.3vh, 0.8rem);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.status-card { padding: 0.75rem 1.25rem; }
+.status-card.gray  { background: #EEEEEE; }
+.status-card.peach { background: #FFE0B2; }
+
+/* ── Role Selection ── */
+.role-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5vw;
+    width: 100%;
+    margin-top: 1vh;
+}
+
+.role-card {
+    background: #F5F5F5;
+    padding: 1.5rem 1rem;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    min-width: 0;
+}
+
+.role-card.active { background: var(--resident-peach); }
+
+.role-icon-container {
+    width: clamp(44px, 8vh, 60px);
+    height: clamp(44px, 8vh, 60px);
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: #333;
+    flex-shrink: 0;
+}
+
+.role-title { font-size: clamp(0.95rem, 2vh, 1.25rem); font-weight: 600; margin-bottom: 0.5rem; }
+.role-desc  { font-size: clamp(0.65rem, 1.3vh, 0.75rem); color: #757575; line-height: 1.4; }
+
+/* ── Footer / Navigation ── */
+footer {
+    background: white;
+    height: var(--footer-h);
+    min-height: 80px;
+    padding: 0 2rem;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+    flex-shrink: 0;
+}
+
+.footer-inner {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-main);
+    color: #9E9E9E;
+}
+
+.btn-icon {
+    width: clamp(36px, 5vh, 44px);
+    height: clamp(36px, 5vh, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-label {
+    font-size: clamp(0.55rem, 1.2vh, 0.65rem);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.next-btn .btn-icon {
+    background: var(--next-bg);
+    border-radius: 50%;
+}
+
+.btn-get-started,
+.btn-get-started-nav {
+    background-color: var(--primary-green);
+    color: white;
+    padding: 0.8rem 2.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+    transition: var(--transition);
+}
+
+.btn-get-started-nav {
+    padding: 0.7rem 2rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Map overlay & route animation ── */
+.map-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.map-route {
+    fill: none;
+    stroke: #90CAF9;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 0 15;
+    animation: dash 10s linear infinite;
+}
+
+/* ── Animations ── */
+@keyframes dash { to { stroke-dashoffset: -100; } }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   (design unchanged — layout adapts only)
+══════════════════════════════════════════ */
+
+/* ── Tablet landscape & small desktop (≤ 900px) ── */
+@media (max-width: 900px) {
+    .role-selection-grid {
+        gap: 1rem;
+    }
+    .role-card {
+        padding: 1rem 0.75rem;
+        border-radius: 20px;
+    }
+    .info-cards-grid {
+        gap: 0.75rem;
+    }
+}
+
+/* ── Tablet portrait (≤ 800px) ── */
+@media (max-width: 800px) {
+    .ai-vision-layout {
+        flex-direction: column;
+        height: auto;
+        gap: 1.5vh;
+        margin-bottom: 1.5vh;
+        overflow: visible;
+    }
+
+    .ai-text-content {
+        text-align: center;
+        flex: none;             /* don't stretch — take only what text needs */
+    }
+
+    /* hide the long subtitle and avatar row to free vertical space */
+    .ai-text-content .onboarding-subtitle,
+    .ai-text-content > div[style] {
+        display: none;
+    }
+
+    .phone-mockup-wrapper {
+        flex: none;
+        height: 30vh;
+        width: 100%;
+    }
+
+    .phone-mockup {
+        height: 100%;
+    }
+
+    /* shrink info cards so everything still fits */
+    .info-cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+
+    .info-card {
+        padding: 0.75rem;
+    }
+
+    .info-card-desc {
+        display: none;          /* title + icon only on tablet to save height */
+    }
+
+    .role-selection-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .role-title { font-size: 0.9rem; }
+    .role-desc  { font-size: 0.65rem; }
+}
+
+/* ── Mobile (≤ 600px) ── */
+@media (max-width: 600px) {
+    main {
+        padding: 0.5rem 1rem;
+    }
+
+    .onboarding-content {
+        justify-content: flex-start;
+        padding-top: 0.5vh;
+        gap: 0;
+    }
+
+    .ai-vision-layout {
+        gap: 1vh;
+        margin-bottom: 1vh;
+    }
+
+    /* title only — subtitle and avatars already hidden at 800px */
+    .onboarding-title {
+        font-size: clamp(1.1rem, 3.5vh, 1.6rem);
+        margin-bottom: 0.5vh;
+    }
+
+    /* phone mockup: enough to be clearly visible */
+    .phone-mockup-wrapper {
+        height: 28vh;
+    }
+
+    /* info cards: single column, compact */
+    .info-cards-grid,
+    .status-cards-container {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .info-card {
+        padding: 0.6rem 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-radius: 12px;
+    }
+
+    .info-card-icon {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .info-card-title {
+        margin-bottom: 0;
+    }
+
+    /* roles: two columns */
+    .role-selection-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    /* map: shorter */
+    .map-visualization {
+        height: 26vh;
+        border-radius: 20px;
+    }
+
+    /* footer labels hidden */
+    .nav-label {
+        display: none;
+    }
+
+    footer {
+        padding: 0 1.25rem;
+    }
+}
+
+/* ── Very small phones (≤ 380px) ── */
+@media (max-width: 380px) {
+    .role-selection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .role-card {
+        flex-direction: row;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 15px;
+        text-align: left;
+    }
+
+    .role-icon-container {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .info-card-desc {
+        display: none; /* too cramped — title only */
+    }
+}

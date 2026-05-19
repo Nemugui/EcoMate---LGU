@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule & Fleet - EcoMate Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --accent-green: #2E7D32;
+            --dark-green:   #1B5E20;
+            --light-green:  #E8F5E9;
+            --admin-bg:     #F4F6F8;
+            --white:        #FFFFFF;
+            --border:       #E8EAED;
+            --text-primary: #1A1A2E;
+            --text-muted:   #7B8FA1;
+            --shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
+            --shadow-md:    0 4px 16px rgba(0,0,0,0.10);
+            --radius-lg:    16px;
+            --warn:         #FFF3E0;
+            --warn-text:    #E65100;
+            --info:         #E3F2FD;
+            --info-text:    #0277BD;
+            --sidebar-w:    240px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--admin-bg);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 99;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        .admin-sidebar {
+            width: var(--sidebar-w);
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+        }
+
+        .sidebar-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+        .logo-mark {
+            width: 36px; height: 36px;
+            background: var(--accent-green);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+        .logo-mark svg { width: 18px; height: 18px; }
+        .sidebar-header-info h1 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .sidebar-header-info span { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
+
+        .admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .admin-nav a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.7rem 0.875rem;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.875rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .admin-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .admin-nav a:hover { background: var(--admin-bg); color: var(--text-primary); }
+        .admin-nav a.active { background: var(--light-green); color: var(--accent-green); }
+
+        .btn-new-dispatch {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--accent-green); color: white;
+            border: none; padding: 0.875rem;
+            border-radius: 12px; font-size: 0.875rem; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        .btn-new-dispatch svg { width: 16px; height: 16px; }
+        .btn-new-dispatch:hover { background: var(--dark-green); }
+
+        /* ── MAIN ── */
+        .admin-main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 1.5rem;
+            min-width: 0;
+        }
+        @media (max-width: 768px) { .admin-main { margin-left: 0; } }
+
+        /* ── HEADER ── */
+        .top-header {
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+        .hamburger {
+            display: none; background: none; border: none;
+            cursor: pointer; color: var(--text-primary);
+            padding: 4px;
+        }
+        .hamburger svg { width: 22px; height: 22px; }
+        @media (max-width: 768px) { .hamburger { display: flex; } }
+
+        .header-title { flex: 1; }
+        .header-title h2 { font-size: 1.1rem; font-weight: 800; }
+        .header-title p  { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .icon-box {
+            width: 38px; height: 38px;
+            background: var(--admin-bg); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            transition: background 0.2s;
+        }
+        .icon-box svg { width: 18px; height: 18px; color: var(--text-muted); }
+        .icon-box:hover { background: var(--border); }
+        .badge-dot {
+            width: 8px; height: 8px; background: #F44336;
+            border-radius: 50%; border: 2px solid white;
+            position: absolute; top: 6px; right: 6px;
+        }
+        .avatar-wrapper { position: relative; }
+        .avatar-circle {
+            width: 38px; height: 38px;
+            background: var(--light-green); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--accent-green);
+        }
+        .avatar-circle svg { width: 22px; height: 22px; }
+        .avatar-dropdown {
+            display: none; position: absolute; top: calc(100% + 8px); right: 0;
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: 12px; box-shadow: var(--shadow-md);
+            min-width: 200px; padding: 0.5rem; z-index: 200;
+        }
+        .avatar-dropdown.open { display: block; }
+        .dropdown-info { padding: 0.5rem 0.75rem 0.75rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+        .dropdown-info span { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .dropdown-info strong { display: block; font-size: 0.82rem; color: var(--text-primary); margin-top: 2px; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; background: none; border: none;
+            padding: 0.6rem 0.75rem; border-radius: 8px;
+            font-size: 0.82rem; font-weight: 600; font-family: 'DM Sans', sans-serif;
+            color: var(--text-primary); cursor: pointer; transition: background 0.2s;
+        }
+        .dropdown-item svg { width: 15px; height: 15px; }
+        .dropdown-item:hover { background: var(--admin-bg); }
+        .dropdown-item.danger { color: #C62828; }
+        .dropdown-item.danger:hover { background: #FFEBEE; }
+
+        /* ── NOTIFICATION DROPDOWN ── */
+        .notif-wrapper { position: relative; }
+        .notif-dropdown {
+            display: none;
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: var(--shadow-md);
+            width: 320px; z-index: 250; overflow: hidden;
+        }
+        .notif-dropdown.open { display: block; }
+        .notif-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .notif-header span { font-size: 0.82rem; font-weight: 800; color: var(--text-primary); }
+        .notif-mark-all {
+            background: none; border: none;
+            font-size: 0.65rem; font-weight: 700; color: var(--accent-green);
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            padding: 4px 8px; border-radius: 6px; transition: background 0.2s;
+        }
+        .notif-mark-all:hover { background: var(--light-green); }
+        .notif-list { max-height: 280px; overflow-y: auto; }
+        .notif-empty {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 2rem; color: var(--text-muted);
+            font-size: 0.8rem; font-weight: 600;
+        }
+        .notif-empty svg { width: 28px; height: 28px; opacity: 0.3; }
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 0.875rem 1.25rem; border-bottom: 1px solid #F7F9FA;
+            cursor: pointer; transition: background 0.15s; position: relative;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #FAFBFC; }
+        .notif-item.unread { background: #F0FBF0; }
+        .notif-icon-wrap {
+            width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .notif-icon-wrap.pending  { background: var(--warn); }
+        .notif-icon-wrap.urgent   { background: #FFEBEE; }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-title { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .notif-sub   { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notif-time  { font-size: 0.65rem; color: var(--text-muted); }
+        .notif-unread-dot {
+            width: 7px; height: 7px; background: var(--accent-green);
+            border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+        }
+        .stat-pill {
+            font-size: 0.55rem; font-weight: 800; padding: 2px 7px;
+            border-radius: 20px; text-transform: uppercase;
+        }
+        .stat-pill.pending  { background: var(--warn);        color: var(--warn-text); }
+        .stat-pill.urgent   { background: #FFEBEE;            color: #C62828; }
+        .stat-pill.resolved { background: var(--light-green); color: var(--dark-green); }
+        .notif-footer { padding: 0.625rem 1.25rem; border-top: 1px solid var(--border); }
+        .notif-footer a {
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--accent-green); text-decoration: none;
+        }
+        .notif-footer a:hover { text-decoration: underline; }
+
+        /* ── METRICS ── */
+        .sched-metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+        @media (max-width: 900px) { .sched-metrics-row { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px)  { .sched-metrics-row { gap: 0.625rem; } }
+
+        .sched-metric-card {
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: var(--shadow-sm); border: 1px solid transparent;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .sched-metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .smc-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .smc-icon svg { width: 20px; height: 20px; }
+        .smc-body span { display: block; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; opacity: 0.75; }
+        .smc-body h3 { font-size: 1.75rem; font-weight: 800; line-height: 1; font-family: 'Space Mono', monospace; }
+        .smc-blue   { background: var(--info);        color: var(--info-text); border-color: #BBDEFB; }
+        .smc-blue   .smc-icon { background: rgba(2,119,189,0.12); color: var(--info-text); }
+        .smc-green  { background: var(--light-green); color: var(--dark-green); border-color: #C8E6C9; }
+        .smc-green  .smc-icon { background: rgba(46,125,50,0.12); color: var(--accent-green); }
+        .smc-orange { background: var(--warn);        color: var(--warn-text);  border-color: #FFE0B2; }
+        .smc-orange .smc-icon { background: rgba(230,81,0,0.12); color: var(--warn-text); }
+        .smc-grey   { background: #F5F5F5;            color: #424242;           border-color: #E0E0E0; }
+        .smc-grey   .smc-icon { background: rgba(66,66,66,0.08); color: #616161; }
+
+        /* ── FLEET GRID ── */
+        .fleet-grid {
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 1200px) { .fleet-grid { grid-template-columns: 1fr; } }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .section-header h3 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .live-monitor-pill {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--white); padding: 4px 12px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 800; color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .pulse-dot {
+            width: 7px; height: 7px; background: #4CAF50;
+            border-radius: 50%; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.5; transform: scale(1.3); }
+        }
+        .btn-add-sched-sm {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--accent-green); color: white; border: none;
+            padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 700;
+            font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-add-sched-sm svg { width: 14px; height: 14px; }
+        .btn-add-sched-sm:hover { background: var(--dark-green); }
+
+        /* ── LOADING / EMPTY ── */
+        .loading-state, .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.75rem; padding: 3rem 1rem;
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 600;
+        }
+        .empty-state svg { width: 36px; height: 36px; display: block; opacity: 0.35; }
+        .spinner {
+            width: 28px; height: 28px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── TRUCK CARDS ── */
+        .fleet-cards-container { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+
+        .truck-card {
+            background: var(--white); border-radius: var(--radius-lg);
+            padding: 1.25rem; border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); position: relative;
+            transition: border-color 0.2s;
+        }
+        .truck-card:hover { border-color: var(--accent-green); }
+
+        .truck-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+
+        .tc-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .tc-icon svg { width: 20px; height: 20px; }
+        .tc-icon.active { background: var(--light-green); color: var(--accent-green); }
+        .tc-icon.idle   { background: #F5F5F5;            color: #9E9E9E; }
+        .tc-icon.maint  { background: var(--warn);        color: var(--warn-text); }
+
+        .tc-info { flex: 1; min-width: 0; }
+        .tc-info h4 { font-size: 0.95rem; font-weight: 800; color: var(--text-primary); }
+        .tc-info p  { font-size: 0.7rem; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+
+        .tc-status {
+            font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.8px; padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
+        }
+        .tc-status.active { background: var(--light-green); color: var(--dark-green); }
+        .tc-status.idle   { background: #F5F5F5;            color: #616161; }
+        .tc-status.maint  { background: var(--warn);        color: var(--warn-text); }
+
+        .truck-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; }
+
+        .tc-route span { font-size: 0.58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+        .tc-route p    { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+        .tc-route p svg { width: 13px; height: 13px; color: var(--text-muted); }
+        .tc-idle-note { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+        .tc-fuel span { font-size: 0.58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; text-align: right; }
+        .fuel-bar { width: 72px; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .fuel-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+
+        /* ── ASSIGNED WORKER CHIP on truck card ── */
+        .tc-worker {
+            display: flex; align-items: center; gap: 5px;
+            margin-top: 0.6rem; padding-top: 0.6rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
+        }
+        .tc-worker svg { width: 12px; height: 12px; color: var(--accent-green); flex-shrink: 0; }
+        .tc-worker strong { color: var(--text-primary); font-weight: 700; }
+
+        .tc-edit-btn {
+            position: absolute; top: 1rem; right: 1rem;
+            width: 28px; height: 28px;
+            background: var(--admin-bg); border: none; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .tc-edit-btn svg { width: 13px; height: 13px; }
+        .tc-edit-btn:hover { background: var(--light-green); color: var(--accent-green); }
+
+        .btn-add-truck {
+            background: var(--accent-green); color: white; border: none;
+            padding: 0.875rem 1.25rem; border-radius: 50px;
+            font-weight: 700; font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            width: 100%; justify-content: center; transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(46,125,50,0.25);
+        }
+        .btn-add-truck svg { width: 16px; height: 16px; }
+        .btn-add-truck:hover { background: var(--dark-green); transform: translateY(-2px); }
+
+        /* ── SCHEDULE TABLE ── */
+        .schedule-list-card {
+            background: var(--white); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden;
+        }
+        .schedule-list-card .loading-state,
+        .schedule-list-card .empty-state { padding: 2.5rem; }
+
+        .sl-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        .sl-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .sl-table th {
+            background: #F8F9FA; padding: 0.875rem 1.25rem; text-align: left;
+            font-size: 0.6rem; font-weight: 800; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border);
+        }
+        .sl-table td { padding: 1.1rem 1.25rem; vertical-align: middle; border-bottom: 1px solid #F7F9FA; font-size: 0.85rem; }
+        .sl-table tr:last-child td { border-bottom: none; }
+        .sl-table tbody tr:hover td { background: #FAFBFC; }
+
+        .sl-route-col { display: flex; align-items: center; gap: 10px; }
+        .sl-icon {
+            width: 30px; height: 30px; background: var(--info); color: var(--info-text);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .sl-icon svg { width: 13px; height: 13px; }
+        .sl-route-col p { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+
+        /* ── assigned worker chip in schedule table ── */
+        .sl-worker-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--light-green); color: var(--dark-green);
+            font-size: 0.6rem; font-weight: 700; padding: 2px 8px;
+            border-radius: 20px; border: 1px solid #C8E6C9;
+            white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sl-worker-chip svg { width: 10px; height: 10px; flex-shrink: 0; }
+        .sl-no-worker { font-size: 0.72rem; color: var(--text-muted); font-style: italic; }
+
+        .sl-truck { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+
+        /* ── Date & Time — single-line style ── */
+        .sl-datetime {
+            font-size: 0.82rem; font-weight: 700; color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .sl-datetime-time {
+            font-weight: 500; color: var(--text-muted); font-size: 0.78rem;
+        }
+
+        .sl-pill {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap;
+        }
+        .sl-pill.ongoing   { background: var(--light-green); color: var(--dark-green); border: 1px solid #C8E6C9; }
+        .sl-pill.upcoming  { background: var(--info);        color: var(--info-text);  border: 1px solid #BBDEFB; }
+        .sl-pill.completed { background: #F5F5F5;            color: var(--text-muted); border: 1px solid #E0E0E0; }
+
+        .sl-edit-btn {
+            width: 28px; height: 28px; background: var(--admin-bg); border: none;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .sl-edit-btn svg { width: 13px; height: 13px; }
+        .sl-edit-btn:hover { background: var(--light-green); color: var(--accent-green); }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            display: none; align-items: center; justify-content: center;
+            z-index: 300; padding: 1rem;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal-card {
+            background: var(--white); border-radius: 20px;
+            width: 100%; max-width: 520px; max-height: 90vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn { from { transform: scale(0.94) translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.5rem 1.5rem 0;
+        }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 800; }
+        .modal-close {
+            width: 32px; height: 32px; background: var(--admin-bg); border: none;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); transition: all 0.2s;
+        }
+        .modal-close svg { width: 16px; height: 16px; }
+        .modal-close:hover { background: #FFEBEE; color: #C62828; }
+
+        .modal-body { padding: 1.25rem 1.5rem; }
+        .modal-footer { display: flex; gap: 0.75rem; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
+
+        /* ── FORM ── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+
+        .form-field label {
+            font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-field input,
+        .form-field select {
+            background: var(--admin-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.7rem 0.875rem;
+            font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
+            color: var(--text-primary); transition: border-color 0.2s; width: 100%;
+        }
+        .form-field input:focus,
+        .form-field select:focus { outline: none; border-color: var(--accent-green); background: var(--white); }
+
+        .auto-label {
+            display: inline-block; font-size: 0.55rem; font-weight: 700;
+            background: var(--light-green); color: var(--accent-green);
+            padding: 2px 8px; border-radius: 20px; margin-left: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;
+        }
+        .auto-id-display {
+            background: var(--admin-bg); border: 1px solid var(--border); border-radius: 10px;
+            padding: 0.7rem 0.875rem; font-size: 0.95rem; font-weight: 800;
+            font-family: 'Space Mono', monospace; color: var(--accent-green);
+            letter-spacing: 1px; cursor: default; user-select: none;
+        }
+
+        .worker-loading-hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+
+        /* ── assign worker highlight in schedule form ── */
+        .assign-worker-field {
+            background: var(--light-green); border: 1px solid #C8E6C9;
+            border-radius: 12px; padding: 0.875rem 1rem; margin-top: 0.25rem;
+        }
+        .assign-worker-field label {
+            color: var(--dark-green) !important;
+            font-size: 0.65rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+        }
+        .assign-worker-field label svg { width: 13px; height: 13px; }
+        .assign-worker-field select { background: var(--white) !important; border-color: #A5D6A7 !important; }
+        .assign-worker-hint { font-size: 0.62rem; color: var(--dark-green); margin-top: 4px; font-weight: 500; opacity: 0.8; }
+
+        .btn-primary {
+            flex: 1; background: var(--accent-green); color: white; border: none;
+            padding: 0.75rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--dark-green); }
+        .btn-danger {
+            flex: 0.55; background: #FFEBEE; color: #C62828; border: none;
+            padding: 0.75rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+        }
+        .btn-danger:hover { background: #FFCDD2; }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1A1A2E; color: white; padding: 0.75rem 1.5rem;
+            border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+            opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── MOBILE RESPONSIVE EXTRAS ── */
+        @media (max-width: 600px) {
+            .smc-body h3 { font-size: 1.4rem; }
+            .smc-icon { width: 36px; height: 36px; border-radius: 10px; }
+            .admin-main { padding: 1rem; }
+            .notif-dropdown { width: 290px; right: -40px; }
+        }
+        @media (max-width: 480px) {
+            .sched-metrics-row { gap: 0.5rem; }
+            .smc-body h3 { font-size: 1.25rem; }
+            .smc-body span { font-size: 0.52rem; }
+            .smc-icon { width: 32px; height: 32px; }
+            .sched-metric-card { padding: 0.875rem; gap: 8px; }
+            .notif-dropdown { width: 270px; right: -60px; }
+        }
+        @media (max-width: 390px) {
+            .sched-metrics-row { gap: 0.5rem; }
+            .smc-body h3 { font-size: 1.2rem; }
+            .smc-body span { font-size: 0.52rem; }
+            .smc-icon { width: 32px; height: 32px; }
+            .sched-metric-card { padding: 0.875rem; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark"><i data-lucide="leaf"></i></div>
+            <div class="sidebar-header-info">
+                <h1>EcoMate</h1>
+                <span>LGU ADMINISTRATOR</span>
+            </div>
+        </div>
+        <nav class="admin-nav">
+            <a href="admindashboard.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+            <a href="adminreportmngt.html"><i data-lucide="clipboard-list"></i><span>Reports</span></a>
+            <a href="adminschedfleet.html" class="active"><i data-lucide="truck"></i><span>Schedule &amp; Fleet</span></a>
+            <a href="admineducational.html"><i data-lucide="book-open"></i><span>Educational</span></a>
+            <a href="adminusermngt.html"><i data-lucide="users"></i><span>Users</span></a>
+        </nav>
+        <button class="btn-new-dispatch" id="newDispatchBtn">
+            <i data-lucide="plus"></i> New Dispatch
+        </button>
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="top-header">
+            <button class="hamburger" id="hamburgerBtn"><i data-lucide="menu"></i></button>
+            <div class="header-title">
+                <h2>Schedule &amp; Fleet</h2>
+                <p id="liveDateTime">Loading...</p>
+            </div>
+            <div class="header-actions">
+
+                <!-- ── NOTIFICATION BELL ── -->
+                <div class="icon-box notif-wrapper" id="notif-bell">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot" id="notifDot" style="display:none;"></div>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i data-lucide="inbox"></i>
+                                <span>No new notifications</span>
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="adminreportmngt.html">View all reports →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatarBtn"><i data-lucide="user-circle"></i></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-info">
+                            <span>Signed in as</span>
+                            <strong id="adminEmail">Admin</strong>
+                        </div>
+                        <button class="dropdown-item danger" id="dropLogout"><i data-lucide="log-out"></i> Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- METRICS -->
+        <div class="sched-metrics-row">
+            <div class="sched-metric-card smc-blue">
+                <div class="smc-icon"><i data-lucide="truck"></i></div>
+                <div class="smc-body"><span>Total Trucks</span><h3 id="m-total-trucks">—</h3></div>
+            </div>
+            <div class="sched-metric-card smc-green">
+                <div class="smc-icon"><i data-lucide="check-circle"></i></div>
+                <div class="smc-body"><span>Active</span><h3 id="m-active-trucks">—</h3></div>
+            </div>
+            <div class="sched-metric-card smc-orange">
+                <div class="smc-icon"><i data-lucide="wrench"></i></div>
+                <div class="smc-body"><span>Maintenance</span><h3 id="m-maint-trucks">—</h3></div>
+            </div>
+            <div class="sched-metric-card smc-grey">
+                <div class="smc-icon"><i data-lucide="calendar"></i></div>
+                <div class="smc-body"><span>Scheduled Today</span><h3 id="m-today-sched">—</h3></div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="fleet-grid">
+
+            <!-- LEFT: Fleet -->
+            <div class="fleet-status-col">
+                <div class="section-header">
+                    <h3>Fleet Status</h3>
+                    <span class="live-monitor-pill"><span class="pulse-dot"></span> Live</span>
+                </div>
+                <div id="trucks-loading" class="loading-state"><div class="spinner"></div><span>Loading trucks…</span></div>
+                <div id="trucks-empty" class="empty-state" style="display:none;"><i data-lucide="truck"></i><span>No trucks found</span></div>
+                <div class="fleet-cards-container" id="fleetCards"></div>
+                <button class="btn-add-truck" id="btnAddTruck"><i data-lucide="plus"></i> Add Truck</button>
+            </div>
+
+            <!-- RIGHT: Schedule -->
+            <div class="schedule-list-col">
+                <div class="section-header">
+                    <h3>Schedule List</h3>
+                    <button class="btn-add-sched-sm" id="btnAddSchedule"><i data-lucide="plus"></i> Add Schedule</button>
+                </div>
+                <div class="schedule-list-card">
+                    <div id="sched-loading" class="loading-state"><div class="spinner"></div><span>Loading schedules…</span></div>
+                    <div id="sched-empty" class="empty-state" style="display:none;"><i data-lucide="calendar"></i><span>No schedules yet</span></div>
+                    <div class="sl-table-wrap" id="schedTableWrap" style="display:none;">
+                        <table class="sl-table">
+                            <thead>
+                                <tr>
+                                    <th>Route / Area</th>
+                                    <th>Truck</th>
+                                    <th>Assigned To</th>
+                                    <th>Date &amp; Time</th>
+                                   <th style="text-align: center;">Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ── TRUCK MODAL ── -->
+    <div class="modal-overlay" id="truckModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="truckModalTitle">Add Truck</h3>
+                <button class="modal-close" id="truckModalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+
+                    <div class="form-field">
+                        <label>Truck ID <span class="auto-label">Auto-generated</span></label>
+                        <div class="auto-id-display" id="f-truckIdDisplay">—</div>
+                        <input type="hidden" id="f-truckId">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Model / Name</label>
+                        <input type="text" id="f-truckModel" placeholder="e.g. Garbage Compactor XL">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Status</label>
+                        <select id="f-truckStatus">
+                            <option value="active">Active</option>
+                            <option value="idle">Idle</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Current Route / Location</label>
+                        <select id="f-truckRoute">
+                            <option value="">Select area…</option>
+                            <option>Alawihao</option><option>Awitan</option><option>Bagasbas</option>
+                            <option>Bibirao</option><option>Borabod</option><option>Calasgasan</option>
+                            <option>Camambugan</option><option>Cobangbang</option><option>Dogongan</option>
+                            <option>Gahonon</option><option>Gubat</option><option>Lag-on</option>
+                            <option>Magang</option><option>Mambalite</option><option>Mancruz</option>
+                            <option>Pamorangon</option><option>Barangay I</option><option>Barangay II</option>
+                            <option>Barangay III</option><option>Barangay IV</option><option>Barangay V</option>
+                            <option>Barangay VI</option><option>Barangay VII</option><option>Barangay VIII</option>
+                            <option>San Isidro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field full">
+                        <label>Assigned Worker</label>
+                        <select id="f-truckWorker">
+                            <option value="">Loading workers…</option>
+                        </select>
+                        <span class="worker-loading-hint" id="workerHint"></span>
+                    </div>
+
+                    <div class="form-field full">
+                        <label>Fuel Level (%)</label>
+                        <input type="number" id="f-truckFuel" min="0" max="100" placeholder="e.g. 75">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btnSaveTruck">Save Truck</button>
+                <button class="btn-danger" id="btnDeleteTruck" style="display:none;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SCHEDULE MODAL ── -->
+    <div class="modal-overlay" id="schedModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="schedModalTitle">Add Schedule</h3>
+                <button class="modal-close" id="schedModalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+
+                    <div class="form-field full">
+                        <label>Route / Area</label>
+                        <select id="f-schedRoute">
+                            <option value="">Select area…</option>
+                            <option>Alawihao</option><option>Awitan</option><option>Bagasbas</option>
+                            <option>Bibirao</option><option>Borabod</option><option>Calasgasan</option>
+                            <option>Camambugan</option><option>Cobangbang</option><option>Dogongan</option>
+                            <option>Gahonon</option><option>Gubat</option><option>Lag-on</option>
+                            <option>Magang</option><option>Mambalite</option><option>Mancruz</option>
+                            <option>Pamorangon</option><option>Barangay I</option><option>Barangay II</option>
+                            <option>Barangay III</option><option>Barangay IV</option><option>Barangay V</option>
+                            <option>Barangay VI</option><option>Barangay VII</option><option>Barangay VIII</option>
+                            <option>San Isidro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Assigned Truck</label>
+                        <select id="f-schedTruck"><option value="">Select truck…</option></select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Status</label>
+                        <select id="f-schedStatus">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Date</label>
+                        <input type="date" id="f-schedDate">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Start Time</label>
+                        <input type="time" id="f-schedStart">
+                    </div>
+
+                    <div class="form-field">
+                        <label>End Time</label>
+                        <input type="time" id="f-schedEnd">
+                    </div>
+
+                    <div class="form-field full">
+                        <label>Notes (optional)</label>
+                        <input type="text" id="f-schedNotes" placeholder="Any additional info…">
+                    </div>
+
+                    <!-- Assign To Worker -->
+                    <div class="form-field full assign-worker-field">
+                        <label>
+                            <i data-lucide="user-check"></i>
+                            Assign To (Worker)
+                        </label>
+                        <select id="f-schedWorker">
+                            <option value="">No worker assigned</option>
+                        </select>
+                        <span class="assign-worker-hint" id="schedWorkerHint">
+                            The selected worker will see this schedule on their dashboard.
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btnSaveSched">Save Schedule</button>
+                <button class="btn-danger" id="btnDeleteSched" style="display:none;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore, collection, doc, getDoc,
+            addDoc, updateDoc, deleteDoc,
+            onSnapshot, serverTimestamp, query, orderBy,
+            getDocs, where
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const app = initializeApp({
+            apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain:        "ecomate-4c54f.firebaseapp.com",
+            projectId:         "ecomate-4c54f",
+            storageBucket:     "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10"
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        lucide.createIcons();
+        document.body.style.visibility = 'hidden';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const snap = await getDoc(doc(db, 'users', user.uid));
+            if (!snap.exists() || snap.data().role !== 'admin') {
+                await signOut(auth); window.location.href = 'login.html'; return;
+            }
+            document.body.style.visibility = 'visible';
+            document.getElementById('adminEmail').textContent = user.email || 'Admin';
+            initPage();
+        });
+
+        // ── Avatar dropdown ──
+        document.getElementById('avatarBtn').addEventListener('click', e => {
+            e.stopPropagation();
+            document.getElementById('avatarDropdown').classList.toggle('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+            lucide.createIcons();
+        });
+        document.addEventListener('click', () => {
+            document.getElementById('avatarDropdown').classList.remove('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+        });
+        document.getElementById('dropLogout').addEventListener('click', async () => {
+            await signOut(auth); window.location.href = 'login.html';
+        });
+
+        // ── Sidebar / hamburger ──
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('hamburgerBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('open'); overlay.classList.toggle('show');
+            lucide.createIcons();
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        });
+        sidebar.querySelectorAll('.admin-nav a').forEach(l => l.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        }));
+
+        // ── Live date/time ──
+        function updateDateTime() {
+            document.getElementById('liveDateTime').textContent =
+                new Date().toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                + ' · ' + new Date().toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+        }
+        updateDateTime(); setInterval(updateDateTime, 60000);
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function openModal(id)  { document.getElementById(id).classList.add('show');    lucide.createIcons(); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        function fuelColor(pct) {
+            if (pct >= 60) return '#4CAF50';
+            if (pct >= 30) return '#FF9800';
+            return '#F44336';
+        }
+
+        function formatTime(t) {
+            if (!t) return '—';
+            const [h, m] = t.split(':').map(Number);
+            return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+        }
+
+        function formatTimeAgo(date) {
+            const s = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (s < 60)    return `${s}s ago`;
+            if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+            if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+            return `${Math.floor(s/86400)}d ago`;
+        }
+
+        function initPage() {
+            let allTrucks    = [];
+            let allSchedules = [];
+            let allWorkers   = [];
+            let allReportDocs = [];
+            let editingTruckId = null;
+            let editingSchedId = null;
+
+            // ── NOTIFICATION STATE ────────────────────────────────────────
+            let dismissedReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('sf_dismissedReportIds') || '[]')
+            );
+            let seenReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('sf_seenReportIds') || '[]')
+            );
+
+            function saveDismissed() {
+                sessionStorage.setItem('sf_dismissedReportIds', JSON.stringify([...dismissedReportIds]));
+            }
+            function saveSeen() {
+                sessionStorage.setItem('sf_seenReportIds', JSON.stringify([...seenReportIds]));
+            }
+            function markNotifsSeen() {
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveSeen();
+            }
+
+            // ── NOTIFICATION BELL TOGGLE ──────────────────────────────────
+            const notifBell     = document.getElementById('notif-bell');
+            const notifDropdown = document.getElementById('notifDropdown');
+
+            notifBell.addEventListener('click', e => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('open');
+                document.getElementById('avatarDropdown').classList.remove('open');
+                if (notifDropdown.classList.contains('open')) {
+                    document.getElementById('notifDot').style.display = 'none';
+                    markNotifsSeen();
+                }
+                lucide.createIcons();
+            });
+            // Prevent clicks inside dropdown from closing it
+            notifDropdown.addEventListener('click', e => e.stopPropagation());
+
+            // ── MARK ALL READ ─────────────────────────────────────────────
+            document.getElementById('markAllRead').addEventListener('click', e => {
+                e.stopPropagation();
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    dismissedReportIds.add(el.dataset.id);
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveDismissed(); saveSeen();
+                document.getElementById('notifDot').style.display = 'none';
+                document.getElementById('notifList').innerHTML = `
+                    <div class="notif-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No new notifications</span>
+                    </div>`;
+                lucide.createIcons();
+            });
+
+            // ── RENDER NOTIFICATION LIST ──────────────────────────────────
+            function renderNotifList(reports) {
+                const listEl = document.getElementById('notifList');
+                if (!reports.length) {
+                    listEl.innerHTML = `
+                        <div class="notif-empty">
+                            <i data-lucide="inbox"></i>
+                            <span>No new notifications</span>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+                listEl.innerHTML = reports.map(r => {
+                    const ts     = r.timestamp?.toDate?.();
+                    const ago    = ts ? formatTimeAgo(ts) : '—';
+                    const isNew  = !seenReportIds.has(r.id);
+                    const urgCls = r.status === 'urgent' ? 'urgent' : 'pending';
+                    const icon   = r.status === 'urgent' ? '🚨' : '📋';
+                    return `
+                        <div class="notif-item ${isNew ? 'unread' : ''}" data-id="${r.id}">
+                            <div class="notif-icon-wrap ${urgCls}">${icon}</div>
+                            <div class="notif-content">
+                                <p class="notif-title">${r.wasteType || 'New Report'} · <span class="stat-pill ${urgCls}">${(r.status||'pending').toUpperCase()}</span></p>
+                                <p class="notif-sub">${r.location || '—'} · ${r.reporterName || '—'}</p>
+                                <p class="notif-time">${ago}</p>
+                            </div>
+                            ${isNew ? '<div class="notif-unread-dot"></div>' : ''}
+                        </div>`;
+                }).join('');
+                lucide.createIcons();
+
+                // Click item → mark seen and close dropdown
+                listEl.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    el.addEventListener('click', e => {
+                        e.stopPropagation();
+                        seenReportIds.add(el.dataset.id);
+                        saveSeen();
+                        el.classList.remove('unread');
+                        el.querySelector('.notif-unread-dot')?.remove();
+                        notifDropdown.classList.remove('open');
+                    });
+                });
+            }
+
+            // ── LIVE REPORTS LISTENER (for notifications) ─────────────────
+            onSnapshot(collection(db, 'reports'), snap => {
+                allReportDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                const notifReports = allReportDocs
+                    .filter(d => (d.status === 'pending' || d.status === 'urgent') && !dismissedReportIds.has(d.id))
+                    .sort((a, b) => (b.timestamp?.toDate?.() || new Date(0)) - (a.timestamp?.toDate?.() || new Date(0)))
+                    .slice(0, 20);
+
+                const unreadCount = notifReports.filter(r => !seenReportIds.has(r.id)).length;
+                document.getElementById('notifDot').style.display = unreadCount > 0 ? 'block' : 'none';
+
+                renderNotifList(notifReports);
+            });
+
+            // ── LOAD ALL WORKERS ──────────────────────────────────────────
+            async function loadWorkers() {
+                try {
+                    const snap = await getDocs(
+                        query(collection(db, 'users'), where('role', '==', 'worker'))
+                    );
+                    allWorkers = snap.docs.map(d => ({
+                        uid:      d.id,
+                        fullName: d.data().fullName || d.data().email || d.id,
+                        email:    d.data().email || '',
+                    }));
+                } catch (err) {
+                    console.error('Failed to load workers:', err);
+                    allWorkers = [];
+                }
+            }
+
+            // ── POPULATE WORKER DROPDOWN (truck modal) ────────────────────
+            function populateWorkerDropdown(selectedUid = '') {
+                const sel  = document.getElementById('f-truckWorker');
+                const hint = document.getElementById('workerHint');
+                sel.innerHTML = '<option value="">No worker assigned</option>';
+                if (allWorkers.length === 0) {
+                    hint.textContent = 'No worker accounts found in the system.';
+                } else {
+                    hint.textContent = '';
+                    allWorkers.forEach(w => {
+                        const o = document.createElement('option');
+                        o.value = w.uid;
+                        o.textContent = w.fullName + (w.email ? ` — ${w.email}` : '');
+                        if (w.uid === selectedUid) o.selected = true;
+                        sel.appendChild(o);
+                    });
+                }
+            }
+
+            // ── POPULATE WORKER DROPDOWN (schedule modal) ─────────────────
+            function populateSchedWorkerDropdown(selectedUid = '') {
+                const sel  = document.getElementById('f-schedWorker');
+                const hint = document.getElementById('schedWorkerHint');
+                sel.innerHTML = '<option value="">No worker assigned</option>';
+                if (allWorkers.length === 0) {
+                    hint.textContent = 'No worker accounts found in the system.';
+                } else {
+                    hint.textContent = 'The selected worker will see this schedule on their dashboard.';
+                    allWorkers.forEach(w => {
+                        const o = document.createElement('option');
+                        o.value = w.uid;
+                        o.textContent = w.fullName + (w.email ? ` — ${w.email}` : '');
+                        if (w.uid === selectedUid) o.selected = true;
+                        sel.appendChild(o);
+                    });
+                }
+            }
+
+            // ── TRUCKS REALTIME ───────────────────────────────────────────
+            onSnapshot(collection(db, 'trucks'), snap => {
+                allTrucks = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a,b) => (a.truckId||'').localeCompare(b.truckId||''));
+
+                document.getElementById('m-total-trucks').textContent  = allTrucks.length;
+                document.getElementById('m-active-trucks').textContent = allTrucks.filter(t => t.status === 'active').length;
+                document.getElementById('m-maint-trucks').textContent  = allTrucks.filter(t => t.status === 'maintenance').length;
+
+                renderTrucks();
+                populateTruckDropdown();
+            });
+
+            // ── SCHEDULES REALTIME ────────────────────────────────────────
+            onSnapshot(collection(db, 'schedules'), snap => {
+                allSchedules = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('m-today-sched').textContent =
+                    allSchedules.filter(s => s.date === today).length;
+
+                renderSchedules();
+            });
+
+            loadWorkers();
+
+            // ── RENDER TRUCKS ─────────────────────────────────────────────
+            function renderTrucks() {
+                document.getElementById('trucks-loading').style.display = 'none';
+
+                if (!allTrucks.length) {
+                    document.getElementById('trucks-empty').style.display = 'flex';
+                    document.getElementById('fleetCards').innerHTML = '';
+                    return;
+                }
+                document.getElementById('trucks-empty').style.display = 'none';
+
+                const container = document.getElementById('fleetCards');
+                container.innerHTML = '';
+
+                allTrucks.forEach(t => {
+                    const fuel = parseInt(t.fuel) || 0;
+                    const sc   = t.status === 'active' ? 'active'
+                               : t.status === 'maintenance' ? 'maint' : 'idle';
+                    const lbl  = t.status === 'active' ? 'ACTIVE'
+                               : t.status === 'maintenance' ? 'MAINTENANCE' : 'IDLE';
+
+                    const workerChip = t.assignedWorkerName
+                        ? `<div class="tc-worker">
+                               <i data-lucide="user"></i>
+                               <span>Assigned: <strong>${t.assignedWorkerName}</strong></span>
+                           </div>`
+                        : '';
+
+                    const card = document.createElement('div');
+                    card.className = 'truck-card';
+                    card.innerHTML = `
+                        <div class="truck-card-top">
+                            <div class="tc-icon ${sc}"><i data-lucide="truck"></i></div>
+                            <div class="tc-info">
+                                <h4>${t.truckId || '—'}</h4>
+                                <p>${t.model || 'No model set'}</p>
+                            </div>
+                            <span class="tc-status ${sc}">${lbl}</span>
+                        </div>
+                        <div class="truck-card-bottom">
+                            ${t.route
+                                ? `<div class="tc-route">
+                                       <span>Current Route</span>
+                                       <p><i data-lucide="map-pin"></i> ${t.route}</p>
+                                   </div>`
+                                : `<p class="tc-idle-note">No active route</p>`
+                            }
+                            ${fuel > 0
+                                ? `<div class="tc-fuel">
+                                       <span>Fuel ${fuel}%</span>
+                                       <div class="fuel-bar">
+                                           <div class="fuel-fill" style="width:${fuel}%;background:${fuelColor(fuel)};"></div>
+                                       </div>
+                                   </div>`
+                                : ''
+                            }
+                        </div>
+                        ${workerChip}
+                        <button class="tc-edit-btn" data-id="${t.id}"><i data-lucide="pencil"></i></button>
+                    `;
+                    container.appendChild(card);
+                });
+
+                lucide.createIcons();
+                container.querySelectorAll('.tc-edit-btn').forEach(btn =>
+                    btn.addEventListener('click', () => {
+                        const t = allTrucks.find(x => x.id === btn.dataset.id);
+                        if (t) openTruckModal(t);
+                    })
+                );
+            }
+
+            // ── RENDER SCHEDULES ──────────────────────────────────────────
+            function renderSchedules() {
+                document.getElementById('sched-loading').style.display = 'none';
+
+                if (!allSchedules.length) {
+                    document.getElementById('sched-empty').style.display    = 'flex';
+                    document.getElementById('schedTableWrap').style.display = 'none';
+                    return;
+                }
+                document.getElementById('sched-empty').style.display    = 'none';
+                document.getElementById('schedTableWrap').style.display = '';
+
+                const nowPH    = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+                const today    = `${nowPH.getFullYear()}-${String(nowPH.getMonth()+1).padStart(2,'0')}-${String(nowPH.getDate()).padStart(2,'0')}`;
+                const tomPH    = new Date(nowPH); tomPH.setDate(tomPH.getDate() + 1);
+                const tomorrow = `${tomPH.getFullYear()}-${String(tomPH.getMonth()+1).padStart(2,'0')}-${String(tomPH.getDate()).padStart(2,'0')}`;
+
+                const tbody = document.getElementById('schedBody');
+                tbody.innerHTML = '';
+
+                allSchedules.forEach(s => {
+                    const dateLabel = s.date === today    ? 'Today'
+                                    : s.date === tomorrow ? 'Tomorrow'
+                                    : s.date
+                                        ? new Date(s.date + 'T00:00').toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' })
+                                        : '—';
+
+                    const timeLabel = s.startTime && s.endTime
+                        ? `${formatTime(s.startTime)} – ${formatTime(s.endTime)}`
+                        : s.startTime ? formatTime(s.startTime) : null;
+
+                    const sc = s.status || 'upcoming';
+
+                    const workerCell = s.assignedWorkerName
+                        ? `<span class="sl-worker-chip">
+                               <i data-lucide="user"></i>${s.assignedWorkerName}
+                           </span>`
+                        : `<span class="sl-no-worker">Unassigned</span>`;
+
+                    
+                   // ── Clean single-line date & time ──
+const dateTimeCell = timeLabel
+    ? `<span class="sl-datetime">${dateLabel}</span>
+       <br><span class="sl-datetime-time">${timeLabel}</span>`
+    : `<span class="sl-datetime">${dateLabel}</span>`;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="sl-route-col">
+                                <div class="sl-icon"><i data-lucide="map-pin"></i></div>
+                                <p>${s.route || '—'}</p>
+                            </div>
+                        </td>
+                        <td><span class="sl-truck">${s.truck || '—'}</span></td>
+                        <td>${workerCell}</td>
+                        <td>${dateTimeCell}</td>
+                        <td>
+                         <span class="sl-pill ${sc}">${sc.toUpperCase()}</span>
+                        </td>
+                        <td>
+                            <button class="sl-edit-btn" data-id="${s.id}">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                lucide.createIcons();
+                tbody.querySelectorAll('.sl-edit-btn').forEach(btn =>
+                    btn.addEventListener('click', () => {
+                        const s = allSchedules.find(x => x.id === btn.dataset.id);
+                        if (s) openSchedModal(s);
+                    })
+                );
+            }
+
+            // ── TRUCK MODAL ───────────────────────────────────────────────
+            function generateTruckId() {
+                const next = String(allTrucks.length + 1).padStart(3, '0');
+                return `TRK-${next}`;
+            }
+
+            function openTruckModal(truck = null) {
+                editingTruckId = truck?.id || null;
+                document.getElementById('truckModalTitle').textContent = truck ? 'Edit Truck' : 'Add Truck';
+
+                const tid = truck ? (truck.truckId || `TRK-${truck.id.slice(0,4)}`) : generateTruckId();
+                document.getElementById('f-truckId').value              = tid;
+                document.getElementById('f-truckIdDisplay').textContent = tid;
+                document.getElementById('f-truckModel').value           = truck?.model  || '';
+                document.getElementById('f-truckStatus').value          = truck?.status || 'active';
+                document.getElementById('f-truckRoute').value           = truck?.route  || '';
+                document.getElementById('f-truckFuel').value            = truck?.fuel   || '';
+                document.getElementById('btnDeleteTruck').style.display = truck ? '' : 'none';
+
+                populateWorkerDropdown(truck?.assignedWorkerUid || '');
+                openModal('truckModal');
+            }
+
+            document.getElementById('btnAddTruck').addEventListener('click', () => openTruckModal());
+            document.getElementById('truckModalClose').addEventListener('click', () => closeModal('truckModal'));
+            document.getElementById('truckModal').addEventListener('click', e => {
+                if (e.target.id === 'truckModal') closeModal('truckModal');
+            });
+
+            document.getElementById('btnSaveTruck').addEventListener('click', async () => {
+                const model   = document.getElementById('f-truckModel').value.trim();
+                const status  = document.getElementById('f-truckStatus').value;
+                const route   = document.getElementById('f-truckRoute').value.trim();
+                const fuel    = parseInt(document.getElementById('f-truckFuel').value) || 0;
+                const truckId = document.getElementById('f-truckId').value.trim();
+
+                const workerSel  = document.getElementById('f-truckWorker');
+                const workerUid  = workerSel.value;
+                const workerName = workerUid
+                    ? (allWorkers.find(w => w.uid === workerUid)?.fullName || '')
+                    : '';
+
+                if (!model) { showToast('Please enter a model / name'); return; }
+                if (fuel < 0 || fuel > 100) { showToast('Fuel must be between 0 and 100'); return; }
+
+                const data = {
+                    truckId, model, status, route, fuel,
+                    assignedWorkerUid:  workerUid  || null,
+                    assignedWorkerName: workerName || null,
+                };
+
+                try {
+                    if (editingTruckId) {
+                        await updateDoc(doc(db, 'trucks', editingTruckId), data);
+                        if (workerUid) await updateDoc(doc(db, 'users', workerUid), { truckId });
+                        showToast('Truck updated ✓');
+                    } else {
+                        await addDoc(collection(db, 'trucks'), { ...data, createdAt: serverTimestamp() });
+                        if (workerUid) await updateDoc(doc(db, 'users', workerUid), { truckId });
+                        showToast('Truck added ✓');
+                    }
+                    closeModal('truckModal');
+                } catch(err) {
+                    console.error(err);
+                    showToast('Error: ' + err.message);
+                }
+            });
+
+            document.getElementById('btnDeleteTruck').addEventListener('click', async () => {
+                if (!editingTruckId || !confirm('Delete this truck? This cannot be undone.')) return;
+                try {
+                    const truck = allTrucks.find(t => t.id === editingTruckId);
+                    if (truck?.assignedWorkerUid) {
+                        await updateDoc(doc(db, 'users', truck.assignedWorkerUid), { truckId: null });
+                    }
+                    await deleteDoc(doc(db, 'trucks', editingTruckId));
+                    closeModal('truckModal');
+                    showToast('Truck deleted');
+                } catch(err) {
+                    showToast('Error: ' + err.message);
+                }
+            });
+
+            // ── SCHEDULE MODAL ────────────────────────────────────────────
+            function populateTruckDropdown() {
+                const sel = document.getElementById('f-schedTruck');
+                const cur = sel.value;
+                sel.innerHTML = '<option value="">Select truck…</option>';
+                allTrucks.forEach(t => {
+                    const o = document.createElement('option');
+                    o.value = t.truckId;
+                    o.textContent = `${t.truckId} — ${t.model || 'No model'}`;
+                    if (t.truckId === cur) o.selected = true;
+                    sel.appendChild(o);
+                });
+            }
+
+            function openSchedModal(sched = null) {
+                editingSchedId = sched?.id || null;
+                document.getElementById('schedModalTitle').textContent = sched ? 'Edit Schedule' : 'Add Schedule';
+                document.getElementById('f-schedRoute').value  = sched?.route     || '';
+                document.getElementById('f-schedTruck').value  = sched?.truck     || '';
+                document.getElementById('f-schedDate').value   = sched?.date      || '';
+                document.getElementById('f-schedStart').value  = sched?.startTime || '';
+                document.getElementById('f-schedEnd').value    = sched?.endTime   || '';
+                document.getElementById('f-schedStatus').value = sched?.status    || 'upcoming';
+                document.getElementById('f-schedNotes').value  = sched?.notes     || '';
+                document.getElementById('btnDeleteSched').style.display = sched ? '' : 'none';
+
+                populateSchedWorkerDropdown(sched?.assignedWorkerUid || '');
+                openModal('schedModal');
+            }
+
+            document.getElementById('btnAddSchedule').addEventListener('click', () => openSchedModal());
+            document.getElementById('newDispatchBtn').addEventListener('click', () => openSchedModal());
+            document.getElementById('schedModalClose').addEventListener('click', () => closeModal('schedModal'));
+            document.getElementById('schedModal').addEventListener('click', e => {
+                if (e.target.id === 'schedModal') closeModal('schedModal');
+            });
+
+            document.getElementById('btnSaveSched').addEventListener('click', async () => {
+                const route  = document.getElementById('f-schedRoute').value.trim();
+                const truck  = document.getElementById('f-schedTruck').value;
+                const date   = document.getElementById('f-schedDate').value;
+                const start  = document.getElementById('f-schedStart').value;
+                const end    = document.getElementById('f-schedEnd').value;
+                const status = document.getElementById('f-schedStatus').value;
+                const notes  = document.getElementById('f-schedNotes').value.trim();
+
+                const workerSel  = document.getElementById('f-schedWorker');
+                const workerUid  = workerSel.value;
+                const workerName = workerUid
+                    ? (allWorkers.find(w => w.uid === workerUid)?.fullName || '')
+                    : '';
+
+                if (!route) { showToast('Route / Area is required'); return; }
+                if (!date)  { showToast('Date is required'); return; }
+
+                const data = {
+                    route, truck, date,
+                    startTime: start, endTime: end,
+                    status, notes,
+                    assignedWorkerUid:  workerUid  || null,
+                    assignedWorkerName: workerName || null,
+                };
+
+                try {
+                    if (editingSchedId) {
+                        await updateDoc(doc(db, 'schedules', editingSchedId), data);
+                        showToast('Schedule updated ✓');
+                    } else {
+                        await addDoc(collection(db, 'schedules'), { ...data, createdAt: serverTimestamp() });
+                        showToast('Schedule added ✓');
+                    }
+                    closeModal('schedModal');
+                } catch(err) {
+                    showToast('Error: ' + err.message);
+                }
+            });
+
+            document.getElementById('btnDeleteSched').addEventListener('click', async () => {
+                if (!editingSchedId || !confirm('Delete this schedule? This cannot be undone.')) return;
+                try {
+                    await deleteDoc(doc(db, 'schedules', editingSchedId));
+                    closeModal('schedModal');
+                    showToast('Schedule deleted');
+                } catch(err) {
+                    showToast('Error: ' + err.message);
+                }
+            });
+
+        } // end initPage
+    </script>
+</body>
+</html>

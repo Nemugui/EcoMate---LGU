@@ -1,0 +1,311 @@
+@import url('workerdashboard.css');
+
+/* Main Wrapper Layout */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Top Metrics Row - 2 columns only as requested */
+.profile-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 600px;
+}
+
+.profile-metric-card {
+    background: #FCE4EC; /* fallback */
+    background: var(--card-beige);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.p-metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.p-metric-info span {
+    font-size: 0.70rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.p-metric-info h3 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* Profile Grid */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+/* Left Big Profile Card */
+.profile-details-card {
+    background: var(--card-beige);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.pd-top-split {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.pd-image {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.pd-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pd-info-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.pd-info-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.pd-info-block h5 {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+/* Add small hr line on the first title */
+.pd-section-title-line h5::after {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 2px;
+    background: #E0E0E0;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.pd-info-block span {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge-verified {
+    background: #C8E6C9;
+    color: #1B5E20;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+
+/* Assigned Vehicle Sub-Box */
+.pd-vehicle-box {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.veh-icon-circle {
+    width: 45px;
+    height: 45px;
+    background: #E8F5E9;
+    color: var(--primary-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.veh-details {
+    display: flex;
+    gap: 3rem;
+}
+
+.veh-info-col h6 {
+    font-size: 0.70rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.veh-info-col span {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-green);
+}
+
+.veh-info-col span.plate {
+    color: var(--text-primary);
+}
+
+/* Edit Profile Absolute Button */
+.btn-edit-profile {
+    position: absolute;
+    bottom: -15px; /* pop out slightly outside the card */
+    right: 2.5rem;
+    background: var(--primary-green);
+    color: var(--white);
+    padding: 0.85rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 15px rgba(27, 94, 32, 0.3);
+    transition: transform 0.2s;
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    background: var(--dark-green);
+}
+
+/* Right Tall Action Card */
+.account-actions-card {
+    background: var(--card-beige);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.account-actions-card h4 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    margin-bottom: 0.25rem;
+}
+
+.account-actions-card p.aa-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.action-menu-btn {
+    background: var(--white);
+    color: var(--text-primary);
+    border: none;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.action-menu-btn i.front-icon {
+    color: var(--primary-green);
+}
+
+.action-menu-btn i.chev {
+    margin-left: auto;
+    color: #B0BEC5;
+}
+
+.action-menu-btn:hover {
+    background: #F1F8E9;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.hr-line {
+    height: 1px;
+    background: rgba(0,0,0,0.05);
+    margin: 1.5rem 0;
+}
+
+.btn-sign-out {
+    background: transparent;
+    border: none;
+    color: #D32F2F;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+
+.btn-sign-out:hover {
+    background: #FFEBEE;
+}
+
+@media (max-width: 900px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    .pd-top-split {
+        flex-direction: column;
+    }
+}

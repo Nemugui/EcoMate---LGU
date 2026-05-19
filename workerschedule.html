@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker's Schedule - EcoMate</title>
+    <link rel="stylesheet" href="../css/workerschedule.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Single-column full-width schedule */
+        .route-list-section {
+            width: 100%;
+        }
+        .route-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ── Pagination ── */
+        .schedule-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            padding-bottom: 1rem;
+        }
+        .schedule-pagination button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1.5px solid #D0D0D0;
+            background: #fff;
+            color: var(--text-primary, #263238);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .schedule-pagination button:hover:not(:disabled) {
+            border-color: #2E7D32;
+            color: #2E7D32;
+        }
+        .schedule-pagination button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .schedule-pagination .page-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #555;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        /* Clickable avatar */
+        .avatar-circle {
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .avatar-circle:hover {
+            opacity: 0.85;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Worker Sidebar Nav -->
+    <aside class="worker-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Worker</span>
+            </div>
+        </div>
+
+        <nav class="worker-nav">
+            <a href="workerdashboard.html">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="workerschedule.html" class="active">
+                <i data-lucide="calendar"></i> Schedule
+            </a>
+            <a href="workerreports.html">
+                <i data-lucide="clipboard-list"></i> Reports & Tasks
+            </a>
+            <a href="workerguideline.html">
+                <i data-lucide="shield"></i> Safety Guidelines
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Worker's Schedule</h2>
+                <p>View your assigned collection routes and daily tasks</p>
+            </div>
+            <div class="header-actions">
+                <!-- Clicking the avatar navigates to My Profile -->
+                <div class="avatar-circle" id="avatar-circle"
+                     onclick="window.location.href='workerprofile.html'"
+                     title="My Profile">
+                    <span class="worker-initial" style="color:white;font-weight:700;font-size:1rem;">W</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Top Summary Cards Row -->
+        <div class="shift-summary-row">
+            <div class="shift-card green">
+                <div class="shift-card-info">
+                    <span>Completed Today</span>
+                    <h3 id="completedCount">0/0</h3>
+                </div>
+                <div class="shift-card-icon">
+                    <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Completion Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h3>Weekly Completion Rate</h3>
+                <span class="chart-subtitle" id="chartWeekRange">This Week</span>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="weeklyCompletionChart" style="max-height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Full Width -->
+        <div class="route-list-section" style="width:100%;">
+            <div class="schedule-header">
+                <h3>This Week's Schedule</h3>
+                <div class="date-range-badge" id="dateRangeBadge">Loading...</div>
+            </div>
+
+            <div class="route-cards-container" id="routeCardsContainer">
+                <!-- Routes will be loaded here dynamically -->
+                <div class="loading-placeholder">
+                    <div class="spinner"></div>
+                    <p>Loading your schedule...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="schedule-pagination" id="schedulePagination" style="display:none;">
+                <button id="schedPrevBtn" aria-label="Previous page">&#8249;</button>
+                <span class="page-label" id="schedPageLabel">1 / 1</span>
+                <button id="schedNextBtn" aria-label="Next page">&#8250;</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Success Toast -->
+    <div class="toast-notification" id="toastNotification">
+        <div class="toast-content">
+            <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+            <span id="toastMessage">Task completed successfully!</span>
+        </div>
+    </div>
+
+    <!-- Chart.js for weekly completion chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script type="module" src="../js/workerschedule-functional.js"></script>
+
+    <!-- Avatar: populate from Firebase auth -->
+    <script type="module">
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain: "ecomate-4c54f.firebaseapp.com",
+            projectId: "ecomate-4c54f",
+            storageBucket: "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId: "1:626101359921:web:c95f7b0fca79ff8ce60c10",
+            measurementId: "G-MWX6NWBCPL"
+        };
+
+        let app;
+        try {
+            app = getApp();
+        } catch {
+            app = initializeApp(firebaseConfig);
+        }
+
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+            try {
+                const snap     = await getDoc(doc(db, 'users', user.uid));
+                const data     = snap.exists() ? snap.data() : {};
+                const fullName = data.fullName || 'Worker';
+                const initial  = fullName.trim().charAt(0).toUpperCase();
+                const avatar   = document.getElementById('avatar-circle');
+                if (avatar) {
+                    if (data.photoBase64) {
+                        avatar.innerHTML = `<img src="${data.photoBase64}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                            alt="${fullName}">`;
+                    } else {
+                        avatar.innerHTML = `<span style="color:white;font-weight:700;font-size:1rem;">${initial}</span>`;
+                    }
+                }
+            } catch (err) {
+                console.error('Avatar load error:', err);
+            }
+        });
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        // Mobile sidebar toggle
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('open');    }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.worker-nav a').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeSidebar();
+            });
+        });
+    </script>
+
+</body>
+</html>

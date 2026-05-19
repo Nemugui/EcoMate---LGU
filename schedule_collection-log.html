@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - Schedule & Collection Log</title>
+    <link rel="stylesheet" href="../css/schedule_collection-log.css">
+    <script type="module" src="../js/user-display.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand-section">
+            <h1>EcoMate</h1>
+            <span>RESIDENT PORTAL</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="resdashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+            <a href="schedule_collection-log.html" class="nav-item active">
+                <i data-lucide="calendar"></i>
+                Schedule &amp; Collection Log
+            </a>
+            <a href="history.html" class="nav-item">
+                <i data-lucide="history"></i>
+                History
+            </a>
+            <a href="education.html" class="nav-item">
+                <i data-lucide="graduation-cap"></i>
+                Education
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+        <!-- Top Header -->
+        <header class="page-header">
+            <div class="header-titles">
+                <h2>Schedule and Collection</h2>
+                <p>View your schedule and track the waste collector</p>
+            </div>
+            <div class="header-icons">
+                <div class="user-profile">
+                    <span class="user-initial-display">?</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Layout Grid -->
+        <section class="layout-grid">
+            <!-- Left Column -->
+            <div class="left-col">
+                <!-- Calendar Card -->
+                <div class="card calendar-card">
+                    <div class="calendar-top">
+                        <div class="cal-title">
+                            <i data-lucide="calendar-days"></i>
+                            <span id="cal-month-label">— —</span>
+                        </div>
+                        <div class="cal-nav">
+                            <i data-lucide="chevron-left" id="cal-prev" style="cursor:pointer;"></i>
+                            <i data-lucide="chevron-right" id="cal-next" style="cursor:pointer;"></i>
+                        </div>
+                    </div>
+
+                    <div class="cal-grid">
+                        <div class="weekday">Sun</div>
+                        <div class="weekday">Mon</div>
+                        <div class="weekday">Tue</div>
+                        <div class="weekday">Wed</div>
+                        <div class="weekday">Thu</div>
+                        <div class="weekday">Fri</div>
+                        <div class="weekday">Sat</div>
+                        <div id="cal-body" style="display:contents;"></div>
+                    </div>
+
+                    <div class="cal-legend">
+                        <div class="legend-item"><div class="legend-dot dot-bio"></div> Ongoing</div>
+                        <div class="legend-item"><div class="legend-dot dot-rec"></div> Upcoming</div>
+                        <div class="legend-item"><div class="legend-dot dot-haz"></div> Completed</div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Right Column — Upcoming Pickups only -->
+            <div class="right-col">
+                <div class="card upcoming-card">
+                    <div class="up-header">
+                        <i data-lucide="list-checks" style="color:var(--primary-green);"></i>
+                        <h3>Upcoming Pickups</h3>
+                    </div>
+                    <div class="pickup-list" id="pickup-list">
+                        <p class="empty-msg">Loading schedules…</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ══════════════════════════════════════
+         LIVE MAP MODAL
+    ══════════════════════════════════════ -->
+    <div id="live-map-modal">
+        <div id="live-map-inner">
+            <!-- Map fills the inner -->
+            <div id="live-map-leaflet"></div>
+
+            <!-- Top bar -->
+            <div id="live-map-topbar">
+                <span id="live-map-label">Live Truck Location</span>
+                <button id="live-map-close" title="Close">&times;</button>
+            </div>
+
+            <!-- Info panel — slides up when truck marker clicked -->
+            <div id="live-map-panel" class="panel-hidden">
+                <div id="panel-drag-handle"></div>
+                <div id="panel-content">
+                    <!-- filled dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        const openSidebar  = () => { sidebar.classList.add('open');    overlay.classList.add('open');    };
+        const closeSidebar = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+        document.querySelectorAll('.nav-item').forEach(i => i.addEventListener('click', () => {
+            if (window.innerWidth <= 1024) closeSidebar();
+        }));
+
+
+    </script>
+
+    <script type="module" src="../js/schedule_collection-log.js"></script>
+</body>
+</html>

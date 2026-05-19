@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - Settings</title>
+    <link rel="stylesheet" href="../css/resettings.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand-section">
+            <h1>EcoMate</h1>
+            <span>RESIDENT PORTAL</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="resdashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+            <a href="schedule_collection-log.html" class="nav-item">
+                <i data-lucide="calendar"></i>
+                Schedule & Collection Log
+            </a>
+            <a href="history.html" class="nav-item">
+                <i data-lucide="history"></i>
+                History
+            </a>
+            <a href="education.html" class="nav-item">
+                <i data-lucide="graduation-cap"></i>
+                Education
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-report-issue">
+                <i data-lucide="alert-triangle"></i>
+                Report Issue
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+        <!-- Top Header -->
+        <header class="page-header">
+            <div class="header-titles">
+                <h2>Settings</h2>
+                <p>Customize your EcoMate experience</p>
+            </div>
+            <div class="header-icons">
+                <div class="icon-box">
+                    <i data-lucide="bell"></i>
+                </div>
+                <div class="icon-box active">
+                    <i data-lucide="settings"></i>
+                </div>
+                <div class="avatar-circle" id="profile-trigger">
+                    <img src="../images/supot.png" alt="User Profile" style="width: 100%; border-radius: 50%;">
+                </div>
+            </div>
+        </header>
+
+        <div class="settings-grid">
+            <!-- Left Column -->
+            <div class="settings-left">
+                <!-- Notification Preferences -->
+                <div class="card">
+                    <div class="section-header">
+                        <div class="icon-circle">
+                            <i data-lucide="bell"></i>
+                        </div>
+                        <h3>Notification Preferences</h3>
+                    </div>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Collection Schedule Reminders</h4>
+                                <p>Get alerted the night before your trash pickup</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Report Status Updates</h4>
+                                <p>Notifications when your reports are reviewed</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Community Announcements</h4>
+                                <p>Stay informed about local green events</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security & Privacy -->
+                <div class="card security-card">
+                    <div class="section-header">
+                        <div class="icon-circle">
+                            <i data-lucide="lock"></i>
+                        </div>
+                        <h3>Security & Privacy</h3>
+                    </div>
+                    <div class="security-content">
+                        <div class="security-columns">
+                            <div class="sec-col">
+                                <h5>IDENTITY</h5>
+                                <a href="#" class="btn-sec-action">
+                                    <div class="identity-row">
+                                        <i data-lucide="key"></i>
+                                        <span>***</span>
+                                    </div>
+                                    <span>Change Password</span>
+                                    <i data-lucide="chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="illustration">
+                            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M50 80C66.5685 80 80 66.5685 80 50C80 33.4315 66.5685 20 50 20C33.4315 20 20 33.4315 20 50C20 66.5685 33.4315 80 50 80Z" stroke="white" stroke-width="2" stroke-dasharray="4 4"/>
+                                <circle cx="50" cy="40" r="10" stroke="white" stroke-width="2"/>
+                                <path d="M35 70C35 60 40 55 50 55C60 55 65 60 65 70" stroke="white" stroke-width="2"/>
+                                <path d="M75 50H85M75 40L82 33M75 60L82 67" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="settings-right">
+                <!-- System -->
+                <div class="card">
+                    <div class="section-header">
+                        <div class="icon-circle blue">
+                            <i data-lucide="settings"></i>
+                        </div>
+                        <h3>System</h3>
+                    </div>
+                    <div class="system-controls">
+                        <div class="control-row">
+                            <span class="control-label">Appearance</span>
+                            <div class="appearance-toggle">
+                                <div class="appearance-option active">
+                                    <i data-lucide="sun"></i>
+                                    Light
+                                </div>
+                                <div class="appearance-option">
+                                    <i data-lucide="moon"></i>
+                                    Dark
+                                </div>
+                            </div>
+                        </div>
+                        <div class="control-row">
+                            <span class="control-label">Language</span>
+                            <select class="language-select">
+                                <option>English (US)</option>
+                                <option>Filipino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="danger-card">
+                    <div class="danger-header">
+                        <i data-lucide="alert-triangle"></i>
+                        <h4>Danger Zone</h4>
+                    </div>
+                    <button class="btn-delete">Delete My Account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Footer -->
+    <footer class="settings-footer">
+        <a href="#" class="btn-discard">Discard Changes</a>
+        <button class="btn-save">Save Preferences</button>
+    </footer>
+
+    <script src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

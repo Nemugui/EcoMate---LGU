@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - Onboarding</title>
+    <meta name="description" content="Welcome to EcoMate, your integrated web-based waste management ecosystem. Discover a data-driven digital infrastructure for a sustainable future.">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ── Help Modal Overlay ── */
+        .help-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(27, 94, 32, 0.18);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .help-modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .help-modal {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(46, 125, 50, 0.15), 0 4px 16px rgba(0,0,0,0.08);
+            width: min(420px, 90vw);
+            overflow: hidden;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .help-modal-overlay.open .help-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Modal header strip */
+        .help-modal-header {
+            background: var(--primary-green);
+            padding: 1.1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .help-modal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .help-modal-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .help-modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.2px;
+        }
+
+        .help-modal-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .help-modal-close:hover {
+            background: rgba(255,255,255,0.28);
+        }
+
+        /* Modal body */
+        .help-modal-body {
+            padding: 1.5rem;
+        }
+
+        .help-modal-message {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .help-modal-contact {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--light-green);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .help-modal-contact-icon {
+            color: var(--primary-green);
+            flex-shrink: 0;
+        }
+
+        .help-modal-contact a {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            text-decoration: none;
+        }
+
+        .help-modal-contact a:hover {
+            text-decoration: underline;
+        }
+
+        /* OK button */
+        .help-modal-ok {
+            width: 100%;
+            background: var(--primary-green);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 0.75rem 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.25);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+        }
+
+        .help-modal-ok:hover {
+            background: #256427;
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .help-modal-ok:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="app-title">EcoMate</h1>
+        <div class="help-icon" id="help-btn" title="Help">?</div>
+    </header>
+
+    <main>
+        <div class="onboarding-content">
+            <div class="logo-container">
+                <img src="../images/logo.png" alt="EcoMate Logo" id="main-logo">
+            </div>
+            
+            <h2 class="onboarding-title">A Waste Management Companion System</h2>
+            
+            <p class="onboarding-subtitle">
+                Your partner in a waste-free future. 
+                Join the movement towards a more sustainable and organic way of living.
+            </p>
+
+            <button class="btn-get-started" id="get-started-btn">Get Started</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <button class="nav-btn skip-btn" id="skip-btn">
+                <div class="btn-icon">
+                    <i data-lucide="x"></i>
+                </div>
+                <span class="nav-label">SKIP</span>
+            </button>
+
+            <button class="nav-btn next-btn" id="next-btn">
+                <div class="btn-icon">
+                    <i data-lucide="arrow-right"></i>
+                </div>
+                <span class="nav-label">NEXT</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ── Help Modal ── -->
+    <div class="help-modal-overlay" id="help-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+        <div class="help-modal">
+            <div class="help-modal-header">
+                <div class="help-modal-header-left">
+                    <div class="help-modal-icon">
+                        <i data-lucide="circle-help" style="width:18px;height:18px;"></i>
+                    </div>
+                    <span class="help-modal-title" id="help-modal-title">EcoMate Help Center</span>
+                </div>
+                <button class="help-modal-close" id="help-modal-close" aria-label="Close">
+                    <i data-lucide="x" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+            <div class="help-modal-body">
+                <p class="help-modal-message">
+                    Need assistance with waste tracking or disposal? We're here to help you every step of the way.
+                </p>
+                <div class="help-modal-contact">
+                    <span class="help-modal-contact-icon">
+                        <i data-lucide="mail" style="width:18px;height:18px;"></i>
+                    </span>
+                    <a href="mailto:support@ecomate.com">support@ecomate.com</a>
+                </div>
+                <button class="help-modal-ok" id="help-modal-ok">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+
+        const overlay   = document.getElementById('help-modal-overlay');
+        const helpBtn   = document.getElementById('help-btn');
+        const closeBtn  = document.getElementById('help-modal-close');
+        const okBtn     = document.getElementById('help-modal-ok');
+
+        function openHelp()  { overlay.classList.add('open'); }
+        function closeHelp() { overlay.classList.remove('open'); }
+
+        helpBtn.addEventListener('click', openHelp);
+        closeBtn.addEventListener('click', closeHelp);
+        okBtn.addEventListener('click', closeHelp);
+
+        // Close on backdrop click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeHelp();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeHelp();
+        });
+
+        // ── Skip → login.html (overrides navigation.js global handler) ──
+        document.getElementById('skip-btn').addEventListener('click', (e) => {
+            e.stopImmediatePropagation();
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => { window.location.href = 'login.html'; }, 400);
+        }, true);
+    </script>
+</body>
+</html>

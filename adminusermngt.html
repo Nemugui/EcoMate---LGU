@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - EcoMate Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --accent-green: #2E7D32;
+            --dark-green:   #1B5E20;
+            --light-green:  #E8F5E9;
+            --admin-bg:     #F4F6F8;
+            --white:        #FFFFFF;
+            --border:       #E8EAED;
+            --text-primary: #1A1A2E;
+            --text-muted:   #7B8FA1;
+            --shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
+            --shadow-md:    0 4px 16px rgba(0,0,0,0.10);
+            --radius-lg:    16px;
+            --warn:         #FFF3E0;
+            --warn-text:    #E65100;
+            --info:         #E3F2FD;
+            --info-text:    #0277BD;
+            --sidebar-w:    240px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--admin-bg);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4); z-index: 99;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        .admin-sidebar {
+            width: var(--sidebar-w); background: var(--white);
+            border-right: 1px solid var(--border); display: flex;
+            flex-direction: column; padding: 1.5rem 1rem;
+            position: fixed; top: 0; left: 0; bottom: 0;
+            z-index: 100; transition: transform 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+        }
+
+        .sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; padding: 0 0.5rem; }
+        .logo-mark {
+            width: 36px; height: 36px; background: var(--accent-green);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+        .logo-mark svg { width: 18px; height: 18px; }
+        .sidebar-header-info h1 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .sidebar-header-info span { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
+
+        .admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .admin-nav a {
+            display: flex; align-items: center; gap: 10px; padding: 0.7rem 0.875rem;
+            border-radius: 10px; text-decoration: none; color: var(--text-muted);
+            font-size: 0.875rem; font-weight: 600; transition: all 0.2s;
+        }
+        .admin-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .admin-nav a:hover { background: var(--admin-bg); color: var(--text-primary); }
+        .admin-nav a.active { background: var(--light-green); color: var(--accent-green); }
+
+        .admin-main { margin-left: var(--sidebar-w); flex: 1; padding: 1.5rem; min-width: 0; }
+        @media (max-width: 768px) { .admin-main { margin-left: 0; } }
+
+        .top-header {
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--white); border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+        }
+        .hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text-primary); padding: 4px; }
+        .hamburger svg { width: 22px; height: 22px; }
+        @media (max-width: 768px) { .hamburger { display: flex; } }
+
+        .header-title { flex: 1; }
+        .header-title h2 { font-size: 1.1rem; font-weight: 800; }
+        .header-title p  { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .icon-box {
+            width: 38px; height: 38px; background: var(--admin-bg); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; transition: background 0.2s;
+        }
+        .icon-box svg { width: 18px; height: 18px; color: var(--text-muted); }
+        .icon-box:hover { background: var(--border); }
+        .badge-dot { width: 8px; height: 8px; background: #F44336; border-radius: 50%; border: 2px solid white; position: absolute; top: 6px; right: 6px; }
+        .avatar-wrapper { position: relative; }
+        .avatar-circle { width: 38px; height: 38px; background: var(--light-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-green); }
+        .avatar-circle svg { width: 22px; height: 22px; }
+        .avatar-dropdown { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-md); min-width: 200px; padding: 0.5rem; z-index: 200; }
+        .avatar-dropdown.open { display: block; }
+        .dropdown-info { padding: 0.5rem 0.75rem 0.75rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+        .dropdown-info span { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .dropdown-info strong { display: block; font-size: 0.82rem; color: var(--text-primary); margin-top: 2px; }
+        .dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 0.6rem 0.75rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; font-family: 'DM Sans', sans-serif; color: var(--text-primary); cursor: pointer; transition: background 0.2s; }
+        .dropdown-item svg { width: 15px; height: 15px; }
+        .dropdown-item:hover { background: var(--admin-bg); }
+        .dropdown-item.danger { color: #C62828; }
+        .dropdown-item.danger:hover { background: #FFEBEE; }
+
+        /* ── NOTIFICATION DROPDOWN ── */
+        .notif-wrapper { position: relative; }
+        .notif-dropdown {
+            display: none;
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: var(--white); border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: var(--shadow-md);
+            width: 320px; z-index: 250; overflow: hidden;
+        }
+        .notif-dropdown.open { display: block; }
+        .notif-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid var(--border);
+        }
+        .notif-header span { font-size: 0.82rem; font-weight: 800; color: var(--text-primary); }
+        .notif-mark-all {
+            background: none; border: none; font-size: 0.65rem; font-weight: 700;
+            color: var(--accent-green); cursor: pointer; font-family: 'DM Sans', sans-serif;
+            padding: 4px 8px; border-radius: 6px; transition: background 0.2s;
+        }
+        .notif-mark-all:hover { background: var(--light-green); }
+        .notif-list { max-height: 280px; overflow-y: auto; }
+        .notif-empty {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 2rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+        }
+        .notif-empty svg { width: 28px; height: 28px; opacity: 0.3; }
+        .notif-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 0.875rem 1.25rem; border-bottom: 1px solid #F7F9FA;
+            cursor: pointer; transition: background 0.15s; position: relative;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #FAFBFC; }
+        .notif-item.unread { background: #F0FBF0; }
+        .notif-icon-wrap {
+            width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+        }
+        .notif-icon-wrap.pending { background: var(--warn); }
+        .notif-icon-wrap.urgent  { background: #FFEBEE; }
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-title { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .notif-sub   { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notif-time  { font-size: 0.65rem; color: var(--text-muted); }
+        .notif-unread-dot {
+            width: 7px; height: 7px; background: var(--accent-green);
+            border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+        }
+        .notif-stat-pill {
+            font-size: 0.55rem; font-weight: 800; padding: 2px 7px;
+            border-radius: 20px; text-transform: uppercase;
+        }
+        .notif-stat-pill.pending { background: var(--warn);   color: var(--warn-text); }
+        .notif-stat-pill.urgent  { background: #FFEBEE;       color: #C62828; }
+        .notif-footer { padding: 0.625rem 1.25rem; border-top: 1px solid var(--border); }
+        .notif-footer a { font-size: 0.72rem; font-weight: 700; color: var(--accent-green); text-decoration: none; }
+        .notif-footer a:hover { text-decoration: underline; }
+
+        /* ── METRICS ── */
+        .user-metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem; }
+        @media (max-width: 900px) { .user-metrics-row { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px)  { .user-metrics-row { gap: 0.625rem; } }
+
+        .user-metric-card { border-radius: var(--radius-lg); padding: 1.25rem; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); background: var(--white); transition: transform 0.2s, box-shadow 0.2s; }
+        .user-metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .umc-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .umc-icon svg { width: 20px; height: 20px; }
+        .umc-orange { background: #FFF3E0; color: #E65100; }
+        .umc-green  { background: var(--light-green); color: var(--accent-green); }
+        .umc-blue   { background: var(--info); color: var(--info-text); }
+        .umc-purple { background: #F3E5F5; color: #7B1FA2; }
+        .umc-body span { display: block; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; color: var(--text-muted); }
+        .umc-body h3 { font-size: 1.75rem; font-weight: 800; line-height: 1; font-family: 'Space Mono', monospace; color: var(--text-primary); }
+
+        .user-registry-card { background: var(--white); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+
+        .ur-filter-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .ur-filter-bar h3 { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .ur-filter-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+        .ur-search-box { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
+        .ur-search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 16px; height: 16px; pointer-events: none; display: block; }
+        .ur-search-box input { width: 100%; box-sizing: border-box; background: var(--admin-bg); border: 1px solid transparent; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 50px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; color: var(--text-primary); transition: border-color 0.2s; }
+        .ur-search-box input:focus { outline: none; border-color: var(--accent-green); background: var(--white); }
+        .ur-filter-select { background: var(--admin-bg); border: 1px solid var(--border); padding: 0.6rem 2rem 0.6rem 0.875rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; font-family: 'DM Sans', sans-serif; color: var(--text-primary); cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237B8FA1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.6rem center; background-size: 13px; transition: border-color 0.2s; box-sizing: border-box; }
+        .ur-filter-select:focus { border-color: var(--accent-green); }
+
+        .loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; padding: 3rem 1rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+        .empty-state svg { width: 36px; height: 36px; display: block; opacity: 0.35; }
+        .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent-green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ur-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .ur-grid-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .ur-grid-table th { text-align: left; font-size: 0.6rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; padding-bottom: 1rem; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        .ur-grid-table td { padding: 0.875rem 0; vertical-align: middle; border-bottom: 1px solid #F7F9FA; font-size: 0.85rem; }
+        .ur-grid-table tr:last-child td { border-bottom: none; }
+        .ur-grid-table tbody tr:hover td { background: #FAFBFC; }
+
+        .td-user { display: flex; align-items: center; gap: 10px; }
+        .td-user-avatar, .muc-avatar, .modal-avatar {
+            border-radius: 50%; background: var(--light-green); color: var(--accent-green);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; flex-shrink: 0; text-transform: uppercase; overflow: hidden;
+        }
+        .td-user-avatar { width: 36px; height: 36px; font-size: 0.75rem; }
+        .muc-avatar     { width: 42px; height: 42px; font-size: 0.8rem; }
+        .modal-avatar   { width: 64px; height: 64px; font-size: 1.3rem; margin: 0 auto 1rem; }
+        .td-user-avatar img, .muc-avatar img, .modal-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+
+        .td-user-info .name  { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+        .td-user-info .email { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+        .role-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+        .role-pill.admin  { background: var(--light-green); color: var(--dark-green); }
+        .role-pill.res    { background: #FFF3E0; color: #E65100; }
+        .role-pill.worker { background: var(--info); color: var(--info-text); }
+        .role-pill.default{ background: #F5F5F5; color: #616161; }
+
+        .td-area  { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+        .td-stats { font-size: 0.75rem; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+        .joined-date { font-size: 0.75rem; font-weight: 600; color: var(--text-primary); font-family: 'Space Mono', monospace; white-space: nowrap; }
+
+        .mobile-user-cards { display: none; flex-direction: column; gap: 0.75rem; }
+        .mobile-user-card { border: 1px solid var(--border); border-radius: 14px; padding: 1rem; display: flex; flex-direction: column; gap: 0.625rem; box-shadow: var(--shadow-sm); }
+        .muc-top { display: flex; align-items: center; gap: 0.75rem; }
+        .muc-info { flex: 1; min-width: 0; }
+        .muc-info .name  { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .muc-info .email { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .muc-bottom { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.5rem; border-top: 1px solid #F7F9FA; }
+        .muc-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .muc-stat { font-size: 0.7rem; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+
+        .ur-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 0.75rem; }
+        .ur-pagination p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; font-family: 'Space Mono', monospace; }
+        .pager-controls { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .pager-controls button { width: 32px; height: 32px; border: 1px solid var(--border); background: var(--white); color: var(--text-primary); border-radius: 8px; font-size: 0.82rem; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .pager-controls button svg { width: 14px; height: 14px; display: block; pointer-events: none; }
+        .pager-controls button:hover:not(:disabled) { background: var(--light-green); border-color: var(--accent-green); color: var(--accent-green); }
+        .pager-controls button.active { background: var(--accent-green); border-color: var(--accent-green); color: white; }
+        .pager-controls button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 300; padding: 1rem; }
+        .modal-overlay.show { display: flex; }
+        .modal-card { background: var(--white); border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.25s ease; }
+        @keyframes modalIn { from { transform: scale(0.94) translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 1.5rem 0; }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 800; }
+        .modal-close { width: 32px; height: 32px; background: var(--admin-bg); border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .modal-close svg { width: 16px; height: 16px; }
+        .modal-close:hover { background: #FFEBEE; color: #C62828; }
+        .modal-body   { padding: 1.25rem 1.5rem; }
+        .modal-footer { display: flex; gap: 0.75rem; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
+
+        .modal-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-info-item { display: flex; flex-direction: column; gap: 4px; }
+        .modal-info-item.full { grid-column: 1 / -1; }
+        .modal-info-item span { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-info-item strong { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); word-break: break-all; }
+
+        .modal-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .modal-stat-box { background: var(--admin-bg); border-radius: 10px; padding: 0.75rem; text-align: center; }
+        .modal-stat-box span { font-size: 0.58rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 4px; }
+        .modal-stat-box h4 { font-size: 1.25rem; font-weight: 800; font-family: 'Space Mono', monospace; color: var(--text-primary); }
+
+        .btn-primary { flex: 1; background: var(--accent-green); color: white; border: none; padding: 0.75rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+        .btn-primary:hover { background: var(--dark-green); }
+        .btn-danger { flex: 0.6; background: #FFEBEE; color: #C62828; border: none; padding: 0.75rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+        .btn-danger:hover { background: #FFCDD2; }
+
+        .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px); background: #1A1A2E; color: white; padding: 0.75rem 1.5rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 700px) {
+            .ur-table-wrap { display: none !important; }
+            .mobile-user-cards { display: flex !important; }
+            .ur-pagination { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 600px) {
+            .admin-main { padding: 1rem; }
+            .ur-filter-bar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+            .ur-filter-right { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+            .ur-search-box { max-width: 100%; }
+            .ur-filter-select { width: 100%; }
+            .notif-dropdown { width: 290px; right: -40px; }
+        }
+        @media (max-width: 480px) {
+            .user-metrics-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+            .umc-body h3 { font-size: 1.4rem; }
+            .umc-icon { width: 36px; height: 36px; border-radius: 10px; }
+            .user-metric-card { padding: 0.875rem; gap: 8px; }
+            .modal-footer { flex-direction: column; }
+            .modal-footer button { width: 100%; }
+            .modal-info-grid { grid-template-columns: 1fr; }
+            .modal-stats-row { grid-template-columns: 1fr 1fr; }
+            .notif-dropdown { width: 270px; right: -60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark"><i data-lucide="leaf"></i></div>
+            <div class="sidebar-header-info">
+                <h1>EcoMate</h1>
+                <span>LGU ADMINISTRATOR</span>
+            </div>
+        </div>
+        <nav class="admin-nav">
+            <a href="admindashboard.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+            <a href="adminreportmngt.html"><i data-lucide="clipboard-list"></i><span>Reports</span></a>
+            <a href="adminschedfleet.html"><i data-lucide="truck"></i><span>Schedule &amp; Fleet</span></a>
+            <a href="admineducational.html"><i data-lucide="book-open"></i><span>Educational</span></a>
+            <a href="adminusermngt.html" class="active"><i data-lucide="users"></i><span>Users</span></a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="top-header">
+            <button class="hamburger" id="hamburgerBtn"><i data-lucide="menu"></i></button>
+            <div class="header-title">
+                <h2>User Management</h2>
+                <p id="liveDateTime">Loading...</p>
+            </div>
+            <div class="header-actions">
+
+                <!-- ── NOTIFICATION BELL ── -->
+                <div class="icon-box notif-wrapper" id="notif-bell">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot" id="notifDot" style="display:none;"></div>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i data-lucide="inbox"></i>
+                                <span>No new notifications</span>
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="adminreportmngt.html">View all reports →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatarBtn"><i data-lucide="user-circle"></i></div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-info">
+                            <span>Signed in as</span>
+                            <strong id="adminEmail">Admin</strong>
+                        </div>
+                        <button class="dropdown-item danger" id="dropLogout"><i data-lucide="log-out"></i> Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="user-metrics-row">
+            <div class="user-metric-card">
+                <div class="umc-icon umc-orange"><i data-lucide="users"></i></div>
+                <div class="umc-body"><span>Total Users</span><h3 id="m-total">—</h3></div>
+            </div>
+            <div class="user-metric-card">
+                <div class="umc-icon umc-green"><i data-lucide="home"></i></div>
+                <div class="umc-body"><span>Residents</span><h3 id="m-residents">—</h3></div>
+            </div>
+            <div class="user-metric-card">
+                <div class="umc-icon umc-blue"><i data-lucide="shield-check"></i></div>
+                <div class="umc-body"><span>Admins</span><h3 id="m-admins">—</h3></div>
+            </div>
+            <div class="user-metric-card">
+                <div class="umc-icon umc-purple"><i data-lucide="recycle"></i></div>
+                <div class="umc-body"><span>Total Recycled</span><h3 id="m-recycled">—</h3></div>
+            </div>
+        </div>
+
+        <div class="user-registry-card">
+            <div class="ur-filter-bar">
+                <h3>User Registry</h3>
+                <div class="ur-filter-right">
+                    <div class="ur-search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="searchInput" placeholder="Search name, email, or area…">
+                    </div>
+                    <select class="ur-filter-select" id="roleFilter">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="res">Resident</option>
+                        <option value="worker">Worker</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="table-loading" class="loading-state">
+                <div class="spinner"></div><span>Loading users…</span>
+            </div>
+            <div id="table-empty" class="empty-state" style="display:none;">
+                <i data-lucide="users"></i><span>No users found</span>
+            </div>
+
+            <div class="ur-table-wrap" id="tableWrap" style="display:none;">
+                <table class="ur-grid-table">
+                    <thead>
+                        <tr>
+                            <th>USER</th>
+                            <th>ROLE</th>
+                            <th>AREA</th>
+                            <th>RECYCLED</th>
+                            <th>SCANNED</th>
+                            <th>REPORTS</th>
+                            <th>JOINED</th>
+                            <th style="text-align:right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </div>
+
+            <div class="mobile-user-cards" id="mobileCards"></div>
+
+            <div class="ur-pagination" id="paginationBar" style="display:none;">
+                <p id="paginationInfo">Showing 0 results</p>
+                <div class="pager-controls" id="pagerControls"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>User Details</h3>
+                <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body"   id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, updateDoc, onSnapshot }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const app = initializeApp({
+            apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain:        "ecomate-4c54f.firebaseapp.com",
+            projectId:         "ecomate-4c54f",
+            storageBucket:     "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10"
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        lucide.createIcons();
+        document.body.style.visibility = 'hidden';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const snap = await getDoc(doc(db, 'users', user.uid));
+            if (!snap.exists() || snap.data().role !== 'admin') {
+                await signOut(auth); window.location.href = 'login.html'; return;
+            }
+            document.body.style.visibility = 'visible';
+            document.getElementById('adminEmail').textContent = user.email || 'Admin';
+            initPage();
+        });
+
+        // ── Avatar dropdown ──
+        document.getElementById('avatarBtn').addEventListener('click', e => {
+            e.stopPropagation();
+            document.getElementById('avatarDropdown').classList.toggle('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+            lucide.createIcons();
+        });
+        document.addEventListener('click', () => {
+            document.getElementById('avatarDropdown').classList.remove('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+        });
+        document.getElementById('dropLogout').addEventListener('click', async () => {
+            await signOut(auth); window.location.href = 'login.html';
+        });
+
+        // ── Hamburger ──
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('hamburgerBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('open'); overlay.classList.toggle('show');
+            lucide.createIcons();
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        });
+        sidebar.querySelectorAll('.admin-nav a').forEach(l => l.addEventListener('click', () => {
+            sidebar.classList.remove('open'); overlay.classList.remove('show');
+        }));
+
+        // ── Date/time ──
+        function updateDateTime() {
+            document.getElementById('liveDateTime').textContent =
+                new Date().toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                + ' · ' + new Date().toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+        }
+        updateDateTime(); setInterval(updateDateTime, 60000);
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function formatTimeAgo(date) {
+            const s = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (s < 60)    return `${s}s ago`;
+            if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+            if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+            return `${Math.floor(s/86400)}d ago`;
+        }
+
+        function initials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function avatarHTML(u, cls) {
+            if (u.photoBase64) {
+                return `<div class="${cls}"><img src="${u.photoBase64}" alt="${u.fullName || ''}"></div>`;
+            }
+            return `<div class="${cls}">${initials(u.fullName)}</div>`;
+        }
+
+        function rolePill(role) {
+            const map = {
+                admin:  { cls: 'admin',   label: 'Admin'    },
+                res:    { cls: 'res',      label: 'Resident' },
+                worker: { cls: 'worker',   label: 'Worker'   },
+            };
+            const r = map[role] || { cls: 'default', label: role || 'User' };
+            return `<span class="role-pill ${r.cls}">${r.label}</span>`;
+        }
+
+        function formatDate(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+        }
+
+        function initPage() {
+            const ROWS = 10;
+            let allUsers     = [];
+            let allReportDocs = [];
+            let filtered     = [];
+            let currentPage  = 1;
+
+            // ── NOTIFICATION STATE ────────────────────────────────────────
+            let dismissedReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('um_dismissedReportIds') || '[]')
+            );
+            let seenReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('um_seenReportIds') || '[]')
+            );
+
+            function saveDismissed() {
+                sessionStorage.setItem('um_dismissedReportIds', JSON.stringify([...dismissedReportIds]));
+            }
+            function saveSeen() {
+                sessionStorage.setItem('um_seenReportIds', JSON.stringify([...seenReportIds]));
+            }
+            function markNotifsSeen() {
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveSeen();
+            }
+
+            // ── BELL TOGGLE ───────────────────────────────────────────────
+            const notifBell     = document.getElementById('notif-bell');
+            const notifDropdown = document.getElementById('notifDropdown');
+
+            notifBell.addEventListener('click', e => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('open');
+                document.getElementById('avatarDropdown').classList.remove('open');
+                if (notifDropdown.classList.contains('open')) {
+                    document.getElementById('notifDot').style.display = 'none';
+                    markNotifsSeen();
+                }
+                lucide.createIcons();
+            });
+            notifDropdown.addEventListener('click', e => e.stopPropagation());
+
+            // ── MARK ALL READ ─────────────────────────────────────────────
+            document.getElementById('markAllRead').addEventListener('click', e => {
+                e.stopPropagation();
+                document.querySelectorAll('#notifList .notif-item[data-id]').forEach(el => {
+                    dismissedReportIds.add(el.dataset.id);
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveDismissed(); saveSeen();
+                document.getElementById('notifDot').style.display = 'none';
+                document.getElementById('notifList').innerHTML = `
+                    <div class="notif-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No new notifications</span>
+                    </div>`;
+                lucide.createIcons();
+            });
+
+            // ── RENDER NOTIF LIST ─────────────────────────────────────────
+            function renderNotifList(reports) {
+                const listEl = document.getElementById('notifList');
+                if (!reports.length) {
+                    listEl.innerHTML = `
+                        <div class="notif-empty">
+                            <i data-lucide="inbox"></i>
+                            <span>No new notifications</span>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+                listEl.innerHTML = reports.map(r => {
+                    const ts     = r.timestamp?.toDate?.();
+                    const ago    = ts ? formatTimeAgo(ts) : '—';
+                    const isNew  = !seenReportIds.has(r.id);
+                    const urgCls = r.status === 'urgent' ? 'urgent' : 'pending';
+                    const icon   = r.status === 'urgent' ? '🚨' : '📋';
+                    return `
+                        <div class="notif-item ${isNew ? 'unread' : ''}" data-id="${r.id}">
+                            <div class="notif-icon-wrap ${urgCls}">${icon}</div>
+                            <div class="notif-content">
+                                <p class="notif-title">${r.wasteType || 'New Report'} · <span class="notif-stat-pill ${urgCls}">${(r.status||'pending').toUpperCase()}</span></p>
+                                <p class="notif-sub">${r.location || '—'} · ${r.reporterName || '—'}</p>
+                                <p class="notif-time">${ago}</p>
+                            </div>
+                            ${isNew ? '<div class="notif-unread-dot"></div>' : ''}
+                        </div>`;
+                }).join('');
+                lucide.createIcons();
+
+                listEl.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    el.addEventListener('click', e => {
+                        e.stopPropagation();
+                        seenReportIds.add(el.dataset.id);
+                        saveSeen();
+                        el.classList.remove('unread');
+                        el.querySelector('.notif-unread-dot')?.remove();
+                        notifDropdown.classList.remove('open');
+                    });
+                });
+            }
+
+            // ── LIVE REPORTS LISTENER ─────────────────────────────────────
+            onSnapshot(collection(db, 'reports'), snap => {
+                allReportDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                const notifReports = allReportDocs
+                    .filter(d => (d.status === 'pending' || d.status === 'urgent') && !dismissedReportIds.has(d.id))
+                    .sort((a, b) => (b.timestamp?.toDate?.() || new Date(0)) - (a.timestamp?.toDate?.() || new Date(0)))
+                    .slice(0, 20);
+
+                const unreadCount = notifReports.filter(r => !seenReportIds.has(r.id)).length;
+                document.getElementById('notifDot').style.display = unreadCount > 0 ? 'block' : 'none';
+                renderNotifList(notifReports);
+            });
+
+            // ── LIVE USERS LISTENER ───────────────────────────────────────
+            onSnapshot(collection(db, 'users'), snap => {
+                allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+
+                document.getElementById('m-total').textContent     = allUsers.length;
+                document.getElementById('m-residents').textContent = allUsers.filter(u => u.role === 'res').length;
+                document.getElementById('m-admins').textContent    = allUsers.filter(u => u.role === 'admin').length;
+                document.getElementById('m-recycled').textContent  =
+                    allUsers.reduce((s, u) => s + (parseInt(u.recycledCount) || 0), 0);
+
+                applyFilters();
+            });
+
+            function applyFilters() {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const role   = document.getElementById('roleFilter').value;
+                filtered = allUsers.filter(u => {
+                    const matchRole   = role === 'all' || u.role === role;
+                    const matchSearch = !search ||
+                        (u.fullName || '').toLowerCase().includes(search) ||
+                        (u.email    || '').toLowerCase().includes(search) ||
+                        (u.area     || '').toLowerCase().includes(search);
+                    return matchRole && matchSearch;
+                });
+                currentPage = 1;
+                renderTable();
+            }
+
+            document.getElementById('searchInput').addEventListener('input',  applyFilters);
+            document.getElementById('roleFilter').addEventListener('change',  applyFilters);
+
+            function renderTable() {
+                document.getElementById('table-loading').style.display = 'none';
+
+                if (!filtered.length) {
+                    document.getElementById('table-empty').style.display   = 'flex';
+                    document.getElementById('tableWrap').style.display     = 'none';
+                    document.getElementById('mobileCards').style.display   = 'none';
+                    document.getElementById('paginationBar').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('table-empty').style.display   = 'none';
+                document.getElementById('tableWrap').style.display     = '';
+                document.getElementById('mobileCards').style.display   = '';
+                document.getElementById('paginationBar').style.display = 'flex';
+
+                const start    = (currentPage - 1) * ROWS;
+                const pageRows = filtered.slice(start, start + ROWS);
+                const total    = filtered.length;
+                const pages    = Math.ceil(total / ROWS);
+
+                document.getElementById('paginationInfo').textContent =
+                    `Showing ${start + 1}–${Math.min(start + ROWS, total)} of ${total} users`;
+
+                const pager = document.getElementById('pagerControls');
+                pager.innerHTML = '';
+                const addBtn = (label, page, isActive, isDisabled) => {
+                    const btn = document.createElement('button');
+                    btn.innerHTML = label;
+                    if (isActive)   btn.classList.add('active');
+                    if (isDisabled) btn.disabled = true;
+                    btn.addEventListener('click', () => { currentPage = page; renderTable(); });
+                    pager.appendChild(btn);
+                };
+                addBtn('<i data-lucide="chevron-left"></i>', currentPage - 1, false, currentPage === 1);
+                let startP = Math.max(1, currentPage - 2), endP = Math.min(pages, startP + 4);
+                if (endP - startP < 4) startP = Math.max(1, endP - 4);
+                for (let i = startP; i <= endP; i++) addBtn(i, i, i === currentPage, false);
+                addBtn('<i data-lucide="chevron-right"></i>', currentPage + 1, false, currentPage === pages);
+
+                // Desktop rows
+                const tbody = document.getElementById('usersBody');
+                tbody.innerHTML = '';
+                pageRows.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="td-user">
+                                ${avatarHTML(u, 'td-user-avatar')}
+                                <div class="td-user-info">
+                                    <div class="name">${u.fullName || '—'}</div>
+                                    <div class="email">${u.email || '—'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${rolePill(u.role)}</td>
+                        <td><span class="td-area">${u.area || '—'}</span></td>
+                        <td><span class="td-stats">${u.recycledCount || 0}</span></td>
+                        <td><span class="td-stats">${u.scannedCount || 0}</span></td>
+                        <td><span class="td-stats">${u.resolvedReportsCount || 0}</span></td>
+                        <td><span class="joined-date">${formatDate(u.createdAt)}</span></td>
+                        <td style="text-align:right;">
+                            <button class="view-btn" data-id="${u.id}" style="
+                                display:inline-flex;align-items:center;gap:6px;
+                                background:var(--light-green);border:none;color:var(--accent-green);
+                                font-size:0.8rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                                padding:6px 14px;border-radius:8px;cursor:pointer;transition:all 0.2s;">
+                                <i data-lucide="eye"></i> View
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Mobile cards
+                const mc = document.getElementById('mobileCards');
+                mc.innerHTML = '';
+                pageRows.forEach(u => {
+                    const card = document.createElement('div');
+                    card.className = 'mobile-user-card';
+                    card.innerHTML = `
+                        <div class="muc-top">
+                            ${avatarHTML(u, 'muc-avatar')}
+                            <div class="muc-info">
+                                <div class="name">${u.fullName || '—'}</div>
+                                <div class="email">${u.email || '—'}</div>
+                            </div>
+                            ${rolePill(u.role)}
+                        </div>
+                        <div class="muc-meta">
+                            <span class="td-area">${u.area || '—'}</span>
+                            <span class="muc-stat">♻ ${u.recycledCount || 0}</span>
+                            <span class="muc-stat">🔍 ${u.scannedCount || 0}</span>
+                        </div>
+                        <div class="muc-bottom">
+                            <span class="joined-date">${formatDate(u.createdAt)}</span>
+                            <button class="view-btn" data-id="${u.id}" style="
+                                display:inline-flex;align-items:center;gap:6px;
+                                background:var(--light-green);border:none;color:var(--accent-green);
+                                font-size:0.8rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                                padding:6px 14px;border-radius:8px;cursor:pointer;transition:all 0.2s;">
+                                <i data-lucide="eye"></i> View
+                            </button>
+                        </div>
+                    `;
+                    mc.appendChild(card);
+                });
+
+                lucide.createIcons();
+
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const u = filtered.find(x => x.id === btn.dataset.id);
+                        if (u) openModal(u);
+                    });
+                });
+            }
+
+            function openModal(u) {
+                document.getElementById('modalBody').innerHTML = `
+                    ${avatarHTML(u, 'modal-avatar')}
+                    <div class="modal-info-grid">
+                        <div class="modal-info-item full">
+                            <span>Full Name</span>
+                            <strong>${u.fullName || '—'}</strong>
+                        </div>
+                        <div class="modal-info-item">
+                            <span>Email</span>
+                            <strong style="font-size:0.8rem;">${u.email || '—'}</strong>
+                        </div>
+                        <div class="modal-info-item">
+                            <span>Role</span>
+                            <strong>${rolePill(u.role)}</strong>
+                        </div>
+                        <div class="modal-info-item">
+                            <span>Area / Barangay</span>
+                            <strong>${u.area || '—'}</strong>
+                        </div>
+                        <div class="modal-info-item">
+                            <span>Joined</span>
+                            <strong>${formatDate(u.createdAt)}</strong>
+                        </div>
+                    </div>
+                    <div class="modal-stats-row">
+                        <div class="modal-stat-box"><span>Recycled</span><h4>${u.recycledCount || 0}</h4></div>
+                        <div class="modal-stat-box"><span>Scanned</span><h4>${u.scannedCount || 0}</h4></div>
+                        <div class="modal-stat-box"><span>Reports</span><h4>${u.resolvedReportsCount || 0}</h4></div>
+                    </div>
+                `;
+
+                document.getElementById('modalFooter').innerHTML = `
+                    <button class="btn-primary" id="btnMakeAdmin" ${u.role === 'admin' ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>
+                        ${u.role === 'admin' ? 'Already Admin' : 'Make Admin'}
+                    </button>
+                    <button class="btn-primary" id="btnMakeRes" style="background:#0277BD;" ${u.role === 'res' ? 'disabled style="opacity:0.4;cursor:not-allowed;background:#0277BD;"' : ''}>
+                        ${u.role === 'res' ? 'Already Resident' : 'Set as Resident'}
+                    </button>
+                `;
+
+                document.getElementById('btnMakeAdmin')?.addEventListener('click', () => updateRole(u.id, 'admin'));
+                document.getElementById('btnMakeRes')?.addEventListener('click',   () => updateRole(u.id, 'res'));
+
+                document.getElementById('userModal').classList.add('show');
+                lucide.createIcons();
+            }
+
+            async function updateRole(uid, role) {
+                try {
+                    await updateDoc(doc(db, 'users', uid), { role });
+                    document.getElementById('userModal').classList.remove('show');
+                    showToast(`User role updated to ${role} ✓`);
+                } catch(err) { showToast('Error: ' + err.message); }
+            }
+
+            document.getElementById('modalClose').addEventListener('click', () =>
+                document.getElementById('userModal').classList.remove('show'));
+            document.getElementById('userModal').addEventListener('click', e => {
+                if (e.target.id === 'userModal')
+                    document.getElementById('userModal').classList.remove('show');
+            });
+        }
+    </script>
+</body>
+</html>

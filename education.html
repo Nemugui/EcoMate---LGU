@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - Education Hub</title>
+    <link rel="stylesheet" href="../css/education.css">
+    <script type="module" src="../js/education.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Pop-up Modal for Details -->
+    <div id="education-modal" class="modal-overlay">
+        <div class="modal-content glass-effect">
+            <button class="modal-close" id="modal-close"><i data-lucide="x"></i></button>
+            <div id="modal-body-content">
+                <!-- Dynamic Content via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand-section">
+            <h1>EcoMate</h1>
+            <span>RESIDENT PORTAL</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="resdashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+            <a href="schedule_collection-log.html" class="nav-item">
+                <i data-lucide="calendar"></i>
+                Schedule & Collection Log
+            </a>
+            <a href="history.html" class="nav-item">
+                <i data-lucide="history"></i>
+                History
+            </a>
+            <a href="education.html" class="nav-item active">
+                <i data-lucide="graduation-cap"></i>
+                Education
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+        <!-- Top Header -->
+        <header class="page-header">
+            <div class="header-titles">
+                <h2>Education Hub</h2>
+                <p>Learn proper waste management and eco-friendly practices</p>
+            </div>
+            <div class="header-icons">
+                <div class="user-profile">
+                    <span class="user-initial-display">?</span> 
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Featured Banner -->
+        <section class="hero-banner">
+            <div class="hero-content">
+                <span class="hero-badge">FEATURED COURSE</span>
+                <h3>Start learning and master waste management</h3>
+                <p>Visit this education hub and learn how to maximize your community's recycling output.</p>
+                <button class="btn-start-learning">
+                    Start Learning
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+            <div class="hero-image-container">
+                <img src="../images/education3.png" alt="Education Poster" class="hero-poster-img">
+            </div>
+        </section>
+
+        <!-- Segregation Guide -->
+        <section class="segregation-guide">
+            <div class="section-title-row">
+                <h3>Segregation Guide</h3>
+                <a href="#" class="pdf-link">Download PDF Guide</a>
+            </div>
+            <div class="guide-grid">
+                <!-- Recyclable -->
+                <div class="guide-card rec">
+                    <div class="g-icon-box"><i data-lucide="recycle"></i></div>
+                    <h4>Recyclable</h4>
+                    <p>Paper, cardboard, glass bottles, and clean plastic containers.</p>
+                    <button class="btn-view-details">View Details</button>
+                </div>
+                <!-- Biodegradable -->
+                <div class="guide-card bio">
+                    <div class="g-icon-box"><i data-lucide="leaf"></i></div>
+                    <h4>Biodegradable</h4>
+                    <p>Food scraps, garden waste, and natural fiber materials.</p>
+                    <button class="btn-view-details">View Details</button>
+                </div>
+                <!-- Hazardous -->
+                <div class="guide-card haz">
+                    <div class="g-icon-box"><i data-lucide="alert-triangle"></i></div>
+                    <h4>Hazardous</h4>
+                    <p>Batteries, electronics, paint, and medical waste.</p>
+                    <button class="btn-view-details">View Details</button>
+                </div>
+                <!-- General Waste -->
+                <div class="guide-card gen">
+                    <div class="g-icon-box"><i data-lucide="trash-2"></i></div>
+                    <h4>General Waste</h4>
+                    <p>Contaminated food wrappers and non-recyclable organics.</p>
+                    <button class="btn-view-details">View Details</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Library & Safety -->
+        <section class="middle-grid">
+            <div class="content-library-side">
+                <div class="section-title-row">
+                    <h3><i data-lucide="book-open" style="width: 20px; vertical-align: middle; margin-right: 10px;"></i> Content Library</h3>
+                </div>
+                <div class="content-library-grid">
+                    <!-- Article 1 -->
+                    <div class="article-card">
+                        <div class="article-thumb" style="background-image: linear-gradient(to bottom, #E0F2F1, #B2DFDB); padding: 2rem; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="package" style="width: 60px; height: 60px; color: #00897B;"></i>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-meta">
+                                <span class="art-tag">PLASTIC REDUCTION</span>
+                                <span class="art-date">OCT 24, 2023</span>
+                            </div>
+                            <h4>The 2024 Guide to Plastic-Free Living</h4>
+                            <p>Practical steps to eliminate single-use plastics from your daily household...</p>
+                            <a href="#" class="read-more">Read More <i data-lucide="chevron-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- Article 2 -->
+                    <div class="article-card">
+                        <div class="article-thumb" style="background-image: linear-gradient(to bottom, #FFE0B2, #FFB74D); padding: 2rem; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="sprout" style="width: 60px; height: 60px; color: #5D4037;"></i>
+                        </div>
+                        <div class="article-body">
+                            <div class="article-meta">
+                                <span class="art-tag">COMPOSTING</span>
+                                <span class="art-date">OCT 18, 2023</span>
+                            </div>
+                            <h4>Composting for Apartment Dwellers</h4>
+                            <p>No backyard? No problem. Learn how to use bin boxes and worm farms in small...</p>
+                            <a href="#" class="read-more">Read More <i data-lucide="chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worker Safety Card -->
+            <div class="safety-card">
+                <div class="safety-header">
+                    <i data-lucide="shield-alert"></i>
+                    <h4>Worker Safety</h4>
+                </div>
+                <p class="safety-desc">Your proper disposal ensures the safety of our sanitation workers.</p>
+                <div class="safety-checklist">
+                    <div class="safety-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span class="si-text">Seal Sharp Objects</span>
+                    </div>
+                    <div class="safety-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span class="si-text">Wash Containers</span>
+                    </div>
+                    <div class="safety-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span class="si-text">Secure Lids</span>
+                    </div>
+                </div>
+                <div class="emergency-notice">
+                    <h5>EMERGENCY HANDLING</h5>
+                    <p>For chemical spills or toxic leaks, call <strong>(555) 0199</strong> immediately.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Eco-Tips -->
+        <section class="eco-tips-section">
+            <h3>Quick Eco-Tips</h3>
+            <div class="eco-tips-grid">
+                <div class="tip-card peach">
+                    <i data-lucide="coffee"></i>
+                    <h4>Reduce Plastic</h4>
+                    <p>Carry a reusable coffee cup to save over 300 disposable cups a year.</p>
+                    <div class="effort-badge"><i data-lucide="zap" style="width: 12px;"></i> Do with EFFORT</div>
+                </div>
+                <div class="tip-card blue">
+                    <i data-lucide="plug"></i>
+                    <h4>Energy Check</h4>
+                    <p>Unplug electronics when fully charged to prevent "vampire" power loss.</p>
+                    <div class="effort-badge"><i data-lucide="zap" style="width: 12px;"></i> Do with EFFORT</div>
+                </div>
+                <div class="tip-card green">
+                    <i data-lucide="droplet"></i>
+                    <h4>Save Water</h4>
+                    <p>Turn off the tap while brushing teeth to save up to 8 gallons a day.</p>
+                    <div class="effort-badge"><i data-lucide="zap" style="width: 12px;"></i> Do with EFFORT</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script type="module" src="../js/user-display.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile sidebar toggle
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        }
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeSidebar();
+            });
+        });
+    </script>
+</body>
+</html>

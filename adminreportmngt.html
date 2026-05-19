@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Management - EcoMate Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/admindashboard.css">
+    <link rel="stylesheet" href="../css/adminreportmngt.css">
+
+    <style>
+        /* ── ASSIGN WORKER MODAL ───────────────────────────────────────── */
+        .assign-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1100;
+            padding: 1rem;
+            backdrop-filter: blur(3px);
+        }
+        .assign-modal-overlay.show { display: flex; }
+
+        .assign-modal-card {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: assignModalIn 0.25s ease;
+            overflow: hidden;
+            position: relative;
+            z-index: 1101;
+        }
+        @keyframes assignModalIn {
+            from { transform: scale(0.94) translateY(12px); opacity: 0; }
+            to   { transform: none; opacity: 1; }
+        }
+
+        .assign-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border, #E8EAED);
+        }
+        .assign-modal-header h3 {
+            font-size: 1rem; font-weight: 800;
+            color: var(--text-primary, #1A1A2E);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .assign-modal-header h3 svg { width: 18px; height: 18px; color: var(--accent-green, #2E7D32); }
+
+        .assign-modal-close {
+            width: 30px; height: 30px; background: var(--admin-bg, #F4F6F8);
+            border: none; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted, #7B8FA1); transition: all 0.2s;
+        }
+        .assign-modal-close svg { width: 15px; height: 15px; }
+        .assign-modal-close:hover { background: #FFEBEE; color: #C62828; }
+
+        .assign-modal-body { padding: 1.25rem 1.5rem; }
+
+        .assign-report-preview {
+            background: var(--admin-bg, #F4F6F8);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .assign-report-preview svg {
+            width: 16px; height: 16px;
+            color: var(--accent-green, #2E7D32); flex-shrink: 0;
+        }
+        .assign-report-preview span {
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-primary, #1A1A2E);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .assign-field { display: flex; flex-direction: column; gap: 6px; }
+        .assign-field label {
+            font-size: 0.65rem; font-weight: 800;
+            color: var(--text-muted, #7B8FA1);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .assign-field select {
+            background: var(--admin-bg, #F4F6F8);
+            border: 1px solid var(--border, #E8EAED);
+            border-radius: 10px;
+            padding: 0.75rem 0.875rem;
+            font-size: 0.875rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-primary, #1A1A2E);
+            transition: border-color 0.2s; width: 100%;
+            cursor: pointer;
+        }
+        .assign-field select:focus {
+            outline: none;
+            border-color: var(--accent-green, #2E7D32);
+            background: #fff;
+        }
+        .assign-hint {
+            font-size: 0.7rem; color: var(--text-muted, #7B8FA1);
+            font-style: italic; margin-top: 4px;
+        }
+
+        .current-assignee-row {
+            display: flex; align-items: center; gap: 8px;
+            background: #E8F5E9; border: 1px solid #C8E6C9;
+            border-radius: 10px; padding: 0.6rem 0.875rem;
+            margin-bottom: 1rem;
+        }
+        .current-assignee-row svg { width: 14px; height: 14px; color: #2E7D32; flex-shrink: 0; }
+        .current-assignee-row span { font-size: 0.78rem; font-weight: 600; color: #1B5E20; }
+        .current-assignee-row.unassigned { background: var(--admin-bg, #F4F6F8); border-color: var(--border, #E8EAED); }
+        .current-assignee-row.unassigned svg { color: var(--text-muted, #7B8FA1); }
+        .current-assignee-row.unassigned span { color: var(--text-muted, #7B8FA1); font-style: italic; }
+
+        .assign-modal-footer {
+            display: flex; gap: 0.75rem;
+            padding: 0 1.5rem 1.5rem;
+        }
+        .btn-assign-save {
+            flex: 1; background: var(--accent-green, #2E7D32); color: white;
+            border: none; padding: 0.75rem; border-radius: 50px;
+            font-weight: 700; font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-assign-save:hover:not(:disabled) { background: var(--dark-green, #1B5E20); }
+        .btn-assign-save:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-assign-cancel {
+            flex: 0.5; background: var(--admin-bg, #F4F6F8); color: var(--text-primary, #1A1A2E);
+            border: 1px solid var(--border, #E8EAED); padding: 0.75rem; border-radius: 50px;
+            font-weight: 700; font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-assign-cancel:hover { background: var(--border, #E8EAED); }
+
+        .btn-modal-assign {
+            flex: 1;
+            background: #E3F2FD;
+            color: #0277BD;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-modal-assign svg { width: 15px; height: 15px; }
+        .btn-modal-assign:hover { background: #BBDEFB; }
+
+        .modal-assigned-worker-row {
+            display: flex; align-items: center; gap: 8px;
+            background: #E8F5E9; border: 1px solid #C8E6C9;
+            border-radius: 10px; padding: 0.6rem 0.875rem;
+            margin-top: 0.75rem;
+        }
+        .modal-assigned-worker-row svg { width: 14px; height: 14px; color: #2E7D32; flex-shrink: 0; }
+        .modal-assigned-worker-row span { font-size: 0.8rem; font-weight: 600; color: #1B5E20; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">
+                <i data-lucide="leaf"></i>
+            </div>
+            <div class="sidebar-header-info">
+                <h1>EcoMate</h1>
+                <span>LGU Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="admindashboard.html">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="adminreportmngt.html" class="active">
+                <i data-lucide="clipboard-list"></i>
+                <span>Reports</span>
+            </a>
+            <a href="adminschedfleet.html">
+                <i data-lucide="truck"></i>
+                <span>Schedule & Fleet</span>
+            </a>
+            <a href="admineducational.html">
+                <i data-lucide="book-open"></i>
+                <span>Educational</span>
+            </a>
+            <a href="adminusermngt.html">
+                <i data-lucide="users"></i>
+                <span>Users</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <button class="hamburger" id="hamburgerBtn">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="header-title">
+                <h2>Report Management</h2>
+                <p id="liveDateTime">Loading...</p>
+            </div>
+            <div class="header-actions">
+
+                <!-- BELL / NOTIFICATION -->
+                <div class="icon-box notif-wrapper" id="notif-bell">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot" id="notifDot" style="display:none;"></div>
+
+                    <!-- NOTIFICATION DROPDOWN -->
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i data-lucide="inbox"></i>
+                                <span>No new notifications</span>
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="adminreportmngt.html">View all reports →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatarBtn">
+                        <i data-lucide="user-circle"></i>
+                    </div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-info">
+                            <span>Signed in as</span>
+                            <strong id="adminEmail">Admin</strong>
+                        </div>
+                        <button class="dropdown-item danger" id="dropLogout">
+                            <i data-lucide="log-out"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- METRICS ROW -->
+        <div class="report-metrics-row">
+            <div class="report-metric-card">
+                <div class="rm-mc-info">
+                    <span>TOTAL REPORTS</span>
+                    <h3 id="m-total">—</h3>
+                </div>
+                <div class="rm-mc-icon">
+                    <i data-lucide="bar-chart-2"></i>
+                </div>
+            </div>
+            <div class="report-metric-card">
+                <div class="rm-mc-info">
+                    <span>PENDING</span>
+                    <h3 id="m-pending" class="text-warn">—</h3>
+                </div>
+                <div class="rm-mc-icon warn">
+                    <i data-lucide="clock"></i>
+                </div>
+            </div>
+            <div class="report-metric-card">
+                <div class="rm-mc-info">
+                    <span>URGENT</span>
+                    <h3 id="m-urgent" class="text-danger">—</h3>
+                </div>
+                <div class="rm-mc-icon danger">
+                    <i data-lucide="alert-octagon"></i>
+                </div>
+            </div>
+            <div class="report-metric-card">
+                <div class="rm-mc-info">
+                    <span>RESOLVED</span>
+                    <h3 id="m-resolved" class="text-success">—</h3>
+                </div>
+                <div class="rm-mc-icon success">
+                    <i data-lucide="check-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN TABLE CARD -->
+        <div class="report-mgr-card">
+
+            <!-- FILTER BAR -->
+            <div class="rm-filter-bar">
+                <div class="rm-search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="searchInput" placeholder="Search location, reporter, or waste type...">
+                </div>
+                <div class="rm-filter-right">
+                    <div class="rm-filter-dropdown">
+                        <span>Status:</span>
+                        <select id="statusFilter">
+                            <option value="all">All Reports</option>
+                            <option value="pending">Pending</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div class="rm-filter-dropdown">
+                        <span>Type:</span>
+                        <select id="typeFilter">
+                            <option value="all">All Types</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOADING -->
+            <div id="table-loading" class="loading-state">
+                <div class="spinner"></div>
+                <span>Loading reports...</span>
+            </div>
+
+            <!-- EMPTY -->
+            <div id="table-empty" class="empty-state" style="display:none;">
+                <i data-lucide="inbox"></i>
+                <span>No reports found</span>
+            </div>
+
+            <!-- DESKTOP TABLE -->
+            <div class="rm-table-wrap" id="tableWrap" style="display:none;">
+                <table class="rm-grid-table">
+                    <thead>
+                        <tr>
+                            <th>IMAGE</th>
+                            <th>LOCATION</th>
+                            <th>WASTE TYPE</th>
+                            <th>REPORTER</th>
+                            <th>ASSIGNED TO</th>
+                            <th>STATUS</th>
+                            <th>DATE</th>
+                            <th style="text-align:right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody"></tbody>
+                </table>
+            </div>
+
+            <!-- MOBILE CARDS -->
+            <div class="mobile-report-cards" id="mobileCards"></div>
+
+            <!-- PAGINATION -->
+            <div class="rm-pagination" id="paginationBar" style="display:none;">
+                <p id="paginationInfo">Showing 0 results</p>
+                <div class="pager-controls" id="pagerControls"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ══ REPORT DETAIL MODAL ══ -->
+    <div class="modal-overlay" id="reportModal" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Report Details</h3>
+                <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn-modal-resolve" id="btnResolve">Mark as Resolved</button>
+                <button class="btn-modal-urgent"  id="btnUrgent">Mark as Urgent</button>
+                <button class="btn-modal-pending" id="btnPending">Mark as Pending</button>
+                <button class="btn-modal-assign"  id="btnAssign">
+                    <i data-lucide="user-check"></i> Assign Worker
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ASSIGN WORKER MODAL ══ -->
+    <div class="assign-modal-overlay" id="assignModal">
+        <div class="assign-modal-card">
+            <div class="assign-modal-header">
+                <h3><i data-lucide="user-check"></i> Assign Worker to Report</h3>
+                <button class="assign-modal-close" id="assignModalClose">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="assign-modal-body">
+                <div class="assign-report-preview">
+                    <i data-lucide="map-pin"></i>
+                    <span id="assign-report-label">—</span>
+                </div>
+                <div class="current-assignee-row unassigned" id="currentAssigneeRow">
+                    <i data-lucide="user"></i>
+                    <span id="currentAssigneeName">Not yet assigned</span>
+                </div>
+                <div class="assign-field">
+                    <label>Select Worker</label>
+                    <select id="assignWorkerSelect">
+                        <option value="">No worker assigned</option>
+                    </select>
+                    <span class="assign-hint">
+                        The assigned worker will be notified via their dashboard.
+                    </span>
+                </div>
+            </div>
+            <div class="assign-modal-footer">
+                <button class="btn-assign-save"   id="btnAssignSave">Save Assignment</button>
+                <button class="btn-assign-cancel" id="btnAssignCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore, collection, doc, getDoc, updateDoc,
+            onSnapshot, query, where, getDocs
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const app  = initializeApp({
+            apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain:        "ecomate-4c54f.firebaseapp.com",
+            projectId:         "ecomate-4c54f",
+            storageBucket:     "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10"
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        lucide.createIcons();
+        document.body.style.visibility = 'hidden';
+
+        // ── NOTIFICATION BELL ──────────────────────────────────────────────
+        const notifBell     = document.getElementById('notif-bell');
+        const notifDropdown = document.getElementById('notifDropdown');
+
+        notifBell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifDropdown.classList.toggle('open');
+            document.getElementById('avatarDropdown').classList.remove('open');
+            if (notifDropdown.classList.contains('open')) {
+                document.getElementById('notifDot').style.display = 'none';
+                if (typeof markNotifsSeen === 'function') markNotifsSeen();
+            }
+            lucide.createIcons();
+        });
+
+        // ── AUTH GUARD ─────────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (!userSnap.exists() || userSnap.data().role !== 'admin') {
+                await signOut(auth);
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.body.style.visibility = 'visible';
+            document.getElementById('adminEmail').textContent = user.email || 'Admin';
+            initPage();
+        });
+
+        // ── AVATAR DROPDOWN ────────────────────────────────────────────────
+        document.getElementById('avatarBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('avatarDropdown').classList.toggle('open');
+            notifDropdown.classList.remove('open');
+            lucide.createIcons();
+        });
+        document.addEventListener('click', () => {
+            document.getElementById('avatarDropdown').classList.remove('open');
+            notifDropdown.classList.remove('open');
+        });
+
+        document.getElementById('dropLogout').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+
+        // ── HAMBURGER ──────────────────────────────────────────────────────
+        const sidebar  = document.getElementById('adminSidebar');
+        const overlay  = document.getElementById('sidebarOverlay');
+
+        document.getElementById('hamburgerBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+            lucide.createIcons();
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+        sidebar.querySelectorAll('.admin-nav a').forEach(l => l.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }));
+
+        // ── DATE/TIME ──────────────────────────────────────────────────────
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('liveDateTime').textContent =
+                now.toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                + ' · ' + now.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // ── HELPERS ────────────────────────────────────────────────────────
+        function formatTimeAgo(date) {
+            const s = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (s < 60)    return `${s}s ago`;
+            if (s < 3600)  return `${Math.floor(s / 60)}m ago`;
+            if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+            return `${Math.floor(s / 86400)}d ago`;
+        }
+
+        // ── MAIN PAGE LOGIC ────────────────────────────────────────────────
+        function initPage() {
+            const ROWS_PER_PAGE = 10;
+            let allReports      = [];
+            let allWorkers      = [];
+            let filtered        = [];
+            let currentPage     = 1;
+            let currentReport   = null;
+
+            // ── Notification state ────────────────────────────────────────
+            let dismissedReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('dismissedReportIds') || '[]')
+            );
+            let seenReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('seenReportIds') || '[]')
+            );
+
+            function saveDismissed() {
+                sessionStorage.setItem('dismissedReportIds', JSON.stringify([...dismissedReportIds]));
+            }
+            function saveSeen() {
+                sessionStorage.setItem('seenReportIds', JSON.stringify([...seenReportIds]));
+            }
+
+            window.markNotifsSeen = function () {
+                document.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveSeen();
+            };
+
+            document.getElementById('markAllRead').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    dismissedReportIds.add(el.dataset.id);
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveDismissed();
+                saveSeen();
+                document.getElementById('notifDot').style.display = 'none';
+                const listEl = document.getElementById('notifList');
+                listEl.innerHTML = `
+                    <div class="notif-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No new notifications</span>
+                    </div>`;
+                lucide.createIcons();
+            });
+
+            // ── Render notification list ──────────────────────────────────
+            function renderNotifList(reports) {
+                const listEl = document.getElementById('notifList');
+
+                if (!reports.length) {
+                    listEl.innerHTML = `
+                        <div class="notif-empty">
+                            <i data-lucide="inbox"></i>
+                            <span>No new notifications</span>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                listEl.innerHTML = reports.map(r => {
+                    const ts     = r.timestamp?.toDate?.();
+                    const ago    = ts ? formatTimeAgo(ts) : '—';
+                    const isNew  = !seenReportIds.has(r.id);
+                    const urgCls = r.status === 'urgent' ? 'urgent' : 'pending';
+                    const icon   = r.status === 'urgent' ? '🚨' : '📋';
+                    return `
+                        <div class="notif-item ${isNew ? 'unread' : ''}" data-id="${r.id}">
+                            <div class="notif-icon-wrap ${urgCls}">${icon}</div>
+                            <div class="notif-content">
+                                <p class="notif-title">${r.wasteType || 'New Report'} · <span class="stat-pill ${urgCls}">${(r.status || 'pending').toUpperCase()}</span></p>
+                                <p class="notif-sub">${r.location || '—'} · ${r.reporterName || '—'}</p>
+                                <p class="notif-time">${ago}</p>
+                            </div>
+                            ${isNew ? '<div class="notif-unread-dot"></div>' : ''}
+                        </div>`;
+                }).join('');
+
+                lucide.createIcons();
+
+                listEl.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const r = allReports.find(x => x.id === el.dataset.id);
+                        if (r) {
+                            el.classList.remove('unread');
+                            seenReportIds.add(r.id);
+                            saveSeen();
+                            notifDropdown.classList.remove('open');
+                            openModal(r);
+                        }
+                    });
+                });
+            }
+
+            // ── Load workers once ─────────────────────────────────────────
+            async function loadWorkers() {
+                try {
+                    const snap = await getDocs(
+                        query(collection(db, 'users'), where('role', '==', 'worker'))
+                    );
+                    allWorkers = snap.docs.map(d => ({
+                        uid:      d.id,
+                        fullName: d.data().fullName || d.data().email || d.id,
+                        email:    d.data().email || '',
+                    }));
+                } catch (err) {
+                    console.error('Failed to load workers:', err);
+                    allWorkers = [];
+                }
+            }
+            loadWorkers();
+
+            // ── Live reports listener ─────────────────────────────────────
+            onSnapshot(collection(db, 'reports'), (snap) => {
+                allReports = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) =>
+                        (b.timestamp?.toDate?.() || new Date(0)) -
+                        (a.timestamp?.toDate?.() || new Date(0))
+                    );
+
+                const total    = allReports.length;
+                const pending  = allReports.filter(r => r.status === 'pending').length;
+                const urgent   = allReports.filter(r => r.status === 'urgent').length;
+                const resolved = allReports.filter(r => r.status === 'resolved').length;
+
+                document.getElementById('m-total').textContent    = total;
+                document.getElementById('m-pending').textContent  = pending;
+                document.getElementById('m-urgent').textContent   = urgent;
+                document.getElementById('m-resolved').textContent = resolved;
+
+                // ── Notifications ─────────────────────────────────────────
+                const notifReports = allReports
+                    .filter(r => (r.status === 'pending' || r.status === 'urgent') && !dismissedReportIds.has(r.id))
+                    .slice(0, 20);
+
+                const unreadCount = notifReports.filter(r => !seenReportIds.has(r.id)).length;
+                document.getElementById('notifDot').style.display = unreadCount > 0 ? 'block' : 'none';
+
+                renderNotifList(notifReports);
+
+                // ── Type filter dropdown ──────────────────────────────────
+                const types   = [...new Set(allReports.map(r => r.wasteType).filter(Boolean))];
+                const typeSel = document.getElementById('typeFilter');
+                const curType = typeSel.value;
+                typeSel.innerHTML = '<option value="all">All Types</option>';
+                types.forEach(t => {
+                    const o = document.createElement('option');
+                    o.value = t; o.textContent = t;
+                    if (t === curType) o.selected = true;
+                    typeSel.appendChild(o);
+                });
+
+                // Refresh modal if open
+                if (currentReport && document.getElementById('reportModal').style.display !== 'none') {
+                    const updated = allReports.find(r => r.id === currentReport.id);
+                    if (updated) {
+                        currentReport = updated;
+                        refreshModalFooter();
+                        refreshAssignedChip();
+                    }
+                }
+
+                applyFilters();
+            });
+
+            // ── FILTERS ───────────────────────────────────────────────────
+            function applyFilters() {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const status = document.getElementById('statusFilter').value;
+                const type   = document.getElementById('typeFilter').value;
+
+                filtered = allReports.filter(r => {
+                    const matchStatus = status === 'all' || r.status === status;
+                    const matchType   = type   === 'all' || r.wasteType === type;
+                    const matchSearch = !search ||
+                        (r.location           || '').toLowerCase().includes(search) ||
+                        (r.reporterName       || '').toLowerCase().includes(search) ||
+                        (r.wasteType          || '').toLowerCase().includes(search) ||
+                        (r.description        || '').toLowerCase().includes(search) ||
+                        (r.assignedWorkerName || '').toLowerCase().includes(search);
+                    return matchStatus && matchType && matchSearch;
+                });
+
+                currentPage = 1;
+                renderTable();
+            }
+
+            document.getElementById('searchInput').addEventListener('input',  applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('typeFilter').addEventListener('change',   applyFilters);
+
+            // ── RENDER TABLE ──────────────────────────────────────────────
+            function workerChipHtml(workerName) {
+                if (workerName) {
+                    return `<span style="display:inline-flex;align-items:center;gap:4px;
+                        background:#E8F5E9;color:#1B5E20;border:1px solid #C8E6C9;
+                        font-size:0.65rem;font-weight:700;padding:3px 10px;border-radius:20px;
+                        white-space:nowrap;">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'
+                            fill='none' stroke='currentColor' stroke-width='2.5'
+                            stroke-linecap='round' stroke-linejoin='round'>
+                            <path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/>
+                            <circle cx='12' cy='7' r='4'/>
+                        </svg>
+                        ${workerName}
+                    </span>`;
+                }
+                return `<span style="font-size:0.72rem;color:#7B8FA1;font-style:italic;">Unassigned</span>`;
+            }
+
+            function renderTable() {
+                document.getElementById('table-loading').style.display = 'none';
+
+                if (!filtered.length) {
+                    document.getElementById('table-empty').style.display   = 'flex';
+                    document.getElementById('tableWrap').style.display      = 'none';
+                    document.getElementById('mobileCards').style.display    = 'none';
+                    document.getElementById('paginationBar').style.display  = 'none';
+                    return;
+                }
+
+                document.getElementById('table-empty').style.display   = 'none';
+                document.getElementById('tableWrap').style.display      = '';
+                document.getElementById('paginationBar').style.display  = 'flex';
+
+                const start    = (currentPage - 1) * ROWS_PER_PAGE;
+                const pageRows = filtered.slice(start, start + ROWS_PER_PAGE);
+                const total    = filtered.length;
+                const pages    = Math.ceil(total / ROWS_PER_PAGE);
+
+                document.getElementById('paginationInfo').textContent =
+                    `Showing ${start + 1}–${Math.min(start + ROWS_PER_PAGE, total)} of ${total} reports`;
+
+                // Pagination controls
+                const pager = document.getElementById('pagerControls');
+                pager.innerHTML = '';
+
+                const addBtn = (label, page, isActive, isDisabled) => {
+                    const btn = document.createElement('button');
+                    btn.innerHTML = label;
+                    if (isActive)   btn.classList.add('active');
+                    if (isDisabled) btn.disabled = true;
+                    btn.addEventListener('click', () => { currentPage = page; renderTable(); });
+                    pager.appendChild(btn);
+                };
+
+                addBtn('<i data-lucide="chevron-left" style="width:14px;height:14px;"></i>', currentPage - 1, false, currentPage === 1);
+
+                let startP = Math.max(1, currentPage - 2);
+                let endP   = Math.min(pages, startP + 4);
+                if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+                for (let i = startP; i <= endP; i++) {
+                    addBtn(i, i, i === currentPage, false);
+                }
+
+                addBtn('<i data-lucide="chevron-right" style="width:14px;height:14px;"></i>', currentPage + 1, false, currentPage === pages);
+
+                // Desktop table rows
+                const tbody = document.getElementById('reportsBody');
+                tbody.innerHTML = '';
+
+                pageRows.forEach(r => {
+                    const ts      = r.timestamp?.toDate?.();
+                    const dateStr = ts ? ts.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' }) : '—';
+                    const sc      = r.status === 'resolved' ? 'resolved'
+                                  : r.status === 'urgent'   ? 'urgent' : 'pending';
+                    const img     = r.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(r.wasteType||'W')}&background=e8f5e9&color=2E7D32&size=48`;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="td-thumb">
+                            <img src="${img}" alt="${r.wasteType||''}"
+                                onerror="this.src='https://ui-avatars.com/api/?name=W&background=e8f5e9&color=2E7D32&size=48'">
+                        </td>
+                        <td class="td-location">
+                            <p class="loc">${r.location || '—'}</p>
+                            <span class="brgy">${r.description ? r.description.substring(0,40) + (r.description.length>40?'…':'') : ''}</span>
+                        </td>
+                        <td><span class="waste-pill">${r.wasteType || '—'}</span></td>
+                        <td class="td-reporter">${r.reporterName || '—'}</td>
+                        <td>${workerChipHtml(r.assignedWorkerName)}</td>
+                        <td>
+                            <div class="status-dot-pill ${sc}">
+                                <div class="dot"></div>
+                                ${sc.charAt(0).toUpperCase() + sc.slice(1)}
+                            </div>
+                        </td>
+                        <td class="td-date">${dateStr}</td>
+                        <td class="td-action">
+                            <button class="view-btn" data-id="${r.id}">
+                                <i data-lucide="eye"></i> View
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Mobile cards
+                const mobileCards = document.getElementById('mobileCards');
+                mobileCards.innerHTML = '';
+
+                pageRows.forEach(r => {
+                    const ts      = r.timestamp?.toDate?.();
+                    const dateStr = ts ? ts.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' }) : '—';
+                    const sc      = r.status === 'resolved' ? 'resolved'
+                                  : r.status === 'urgent'   ? 'urgent' : 'pending';
+                    const img     = r.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(r.wasteType||'W')}&background=e8f5e9&color=2E7D32&size=48`;
+
+                    const card = document.createElement('div');
+                    card.className = 'mobile-report-card';
+                    card.innerHTML = `
+                        <div class="mrc-top">
+                            <img class="mrc-thumb" src="${img}" alt="${r.wasteType||''}"
+                                onerror="this.src='https://ui-avatars.com/api/?name=W&background=e8f5e9&color=2E7D32&size=48'">
+                            <div class="mrc-title">
+                                <div class="loc">${r.location || '—'}</div>
+                                <div class="brgy">${r.description ? r.description.substring(0,50)+(r.description.length>50?'…':'') : ''}</div>
+                            </div>
+                            <div class="status-dot-pill ${sc}">
+                                <div class="dot"></div>
+                                ${sc.charAt(0).toUpperCase() + sc.slice(1)}
+                            </div>
+                        </div>
+                        <div class="mrc-meta">
+                            <span class="waste-pill">${r.wasteType || '—'}</span>
+                            ${workerChipHtml(r.assignedWorkerName)}
+                        </div>
+                        <div class="mrc-bottom">
+                            <span class="mrc-reporter">${r.reporterName || '—'}</span>
+                            <span class="mrc-date">${dateStr}</span>
+                            <button class="view-btn" data-id="${r.id}">
+                                <i data-lucide="eye"></i> View
+                            </button>
+                        </div>
+                    `;
+                    mobileCards.appendChild(card);
+                });
+
+                lucide.createIcons();
+
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const r = filtered.find(x => x.id === btn.dataset.id)
+                                  || allReports.find(x => x.id === btn.dataset.id);
+                        if (r) openModal(r);
+                    });
+                });
+            }
+
+            // ── MODAL ─────────────────────────────────────────────────────
+            function openModal(r) {
+                currentReport = r;
+                const ts  = r.timestamp?.toDate?.();
+                const sc  = r.status === 'resolved' ? 'resolved'
+                          : r.status === 'urgent'   ? 'urgent' : 'pending';
+
+                const assignedChip = r.assignedWorkerName
+                    ? `<div class="modal-assigned-worker-row" id="modal-assigned-chip">
+                           <i data-lucide="user-check"></i>
+                           <span>Assigned to: <strong>${r.assignedWorkerName}</strong></span>
+                       </div>`
+                    : `<div class="modal-assigned-worker-row" id="modal-assigned-chip"
+                           style="background:#F4F6F8;border-color:#E8EAED;">
+                           <i data-lucide="user" style="color:#7B8FA1;"></i>
+                           <span style="color:#7B8FA1;font-style:italic;">No worker assigned yet</span>
+                       </div>`;
+
+                document.getElementById('modalBody').innerHTML = `
+                    ${r.imageUrl ? `<img src="${r.imageUrl}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                    <div class="modal-info-grid">
+                        <div class="modal-info-item"><span>Location</span><strong>${r.location||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Waste Type</span><strong>${r.wasteType||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Reporter</span><strong>${r.reporterName||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Reporter UID</span><strong class="uid-text">${r.reporterUid||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Status</span><strong><span class="stat-pill ${sc}">${(r.status||'pending').toUpperCase()}</span></strong></div>
+                        <div class="modal-info-item"><span>Date Reported</span><strong>${ts ? ts.toLocaleString('en-PH') : '—'}</strong></div>
+                        <div class="modal-info-item full-width"><span>Description</span><strong>${r.description||'—'}</strong></div>
+                    </div>
+                    ${assignedChip}
+                `;
+
+                refreshModalFooter();
+                document.getElementById('reportModal').style.display = 'flex';
+                lucide.createIcons();
+            }
+
+            function refreshModalFooter() {
+                if (!currentReport) return;
+                const r = currentReport;
+                document.getElementById('btnResolve').style.display = r.status === 'resolved' ? 'none' : '';
+                document.getElementById('btnUrgent').style.display  = r.status === 'urgent'   ? 'none' : '';
+                document.getElementById('btnPending').style.display = r.status === 'pending'  ? 'none' : '';
+            }
+
+            function refreshAssignedChip() {
+                const chip = document.getElementById('modal-assigned-chip');
+                if (!chip || !currentReport) return;
+                if (currentReport.assignedWorkerName) {
+                    chip.style.background  = '#E8F5E9';
+                    chip.style.borderColor = '#C8E6C9';
+                    chip.innerHTML = `
+                        <i data-lucide="user-check"></i>
+                        <span>Assigned to: <strong>${currentReport.assignedWorkerName}</strong></span>
+                    `;
+                } else {
+                    chip.style.background  = '#F4F6F8';
+                    chip.style.borderColor = '#E8EAED';
+                    chip.innerHTML = `
+                        <i data-lucide="user" style="color:#7B8FA1;"></i>
+                        <span style="color:#7B8FA1;font-style:italic;">No worker assigned yet</span>
+                    `;
+                }
+                lucide.createIcons();
+            }
+
+            document.getElementById('modalClose').addEventListener('click', () => {
+                document.getElementById('reportModal').style.display = 'none';
+                currentReport = null;
+            });
+            document.getElementById('reportModal').addEventListener('click', (e) => {
+                if (e.target.id === 'reportModal') {
+                    document.getElementById('reportModal').style.display = 'none';
+                    currentReport = null;
+                }
+            });
+
+            async function updateStatus(status) {
+                if (!currentReport) return;
+                await updateDoc(doc(db, 'reports', currentReport.id), { status });
+                document.getElementById('reportModal').style.display = 'none';
+                const labels = { resolved:'resolved ✓', urgent:'urgent ⚠', pending:'pending' };
+                showToast(`Report marked as ${labels[status]}`);
+                currentReport = null;
+            }
+
+            document.getElementById('btnResolve').addEventListener('click', () => updateStatus('resolved'));
+            document.getElementById('btnUrgent').addEventListener('click',  () => updateStatus('urgent'));
+            document.getElementById('btnPending').addEventListener('click', () => updateStatus('pending'));
+
+            // ── ASSIGN WORKER ─────────────────────────────────────────────
+            document.getElementById('btnAssign').addEventListener('click', () => {
+                if (!currentReport) return;
+                openAssignModal(currentReport);
+            });
+
+            function openAssignModal(r) {
+                currentReport = r;
+
+                document.getElementById('assign-report-label').textContent =
+                    `${r.location || 'Unknown location'} — ${r.wasteType || 'Waste Report'}`;
+
+                const row  = document.getElementById('currentAssigneeRow');
+                const name = document.getElementById('currentAssigneeName');
+                if (r.assignedWorkerName) {
+                    row.classList.remove('unassigned');
+                    name.textContent = 'Currently: ' + r.assignedWorkerName;
+                } else {
+                    row.classList.add('unassigned');
+                    name.textContent = 'Not yet assigned';
+                }
+
+                const sel = document.getElementById('assignWorkerSelect');
+                sel.innerHTML = '<option value="">— No worker assigned —</option>';
+                allWorkers.forEach(w => {
+                    const o = document.createElement('option');
+                    o.value = w.uid;
+                    o.textContent = w.fullName + (w.email ? ` — ${w.email}` : '');
+                    if (w.uid === r.assignedWorkerUid) o.selected = true;
+                    sel.appendChild(o);
+                });
+
+                document.getElementById('assignModal').classList.add('show');
+                lucide.createIcons();
+            }
+
+            function closeAssignModal() {
+                document.getElementById('assignModal').classList.remove('show');
+            }
+
+            document.getElementById('assignModalClose').addEventListener('click', closeAssignModal);
+            document.getElementById('btnAssignCancel').addEventListener('click', closeAssignModal);
+            document.getElementById('assignModal').addEventListener('click', (e) => {
+                if (e.target.id === 'assignModal') closeAssignModal();
+            });
+
+            document.getElementById('btnAssignSave').addEventListener('click', async () => {
+                if (!currentReport) {
+                    showToast('No report selected. Please try again.');
+                    return;
+                }
+
+                const sel        = document.getElementById('assignWorkerSelect');
+                const workerUid  = sel.value;
+                const worker     = allWorkers.find(w => w.uid === workerUid);
+                const workerName = worker ? worker.fullName : '';
+
+                const btn = document.getElementById('btnAssignSave');
+                btn.disabled    = true;
+                btn.textContent = 'Saving…';
+
+                try {
+                    await updateDoc(doc(db, 'reports', currentReport.id), {
+                        assignedWorkerUid:  workerUid  || null,
+                        assignedWorkerName: workerName || null,
+                    });
+
+                    currentReport.assignedWorkerUid  = workerUid  || null;
+                    currentReport.assignedWorkerName = workerName || null;
+
+                    refreshAssignedChip();
+                    closeAssignModal();
+
+                    showToast(workerName
+                        ? `Assigned to ${workerName} ✓`
+                        : 'Worker assignment removed');
+                } catch (err) {
+                    console.error('Assign error:', err);
+                    showToast('Failed to save assignment. Check console.');
+                } finally {
+                    btn.disabled    = false;
+                    btn.textContent = 'Save Assignment';
+                }
+            });
+
+            // ── TOAST ─────────────────────────────────────────────────────
+            function showToast(msg) {
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 3000);
+            }
+
+        } // end initPage
+    </script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EcoMate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/admindashboard.css">
+</head>
+<body>
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">
+                <i data-lucide="leaf"></i>
+            </div>
+            <div class="sidebar-header-info">
+                <h1>EcoMate</h1>
+                <span>LGU Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="admindashboard.html" class="active">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="adminreportmngt.html">
+                <i data-lucide="clipboard-list"></i>
+                <span>Reports</span>
+            </a>
+            <a href="adminschedfleet.html">
+                <i data-lucide="truck"></i>
+                <span>Schedule & Fleet</span>
+            </a>
+            <a href="admineducational.html">
+                <i data-lucide="book-open"></i>
+                <span>Educational</span>
+            </a>
+            <a href="adminusermngt.html">
+                <i data-lucide="users"></i>
+                <span>Users</span>
+            </a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <button class="hamburger" id="hamburgerBtn">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="header-title">
+                <h2>Admin Dashboard</h2>
+                <p id="liveDateTime">Loading...</p>
+            </div>
+            <div class="header-actions">
+
+                <!-- BELL / NOTIFICATION -->
+                <div class="icon-box notif-wrapper" id="notif-bell">
+                    <i data-lucide="bell"></i>
+                    <div class="badge-dot" id="notifDot" style="display:none;"></div>
+
+                    <!-- NOTIFICATION DROPDOWN -->
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">
+                                <i data-lucide="inbox"></i>
+                                <span>No new notifications</span>
+                            </div>
+                        </div>
+                        <div class="notif-footer">
+                            <a href="adminreportmngt.html">View all reports →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatarBtn">
+                        <i data-lucide="user-circle"></i>
+                    </div>
+                    <div class="avatar-dropdown" id="avatarDropdown">
+                        <div class="dropdown-info">
+                            <span>Signed in as</span>
+                            <strong id="adminEmail">Admin</strong>
+                        </div>
+                        <button class="dropdown-item danger" id="dropLogout">
+                            <i data-lucide="log-out"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- METRICS ROW -->
+        <div class="admin-metrics-row">
+            <div class="metric-panel">
+                <div class="metric-icon"><i data-lucide="file-text"></i></div>
+                <div class="metric-body">
+                    <span>TOTAL REPORTS</span>
+                    <h3 id="m-total">—</h3>
+                </div>
+            </div>
+            <div class="metric-panel warn">
+                <div class="metric-icon"><i data-lucide="clock"></i></div>
+                <div class="metric-body">
+                    <span>PENDING</span>
+                    <h3 id="m-pending">—</h3>
+                </div>
+            </div>
+            <div class="metric-panel success">
+                <div class="metric-icon"><i data-lucide="check-circle"></i></div>
+                <div class="metric-body">
+                    <span>RESOLVED</span>
+                    <h3 id="m-resolved">—</h3>
+                </div>
+            </div>
+            <div class="metric-panel info">
+                <div class="metric-icon"><i data-lucide="scan-line"></i></div>
+                <div class="metric-body">
+                    <span>TOTAL SCANS</span>
+                    <h3 id="m-scans">—</h3>
+                </div>
+            </div>
+            <div class="metric-panel solid-green">
+                <div class="metric-icon"><i data-lucide="truck"></i></div>
+                <div class="metric-body">
+                    <span>ACTIVE TRUCKS</span>
+                    <h3 id="m-trucks">— / —</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="admin-grid">
+
+            <!-- LEFT COLUMN -->
+            <div class="col-left">
+
+                <!-- MAP BOX — zone-status-widget REMOVED -->
+                <div class="box-frame map-box">
+                    <div class="box-title-row">
+                        <h4><i data-lucide="map-pin" style="width:18px; color:var(--accent-green);"></i> Fleet Tracking — Daet, Camarines Norte</h4>
+                        <div class="map-tags">
+                            <span class="map-tag route"><span class="pulse-dot"></span> <span id="map-active-count">—</span> On-Route</span>
+                            <span class="map-tag maint"><span id="map-maint-count">—</span> Maintenance</span>
+                        </div>
+                    </div>
+                    <div id="leaflet-map"></div>
+                    <!-- zone-status-widget removed -->
+                </div>
+
+                <!-- REPORTS TABLE -->
+                <div class="box-frame">
+                    <div class="box-title-row">
+                        <h4>Recent Community Reports</h4>
+                        <a href="adminreportmngt.html" class="link-action">View All →</a>
+                    </div>
+                    <div id="reports-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Fetching reports...</span>
+                    </div>
+                    <div id="reports-empty" class="empty-state" style="display:none;">
+                        <i data-lucide="inbox"></i>
+                        <span>No reports yet</span>
+                    </div>
+                    <table class="reports-table" id="reports-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>IMAGE</th>
+                                <th>LOCATION</th>
+                                <th>TYPE</th>
+                                <th>REPORTER</th>
+                                <th>STATUS</th>
+                                <th style="text-align:right;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-tbody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="col-right">
+
+                <!-- DONUT CHART -->
+                <div class="box-frame">
+                    <div class="box-title-row">
+                        <h4>Scanned Waste Types</h4>
+                        <span class="live-badge">LIVE</span>
+                    </div>
+                    <div id="chart-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Loading chart...</span>
+                    </div>
+                    <div class="chart-container" id="chart-container" style="display:none;">
+                        <div class="css-donut" id="css-donut">
+                            <div class="donut-center-text">
+                                <h3 id="donut-pct">—</h3>
+                                <span id="donut-label">LOADING</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="chart-legend"></div>
+                    </div>
+                </div>
+
+                <!-- EDUCATIONAL CTA -->
+                <div class="edu-cta-card">
+                    <span>EDUCATIONAL CMS</span>
+                    <h3>Update recycling guides for next week</h3>
+                    <a href="admineducational.html" class="btn-add-content">
+                        <i data-lucide="plus-square" style="width:16px;"></i> Add New Content
+                    </a>
+                </div>
+
+                <!-- FLEET SCHEDULE -->
+                <div class="box-frame fleet-box">
+                    <div class="box-title-row">
+                        <h4>Today's Fleet Schedule</h4>
+                        <span class="date-badge" id="today-date">—</span>
+                    </div>
+                    <div id="fleet-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Loading schedule...</span>
+                    </div>
+                    <div id="fleet-empty" class="empty-state" style="display:none;">
+                        <i data-lucide="calendar"></i>
+                        <span>No schedules for today</span>
+                    </div>
+                    <div class="fleet-schedule-list" id="fleet-list"></div>
+                    <a href="adminschedfleet.html" class="btn-full-calendar">Full Fleet Calendar</a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- REPORT DETAIL MODAL -->
+    <div class="modal-overlay" id="reportModal" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Report Details</h3>
+                <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn-modal-resolve" id="btnResolve">Mark as Resolved</button>
+                <button class="btn-modal-urgent" id="btnUrgent">Mark as Urgent</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, updateDoc, onSnapshot, query, orderBy, limit }
+            from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ── FIREBASE INIT ──────────────────────────────────────────────────
+        const app  = initializeApp({
+            apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+            authDomain:        "ecomate-4c54f.firebaseapp.com",
+            projectId:         "ecomate-4c54f",
+            storageBucket:     "ecomate-4c54f.firebasestorage.app",
+            messagingSenderId: "626101359921",
+            appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10"
+        });
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        lucide.createIcons();
+        document.body.style.visibility = 'hidden';
+
+        // ── AUTH GUARD ─────────────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (!userSnap.exists() || userSnap.data().role !== 'admin') {
+                await signOut(auth);
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.body.style.visibility = 'visible';
+            initDashboard();
+        });
+
+        // ── Avatar dropdown ────────────────────────────────────────────────
+        const avatarBtn      = document.getElementById('avatarBtn');
+        const avatarDropdown = document.getElementById('avatarDropdown');
+
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            avatarDropdown.classList.toggle('open');
+            lucide.createIcons();
+        });
+        document.addEventListener('click', () => {
+            avatarDropdown.classList.remove('open');
+            document.getElementById('notifDropdown').classList.remove('open');
+        });
+
+        document.getElementById('dropLogout').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const emailEl = document.getElementById('adminEmail');
+                if (emailEl) emailEl.textContent = user.email || 'Admin';
+            }
+        });
+
+        // ── BELL / NOTIFICATION DROPDOWN ───────────────────────────────────
+        const notifBell     = document.getElementById('notif-bell');
+        const notifDropdown = document.getElementById('notifDropdown');
+
+        notifBell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifDropdown.classList.toggle('open');
+            avatarDropdown.classList.remove('open');
+            // Clear unread badge when opened
+            if (notifDropdown.classList.contains('open')) {
+                document.getElementById('notifDot').style.display = 'none';
+                markNotifsSeen();
+            }
+            lucide.createIcons();
+        });
+
+        // ── Hamburger ─────────────────────────────────────────────────────
+        const sidebar      = document.getElementById('adminSidebar');
+        const overlay      = document.getElementById('sidebarOverlay');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+        hamburgerBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+            lucide.createIcons();
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+        sidebar.querySelectorAll('.admin-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            });
+        });
+
+        // ── DASHBOARD INIT ─────────────────────────────────────────────────
+        function initDashboard() {
+
+            // Date / time display
+            function updateDateTime() {
+                const now = new Date();
+                document.getElementById('liveDateTime').textContent =
+                    now.toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                    + ' · ' + now.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('today-date').textContent =
+                new Date().toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+
+            // ── Leaflet map ───────────────────────────────────────────────
+            const map = L.map('leaflet-map', { zoomControl:true, scrollWheelZoom:false })
+                .setView([14.1160, 122.9555], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors', maxZoom: 18
+            }).addTo(map);
+
+            // ── Live worker markers from Firestore users collection ────────
+            const workerMarkers = {};
+
+            const truckIcon = () => L.divIcon({
+                className: '',
+                html: `<div class="truck-marker-live">🚛</div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            async function reverseGeocode(lat, lng) {
+                try {
+                    const res  = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+                        { headers: { 'Accept-Language': 'en' } }
+                    );
+                    const json = await res.json();
+                    const a = json.address || {};
+                    const road     = a.road || a.pedestrian || a.footway || a.path || a.hamlet || '';
+                    const barangay = a.quarter || a.suburb || a.city_district || a.village || a.neighbourhood || '';
+                    const city     = a.city || a.town || a.municipality || a.county || '';
+                    const parts    = [road, barangay, city].filter(Boolean);
+                    return parts.length ? parts.join(', ') : json.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                } catch {
+                    return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                }
+            }
+
+            function buildPopup(name, email, address, updated) {
+                return `
+                    <div style="font-family:'DM Sans',sans-serif; min-width:170px; line-height:1.7;">
+                        <b style="font-size:0.88rem; color:#1A2332;">🚛 ${name}</b><br>
+                        <span style="font-size:0.73rem; color:#7B8FA1;">${email}</span><br>
+                        <span style="font-size:0.73rem; color:#1A2332;">📍 ${address}</span><br>
+                        <span style="font-size:0.66rem; color:#7B8FA1;">Updated: ${updated}</span>
+                    </div>`;
+            }
+
+            onSnapshot(collection(db, 'users'), (snap) => {
+                const promises = snap.docChanges().map(async change => {
+                    const uid  = change.doc.id;
+                    const data = change.doc.data();
+
+                    if (change.type === 'removed') {
+                        if (workerMarkers[uid]) {
+                            map.removeLayer(workerMarkers[uid]);
+                            delete workerMarkers[uid];
+                        }
+                        return;
+                    }
+
+                    const loc = data.lastLocation;
+                    if (!loc || !loc.lat || !loc.lng) return;
+
+                    const lat     = loc.lat;
+                    const lng     = loc.lng;
+                    const name    = data.fullName || 'Worker';
+                    const email   = data.email    || '—';
+                    const updated = loc.updatedAt
+                        ? new Date(loc.updatedAt).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })
+                        : '—';
+
+                    const address   = await reverseGeocode(lat, lng);
+                    const popupHtml = buildPopup(name, email, address, updated);
+
+                    if (workerMarkers[uid]) {
+                        workerMarkers[uid].setLatLng([lat, lng]);
+                        workerMarkers[uid].setPopupContent(popupHtml);
+                    } else {
+                        const marker = L.marker([lat, lng], { icon: truckIcon() })
+                            .addTo(map)
+                            .bindPopup(popupHtml);
+                        workerMarkers[uid] = marker;
+                    }
+                });
+
+                Promise.all(promises).catch(err => console.error('Marker update error:', err));
+            });
+
+            // Chart colors
+            const COLORS = {
+                Organic:'#4CAF50', Plastic:'#0A3D62', Glass:'#8D6E63',
+                Metal:'#607D8B', Hazardous:'#F44336', Paper:'#FFC107',
+                Electronic:'#9C27B0', Other:'#90A4AE'
+            };
+            const colorFor = (cat) => COLORS[cat] || '#90A4AE';
+
+            // ── Notification state ────────────────────────────────────────
+            // dismissedReportIds  → IDs cleared via "Mark all read"; these are
+            //                       hidden from the list entirely until a truly
+            //                       new report arrives that is NOT in this set.
+            // seenReportIds       → IDs whose green dot has been cleared (opened
+            //                       the panel or clicked the item).
+            let dismissedReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('dismissedReportIds') || '[]')
+            );
+            let seenReportIds = new Set(
+                JSON.parse(sessionStorage.getItem('seenReportIds') || '[]')
+            );
+
+            function saveDismissed() {
+                sessionStorage.setItem('dismissedReportIds', JSON.stringify([...dismissedReportIds]));
+            }
+            function saveSeen() {
+                sessionStorage.setItem('seenReportIds', JSON.stringify([...seenReportIds]));
+            }
+
+            window.markNotifsSeen = function() {
+                document.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveSeen();
+            };
+
+            document.getElementById('markAllRead').addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Dismiss every report currently visible in the list
+                document.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    dismissedReportIds.add(el.dataset.id);
+                    seenReportIds.add(el.dataset.id);
+                });
+                saveDismissed();
+                saveSeen();
+
+                // Clear badge and show empty state immediately
+                document.getElementById('notifDot').style.display = 'none';
+                const listEl = document.getElementById('notifList');
+                listEl.innerHTML = `
+                    <div class="notif-empty">
+                        <i data-lucide="inbox"></i>
+                        <span>No new notifications</span>
+                    </div>`;
+                lucide.createIcons();
+            });
+
+            // ── Live reports listener ──────────────────────────────────────
+            let currentReportId = null;
+            let allReportDocs   = [];
+
+            onSnapshot(collection(db, 'reports'), (snap) => {
+                allReportDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                document.getElementById('m-total').textContent    = allReportDocs.length.toLocaleString();
+                document.getElementById('m-pending').textContent  =
+                    allReportDocs.filter(d => d.status === 'pending' || d.status === 'urgent').length.toLocaleString();
+                document.getElementById('m-resolved').textContent =
+                    allReportDocs.filter(d => d.status === 'resolved').length.toLocaleString();
+
+                // ── Build notification list from pending / urgent reports ──
+                // Exclude any report the admin has dismissed via "Mark all read"
+                const notifReports = allReportDocs
+                    .filter(d => (d.status === 'pending' || d.status === 'urgent') && !dismissedReportIds.has(d.id))
+                    .sort((a, b) =>
+                        (b.timestamp?.toDate?.() || new Date(0)) - (a.timestamp?.toDate?.() || new Date(0))
+                    )
+                    .slice(0, 20);
+
+                // Badge only for reports that are neither dismissed nor seen
+                const unreadCount = notifReports.filter(r => !seenReportIds.has(r.id)).length;
+
+                // Bell badge
+                const dotEl = document.getElementById('notifDot');
+                dotEl.style.display = unreadCount > 0 ? 'block' : 'none';
+
+                // Render notif list
+                renderNotifList(notifReports);
+
+                // Table
+                const sorted = [...allReportDocs].sort((a, b) =>
+                    (b.timestamp?.toDate?.() || new Date(0)) - (a.timestamp?.toDate?.() || new Date(0))
+                ).slice(0, 5);
+                renderTable(sorted);
+            });
+
+            function renderNotifList(reports) {
+                const listEl = document.getElementById('notifList');
+
+                if (!reports.length) {
+                    listEl.innerHTML = `
+                        <div class="notif-empty">
+                            <i data-lucide="inbox"></i>
+                            <span>No new notifications</span>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                listEl.innerHTML = reports.map(r => {
+                    const ts      = r.timestamp?.toDate?.();
+                    const ago     = ts ? formatTimeAgo(ts) : '—';
+                    const isNew   = !seenReportIds.has(r.id);
+                    const urgCls  = r.status === 'urgent' ? 'urgent' : 'pending';
+                    const icon    = r.status === 'urgent' ? '🚨' : '📋';
+
+                    return `
+                        <div class="notif-item ${isNew ? 'unread' : ''}" data-id="${r.id}">
+                            <div class="notif-icon-wrap ${urgCls}">${icon}</div>
+                            <div class="notif-content">
+                                <p class="notif-title">${r.wasteType || 'New Report'} · <span class="stat-pill ${urgCls}">${(r.status||'pending').toUpperCase()}</span></p>
+                                <p class="notif-sub">${r.location || '—'} · ${r.reporterName || '—'}</p>
+                                <p class="notif-time">${ago}</p>
+                            </div>
+                            ${isNew ? '<div class="notif-unread-dot"></div>' : ''}
+                        </div>`;
+                }).join('');
+
+                lucide.createIcons();
+
+                // Click a notif → open the report modal
+                listEl.querySelectorAll('.notif-item[data-id]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const r = allReportDocs.find(x => x.id === el.dataset.id);
+                        if (r) {
+                            el.classList.remove('unread');
+                            seenReportIds.add(r.id);
+                            saveSeen();
+                            notifDropdown.classList.remove('open');
+                            openModal(r);
+                        }
+                    });
+                });
+            }
+
+            // ── Live scans listener ───────────────────────────────────────
+            onSnapshot(collection(db, 'scans'), (snap) => {
+                const docs = snap.docs.map(d => d.data());
+                document.getElementById('m-scans').textContent = docs.length.toLocaleString();
+                renderDonut(docs);
+            });
+
+            // ── Live trucks listener ──────────────────────────────────────
+            onSnapshot(collection(db, 'trucks'), (snap) => {
+                const trucks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const total  = trucks.length;
+                const active = trucks.filter(t => t.status === 'active').length;
+                const maint  = trucks.filter(t => t.status === 'maintenance').length;
+
+                document.getElementById('m-trucks').textContent        = `${active} / ${total}`;
+                document.getElementById('map-maint-count').textContent  = maint;
+                document.getElementById('map-active-count').textContent = active;
+            });
+
+            // ── Live schedules listener (today only) ──────────────────────
+            onSnapshot(collection(db, 'schedules'), (snap) => {
+                const allSchedules = snap.docs.map(d => d.data());
+
+                const todaySchedules = allSchedules
+                    .filter(s => s.date === todayStr)
+                    .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+                document.getElementById('fleet-loading').style.display = 'none';
+
+                const listEl  = document.getElementById('fleet-list');
+                const emptyEl = document.getElementById('fleet-empty');
+
+                if (!todaySchedules.length) {
+                    emptyEl.style.display = 'flex';
+                    listEl.innerHTML = '';
+                    return;
+                }
+
+                emptyEl.style.display = 'none';
+
+                const statusMap = {
+                    ongoing:   { label: 'In Progress', cls: 'in-progress' },
+                    upcoming:  { label: 'Scheduled',   cls: 'pending'     },
+                    completed: { label: 'Completed',   cls: 'dispatched'  },
+                };
+
+                listEl.innerHTML = todaySchedules.map(s => {
+                    const st  = statusMap[s.status] || { label: s.status || 'Scheduled', cls: 'pending' };
+                    const time = (s.startTime && s.endTime)
+                        ? `${s.startTime} – ${s.endTime}`
+                        : s.startTime || '—';
+                    return `
+                        <div class="fs-item">
+                            <div class="fs-left">
+                                <h5>${s.truck || '—'}</h5>
+                                <div class="fs-info">
+                                    <h6>${s.route || '—'}</h6>
+                                    <p>${time}${s.notes ? ' · ' + s.notes : ''}</p>
+                                </div>
+                            </div>
+                            <div class="fs-right ${st.cls}">${st.label}</div>
+                        </div>
+                    `;
+                }).join('');
+            });
+
+            // ── Render reports table ──────────────────────────────────────
+            function renderTable(reports) {
+                document.getElementById('reports-loading').style.display = 'none';
+
+                if (!reports.length) {
+                    document.getElementById('reports-empty').style.display = 'flex';
+                    document.getElementById('reports-table').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('reports-empty').style.display = 'none';
+                document.getElementById('reports-table').style.display = 'table';
+
+                const tbody = document.getElementById('reports-tbody');
+                tbody.innerHTML = '';
+
+                reports.forEach(r => {
+                    const ts  = r.timestamp?.toDate?.();
+                    const ago = ts ? formatTimeAgo(ts) : '—';
+                    const sc  = r.status === 'resolved' ? 'resolved'
+                              : r.status === 'urgent'   ? 'urgent' : 'pending';
+                    const img = r.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(r.wasteType||'W')}&background=e8f5e9&color=2E7D32&size=44`;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><img src="${img}" class="rt-img" onerror="this.src='https://ui-avatars.com/api/?name=W&background=e8f5e9&color=2E7D32&size=44'"></td>
+                        <td><div class="rt-loc">${r.location||'—'}</div><div class="rt-time">${ago}</div></td>
+                        <td><span class="rt-type">${r.wasteType||'—'}</span></td>
+                        <td><span class="rt-reporter">${r.reporterName||'—'}</span></td>
+                        <td><span class="stat-pill ${sc}">${(r.status||'pending').toUpperCase()}</span></td>
+                        <td style="text-align:right;">
+                            <button class="btn-icon-view" data-id="${r.id}"><i data-lucide="eye"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                lucide.createIcons();
+
+                tbody.querySelectorAll('.btn-icon-view').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const r = allReportDocs.find(x => x.id === btn.dataset.id);
+                        if (r) openModal(r);
+                    });
+                });
+            }
+
+            // ── Modal ─────────────────────────────────────────────────────
+            function openModal(r) {
+                currentReportId = r.id;
+                const ts  = r.timestamp?.toDate?.();
+                const sc  = r.status === 'resolved' ? 'resolved' : r.status === 'urgent' ? 'urgent' : 'pending';
+
+                document.getElementById('modalBody').innerHTML = `
+                    ${r.imageUrl ? `<img src="${r.imageUrl}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                    <div class="modal-info-grid">
+                        <div class="modal-info-item"><span>Location</span><strong>${r.location||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Waste Type</span><strong>${r.wasteType||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Reporter</span><strong>${r.reporterName||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Status</span><strong><span class="stat-pill ${sc}">${(r.status||'pending').toUpperCase()}</span></strong></div>
+                        <div class="modal-info-item full-width"><span>Description</span><strong>${r.description||'—'}</strong></div>
+                        <div class="modal-info-item"><span>Timestamp</span><strong>${ts ? ts.toLocaleString('en-PH') : '—'}</strong></div>
+                    </div>
+                `;
+
+                document.getElementById('btnResolve').style.display = r.status === 'resolved' ? 'none' : 'block';
+                document.getElementById('btnUrgent').style.display  = r.status === 'urgent'   ? 'none' : 'block';
+                document.getElementById('reportModal').style.display = 'flex';
+                lucide.createIcons();
+            }
+
+            document.getElementById('modalClose').addEventListener('click', () =>
+                document.getElementById('reportModal').style.display = 'none');
+
+            document.getElementById('reportModal').addEventListener('click', (e) => {
+                if (e.target.id === 'reportModal')
+                    document.getElementById('reportModal').style.display = 'none';
+            });
+
+            document.getElementById('btnResolve').addEventListener('click', async () => {
+                if (!currentReportId) return;
+                await updateDoc(doc(db, 'reports', currentReportId), { status: 'resolved' });
+                document.getElementById('reportModal').style.display = 'none';
+                showToast('Report marked as resolved ✓');
+            });
+
+            document.getElementById('btnUrgent').addEventListener('click', async () => {
+                if (!currentReportId) return;
+                await updateDoc(doc(db, 'reports', currentReportId), { status: 'urgent' });
+                document.getElementById('reportModal').style.display = 'none';
+                showToast('Report marked as urgent ⚠');
+            });
+
+            // ── Donut chart ───────────────────────────────────────────────
+            function renderDonut(scans) {
+                document.getElementById('chart-loading').style.display   = 'none';
+                document.getElementById('chart-container').style.display = 'flex';
+
+                if (!scans.length) {
+                    document.getElementById('donut-pct').textContent   = '0';
+                    document.getElementById('donut-label').textContent = 'NO DATA';
+                    return;
+                }
+
+                const counts = {};
+                scans.forEach(s => {
+                    const cat = s.category || s.itemName || 'Other';
+                    counts[cat] = (counts[cat] || 0) + 1;
+                });
+
+                const total   = scans.length;
+                const entries = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+                let pct = 0;
+
+                document.getElementById('css-donut').style.background =
+                    `conic-gradient(${entries.map(([cat,count]) => {
+                        const share = (count/total)*100, start = pct;
+                        pct += share;
+                        return `${colorFor(cat)} ${start.toFixed(1)}% ${pct.toFixed(1)}%`;
+                    }).join(', ')})`;
+
+                document.getElementById('donut-pct').textContent   = Math.round((entries[0][1]/total)*100) + '%';
+                document.getElementById('donut-label').textContent = entries[0][0].toUpperCase();
+
+                const legend = document.getElementById('chart-legend');
+                legend.innerHTML = '';
+                entries.forEach(([cat, count]) => {
+                    const el = document.createElement('div');
+                    el.className = 'legend-item';
+                    el.innerHTML = `<div class="dot" style="background:${colorFor(cat)}"></div><span>${cat} (${Math.round((count/total)*100)}%)</span>`;
+                    legend.appendChild(el);
+                });
+            }
+
+            // ── Toast ─────────────────────────────────────────────────────
+            function showToast(msg) {
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 3000);
+            }
+
+            // ── Helpers ───────────────────────────────────────────────────
+            function formatTimeAgo(date) {
+                const s = Math.floor((Date.now() - date.getTime()) / 1000);
+                if (s < 60)    return `${s}s ago`;
+                if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+                if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+                return `${Math.floor(s/86400)}d ago`;
+            }
+
+        } // end initDashboard
+
+    </script>
+</body>
+</html>

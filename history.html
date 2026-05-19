@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMate - History</title>
+    <link rel="stylesheet" href="../css/history.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand-section">
+            <h1>EcoMate</h1>
+            <span>RESIDENT PORTAL</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="resdashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i>
+                Dashboard
+            </a>
+            <a href="schedule_collection-log.html" class="nav-item">
+                <i data-lucide="calendar"></i>
+                Schedule & Collection Log
+            </a>
+            <a href="history.html" class="nav-item active">
+                <i data-lucide="history"></i>
+                History
+            </a>
+            <a href="education.html" class="nav-item">
+                <i data-lucide="graduation-cap"></i>
+                Education
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+        <!-- Top Header -->
+        <header class="page-header">
+            <div class="header-titles">
+                <h2>History</h2>
+                <p>Track your past activity and contributions to waste management</p>
+            </div>
+            <div class="header-icons">
+                <div class="user-profile">
+                    <span class="user-initial-display">?</span> 
+                </div>
+            </div>
+        </header>
+
+        <!-- Summary Metrics -->
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="m-icon-box"><i data-lucide="maximize"></i></div>
+                <div class="m-content">
+                    <span class="m-label">TOTAL ITEMS SCANNED</span>
+                    <span class="m-value" id="history-scanned-count">0</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="m-icon-box"><i data-lucide="clipboard-list"></i></div>
+                <div class="m-content">
+                    <span class="m-label">REPORTS SUBMITTED</span>
+                    <span class="m-value" id="history-submitted-count">0</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="m-icon-box"><i data-lucide="check-circle-2"></i></div>
+                <div class="m-content">
+                    <span class="m-label">REPORTS RESOLVED</span>
+                    <span class="m-value" id="history-resolved-count">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter & Tabs Bar -->
+        <section class="filter-bar">
+            <div class="tabs-group">
+                <button id="tab-scanned-items" class="tab-btn active">Scanned Items</button>
+                <button id="tab-reports" class="tab-btn inactive">Reports</button>
+            </div>
+
+            <div class="filter-controls">
+                <!-- Category Dropdown -->
+                <div class="dropdown-wrapper">
+                    <button id="filter-category-btn" class="filter-dropdown">
+                        <i data-lucide="filter"></i>
+                        <span>Category</span>
+                    </button>
+                    <ul id="category-menu" class="dropdown-content">
+                        <li data-value="All">All Categories</li>
+                        <li data-value="Glass">Glass</li>
+                        <li data-value="Metal">Metal</li>
+                        <li data-value="Paper">Paper</li>
+                        <li data-value="Plastic">Plastic</li>
+                        <li data-value="Biodegradable">Biodegradable</li>
+                    </ul>
+                </div>
+
+                <!-- Date Dropdown -->
+                <div class="dropdown-wrapper">
+                    <button id="filter-date-btn" class="filter-dropdown">
+                        <i data-lucide="calendar"></i>
+                        <span>Last 30 Days</span>
+                    </button>
+                    <ul id="date-menu" class="dropdown-content">
+                        <li data-days="999" class="default-option">All Time</li>
+                        <li data-days="5">Last 5 Days</li>
+                        <li data-days="10">Last 10 Days</li>
+                        <li data-days="20">Last 20 Days</li>
+                        <li data-days="30">Last 30 Days</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- History List container -->
+        <section class="scroll-container">
+            <div class="history-list" id="history-items-container">
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script type="module" src="../js/user-display.js"></script>
+    <script type="module" src="../js/history.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile sidebar toggle
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        }
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeSidebar();
+            });
+        });
+    </script>
+</body>
+</html>

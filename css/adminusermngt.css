@@ -1,0 +1,224 @@
+@import url('admindashboard.css');
+
+/* User Base Metrics */
+.user-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.user-metric-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.umc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+.umc-icon i { width: 16px; height: 16px; }
+
+.ui-orange { background: #FFF3E0; color: #E65100; }
+.ui-green { background: #E8F5E9; color: #2E7D32; }
+.ui-blue { background: #E3F2FD; color: #1565C0; }
+
+.user-metric-card span {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.user-metric-card h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* User Registry Table Wrapper */
+.user-registry-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.ur-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.ur-header h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.ur-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-filter, .btn-export {
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filter {
+    background: var(--white);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+.btn-filter:hover { background: #F5F5F5; }
+
+.btn-export {
+    background: #EEEEEE;
+    color: #424242;
+    border: none;
+}
+.btn-export:hover { background: #E0E0E0; }
+
+/* Custom Semantic Table CSS overrides */
+.ur-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ur-grid-table th {
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid #F5F5F5;
+}
+
+.ur-grid-table td {
+    padding: 1.25rem 0;
+    vertical-align: middle;
+    border-bottom: 1px solid #FAFAFA;
+}
+
+.ur-grid-table tr:last-child td { border-bottom: none; }
+
+/* Content Blocks */
+.td-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.td-user img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.td-user h4 { font-size: 0.85rem; font-weight: 800; color: var(--text-primary); }
+
+.td-email { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+.role-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.60rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-pill.admin { background: #C8E6C9; color: #1B5E20; }
+.role-pill.resident { background: #FFE0B2; color: #E65100; }
+.role-pill.worker { background: #E3F2FD; color: #1565C0; }
+
+.td-brgy { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
+
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.70rem;
+    font-weight: 700;
+}
+
+.user-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.user-status.active { color: #2E7D32; }
+.user-status.active .dot { background: #4CAF50; }
+
+.user-status.inactive { color: #9E9E9E; }
+.user-status.inactive .dot { background: #9E9E9E; }
+
+.user-action-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-right: 1.5rem;
+}
+
+.user-action-cell button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.user-action-cell button:hover { color: var(--primary-green); }
+.user-action-cell button.btn-approve:hover { color: #2E7D32; }
+
+/* Pagination Styles explicitly defining the design */
+.rm-pagination p { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+.pager-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.pager-controls button {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.pager-controls button:hover:not(.active) { color: var(--primary-green); }
+
+.pager-controls button.active {
+    background: var(--primary-green);
+    color: var(--white);
+    border-radius: 50%;
+}

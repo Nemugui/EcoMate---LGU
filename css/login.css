@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-green: #2E7D32;
+    --accent-green: #4CAF50;
+    --light-green: #E8F5E9;
+    --next-bg: #C8E6C9;
+    --text-dark: #1B5E20;
+    --text-muted: #546E7A;
+    --bg-white: #FFFFFF;
+    --bg-gradient: radial-gradient(circle at top left, #F1F8F1 0%, #FFFFFF 100%);
+    --font-main: 'Outfit', sans-serif;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --header-h: 10vh;
+    --footer-h: 10vh;
+    --main-h: calc(100vh - var(--header-h) - var(--footer-h));
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background: var(--bg-gradient);
+    color: var(--text-dark);
+    min-height: 100vh;           /* was: height — allows scroll on tiny screens */
+    width: 100vw;
+    overflow-x: hidden;          /* was: overflow hidden — allow vertical scroll */
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: var(--primary-green);
+    color: white;
+    height: var(--header-h);
+    min-height: 50px;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    flex-shrink: 0;              /* prevent header from shrinking */
+}
+
+header h1 {
+    font-size: clamp(1rem, 3vh, 1.25rem);
+    font-weight: 600;
+}
+
+.help-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+main {
+    flex: 1;                     /* fills remaining space between header and footer */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem 2rem;
+    animation: fadeIn 0.8s ease-out;
+    overflow: visible;           /* was: hidden — let card breathe on small screens */
+    min-height: var(--main-h);  /* soft minimum, not a hard cap */
+}
+
+/* Authentication Card */
+.auth-card {
+    width: 100%;
+    max-width: 950px;
+    /* Fluid height: prefers 72vh but can shrink/grow */
+    height: clamp(420px, 72vh, 580px);
+    background: white;
+    border-radius: 40px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+}
+
+.auth-image-side {
+    flex: 1;
+    background: url('../images/auth_bg.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;                /* prevent flex blowout */
+}
+
+.auth-image-side::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+}
+
+.auth-image-overlay {
+    position: relative;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 2rem;
+    border-radius: 25px;
+    color: white;
+    text-align: left;
+}
+
+.auth-image-overlay h2 { font-size: clamp(1.1rem, 2.5vh, 1.6rem); margin-bottom: 0.5rem; }
+.auth-image-overlay p  { font-size: clamp(0.75rem, 1.5vh, 0.85rem); opacity: 0.9; line-height: 1.4; }
+
+.auth-form-side {
+    flex: 1;
+    padding: clamp(1.5rem, 3vh, 2.5rem) clamp(1.5rem, 4vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    min-width: 0;                /* prevent flex blowout */
+    overflow-y: auto;            /* scroll form content if card is very short */
+}
+
+.auth-header { margin-bottom: clamp(0.75rem, 2vh, 1.5rem); }
+.auth-header h2 { font-size: clamp(1rem, 2.5vh, 1.2rem); font-weight: 700; color: var(--text-dark); margin-bottom: 0.25rem; margin-top: 0.25rem; }
+.auth-header p  { font-size: clamp(0.75rem, 1.5vh, 0.85rem); color: var(--text-muted); }
+
+.form-group { margin-bottom: clamp(0.6rem, 1.5vh, 1rem); position: relative; }
+
+
+.input-with-icon { position: relative; }
+.input-with-icon i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9E9E9E; width: 18px; }
+.input-with-icon input {
+    width: 100%;
+    padding: clamp(0.6rem, 1.5vh, 0.8rem) 1rem clamp(0.6rem, 1.5vh, 0.8rem) 2.8rem;
+    background: #EEEEEE;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+.input-with-icon input:focus { border-color: var(--accent-green); outline: none; background: white; }
+
+.input-with-icon input::placeholder {
+    color: #BDBDBD;
+    font-size: 0.9rem;
+}
+
+.forgot-link { font-size: 0.75rem; font-weight: 700; color: #1565C0; text-decoration: none; position: absolute; right: 0; top: 0; }
+
+.btn-auth {
+    width: 100%;
+    background: var(--primary-green);
+    color: white;
+    padding: clamp(0.7rem, 1.5vh, 1rem);
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: var(--transition);
+    margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+.btn-auth:hover { background: #266b2a; transform: translateY(-2px); }
+
+.auth-divider {
+    text-align: center;
+    margin: clamp(0.75rem, 1.5vh, 1.25rem) 0;
+    position: relative;
+}
+.auth-divider span { background: white; padding: 0 1rem; font-size: 0.65rem; color: #BDBDBD; font-weight: 700; text-transform: uppercase; z-index: 2; position: relative; }
+.auth-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #EEEEEE; z-index: 1; }
+
+.social-auth { display: flex; justify-content: center; gap: 1.5rem; }
+.social-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #EEEEEE; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); color: #424242; }
+.social-icon:hover { background: #F5F5F5; transform: scale(1.1); }
+
+.auth-switch { text-align: center; margin-top: clamp(0.75rem, 1.5vh, 1.25rem); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.auth-switch a { color: #1565C0; font-weight: 700; text-decoration: none; }
+
+/* Footer */
+.footer-minimal {
+    background: #F9FBF9;
+    min-height: var(--footer-h);
+    border-radius: 40px 40px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    flex-shrink: 0;              /* prevent footer from shrinking */
+    padding: 0.5rem 0;
+}
+.footer-inner { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; padding: 0 2rem; }
+.footer-legal { display: flex; gap: 1.5rem; font-size: 0.75rem; color: #757575; justify-content: center; }
+.footer-legal a { color: inherit; text-decoration: none; }
+.footer-copyright { justify-self: end; font-size: 0.75rem; color: #9E9E9E; }
+
+/* ── Responsive: hide image panel on small screens ── */
+@media (max-width: 640px) {
+    .auth-image-side { display: none; }
+    .auth-card {
+        height: auto;
+        min-height: 480px;
+        border-radius: 20px;
+    }
+    .auth-form-side {
+        padding: 2rem 1.5rem;
+    }
+    .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+        text-align: center;
+    }
+    .footer-copyright { justify-self: center; }
+}
+
+/* ── Responsive: tablets ── */
+@media (max-width: 900px) and (min-width: 641px) {
+    .auth-image-overlay h2 { font-size: 1.2rem; }
+    .auth-form-side { padding: 2rem 2rem; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+/* Remove browser autofill blue/yellow background */
+.input-with-icon input:-webkit-autofill,
+.input-with-icon input:-webkit-autofill:hover,
+.input-with-icon input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #EEEEEE inset;
+    -webkit-text-fill-color: var(--text-dark);
+    transition: background-color 5000s ease-in-out 0s;
+}

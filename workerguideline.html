@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Guidelines - EcoMate</title>
+    <link rel="stylesheet" href="../css/workerguideline.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ── Search bar ── */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--white);
+            border: 1.5px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            transition: border-color 0.2s;
+        }
+        .search-bar:focus-within { border-color: var(--primary-green); }
+        .search-bar i { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+        .search-bar input {
+            border: none; outline: none; background: transparent;
+            font-size: 0.875rem; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); width: 160px;
+        }
+        .search-bar input::placeholder { color: var(--text-muted); }
+
+        /* ── No results ── */
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .no-results i { width: 36px; height: 36px; opacity: 0.3; display: block; margin: 0 auto 0.75rem; }
+
+        /* ── Protocol card highlight on search ── */
+        .protocol-card.hidden { display: none; }
+        .protocol-card.match h4 mark {
+            background: #FFF9C4;
+            border-radius: 3px;
+            padding: 0 2px;
+        }
+
+        /* ── Expand / Collapse detail ── */
+        .protocol-detail {
+            display: none;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            animation: slideDown 0.2s ease;
+        }
+        .protocol-detail.open { display: block; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .protocol-detail p {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .protocol-detail .detail-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+            margin-bottom: 1rem;
+        }
+        .detail-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        .detail-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-green);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .btn-read-guide.open {
+            background: #E8F5E9;
+            color: var(--primary-green);
+        }
+
+        /* ── Guide Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            backdrop-filter: blur(3px);
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: var(--white);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 1;
+        }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1.5px solid var(--border-color);
+            background: none; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+            color: var(--text-muted); transition: all 0.2s; flex-shrink: 0;
+        }
+        .modal-close:hover { background: #FFEBEE; border-color: #EF9A9A; color: #C62828; }
+        .modal-close i { width: 16px; height: 16px; }
+        .modal-body { padding: 1.5rem; }
+        .modal-body p {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.75;
+            margin-bottom: 1.25rem;
+        }
+        .modal-body .detail-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 2rem; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--primary-green); color: white;
+            padding: 0.85rem 1.75rem; border-radius: 50px;
+            font-weight: 700; font-size: 0.875rem;
+            z-index: 9999;
+            transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+            box-shadow: 0 8px 24px rgba(46,125,50,0.3);
+            white-space: nowrap; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ── Hotline modal ── */
+        .hotline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .hotline-card {
+            background: var(--bg-light);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .hotline-card span { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .hotline-card strong { font-size: 1rem; font-weight: 800; color: var(--primary-green); }
+        .hotline-card p { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* ── Clickable avatar ── */
+        .avatar-circle {
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .avatar-circle:hover {
+            opacity: 0.85;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 480px) {
+            .search-bar input { width: 110px; }
+            .hotline-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="worker-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Worker</span>
+            </div>
+        </div>
+        <nav class="worker-nav">
+            <a href="workerdashboard.html">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="workerschedule.html">
+                <i data-lucide="calendar"></i> Schedule
+            </a>
+            <a href="workerreports.html">
+                <i data-lucide="clipboard-list"></i> Reports & Tasks
+            </a>
+            <a href="workerguideline.html" class="active">
+                <i data-lucide="shield"></i> Safety Guidelines
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-title-flex">
+                <div class="header-title" style="margin-bottom:0;">
+                    <h2 style="color:var(--primary-green);font-size:1.5rem;font-weight:800;">Safety Guidelines</h2>
+                </div>
+                <p style="color:var(--text-muted);font-size:0.85rem;">Safety protocols, equipment, & waste handling.</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="search-input" placeholder="Search guidelines…" autocomplete="off">
+                </div>
+                <div class="avatar-circle" id="avatar-circle"
+                     onclick="window.location.href='workerprofile.html'"
+                     title="My Profile">
+                    <span style="color:white;font-weight:700;font-size:1rem;">W</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="guideline-container">
+
+            <div class="guideline-col-left">
+                <div class="guideline-col-header">
+                    <h3>Safety Protocols & Checklists</h3>
+                    <span class="badge-certified">LGU Certified</span>
+                </div>
+
+                <div class="protocol-list-container" id="protocol-list">
+
+                    <div class="protocol-card" data-keywords="ppe personal protective equipment gloves vest mask boots inspection">
+                        <div class="protocol-top">
+                            <div>
+                                <h4>Personal Protective Equipment (PPE)</h4>
+                                <p class="protocol-desc">Mandatory gear for all collection shifts</p>
+                            </div>
+                            <div class="protocol-icon"><i data-lucide="user-plus"></i></div>
+                        </div>
+                        <ul class="protocol-checklists">
+                            <li>Gloves (Puncture resistant)</li>
+                            <li>Reflective High-Vis Vest</li>
+                            <li>Safety N95 Mask</li>
+                            <li>Daily Inspection Required</li>
+                            <li>Steel-toe Boots</li>
+                        </ul>
+                        <button class="btn-read-guide" data-card="ppe">Read Full Guide</button>
+                        <div class="protocol-detail" id="detail-ppe">
+                            <p>All field workers are required to wear complete PPE before boarding the collection truck. Incomplete gear is grounds for temporary removal from duty until compliant.</p>
+                            <div class="detail-steps">
+                                <div class="detail-step"><div class="detail-step-num">1</div><span>Inspect all PPE items for damage or wear before each shift. Replace damaged items immediately through the LGU supply office.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">2</div><span>Wear puncture-resistant gloves at all times when handling waste bags. Double-glove when handling medical or sharp waste.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">3</div><span>Reflective vests must be worn during all roadside operations, especially during low-visibility or night conditions.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">4</div><span>N95 masks are mandatory when handling organic, chemical, or unknown waste. Surgical masks do not meet this requirement.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">5</div><span>Steel-toe boots protect against dropped containers and moving truck parts. Open-toed footwear is strictly prohibited on site.</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="protocol-card" data-keywords="hazardous waste chemicals sharps spill disposal segregate container color">
+                        <div class="protocol-top">
+                            <div>
+                                <h4>Hazardous Waste Handling</h4>
+                                <p class="protocol-desc">Safe identification and disposal of chemicals/sharps</p>
+                            </div>
+                            <div class="protocol-icon"><i data-lucide="flask-conical"></i></div>
+                        </div>
+                        <ul class="protocol-checklists">
+                            <li>Segregate at source</li>
+                            <li>Use sealed containers</li>
+                            <li>Report spills immediately</li>
+                            <li>Color-coded disposal</li>
+                        </ul>
+                        <button class="btn-read-guide" data-card="hazardous">Read Full Guide</button>
+                        <div class="protocol-detail" id="detail-hazardous">
+                            <p>Hazardous waste includes medical sharps, chemical containers, batteries, and unknown liquids. Never mix hazardous materials with regular solid waste.</p>
+                            <div class="detail-steps">
+                                <div class="detail-step"><div class="detail-step-num">1</div><span>Identify hazardous waste by the orange hazard sticker or biohazard symbol. When in doubt, treat as hazardous.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">2</div><span>Use only sealed, puncture-proof containers for sharps. Never recap needles by hand — use one-handed scoop technique.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">3</div><span>Chemical spills: evacuate a 5-meter radius, alert your supervisor immediately, and do not attempt cleanup without proper training.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">4</div><span>Color code: Red = infectious/medical, Yellow = chemical, Black = general hazardous, Green = biodegradable safe.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">5</div><span>All hazardous waste must be logged in the collection manifest before transport. Unlogged hazmat is a compliance violation.</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="protocol-card" data-keywords="emergency response spill injury accident first aid lgu hotline document photo">
+                        <div class="protocol-top">
+                            <div>
+                                <h4>Emergency Response Procedures</h4>
+                                <p class="protocol-desc">What to do during spills, injuries, or accidents</p>
+                            </div>
+                            <div class="protocol-icon"><i data-lucide="siren"></i></div>
+                        </div>
+                        <ul class="protocol-checklists">
+                            <li>Stop work immediately</li>
+                            <li>Use onboard first-aid kit</li>
+                            <li>Notify LGU Emergency Line</li>
+                            <li>Document with photos</li>
+                        </ul>
+                        <button class="btn-read-guide" data-card="emergency">Read Full Guide</button>
+                        <div class="protocol-detail" id="detail-emergency">
+                            <p>In any emergency — vehicle accident, worker injury, chemical spill, or fire — follow this response sequence without exception. Speed and sequence both matter.</p>
+                            <div class="detail-steps">
+                                <div class="detail-step"><div class="detail-step-num">1</div><span>Immediately stop all work and secure the area. Turn on hazard lights if near a roadway. Keep bystanders at a safe distance.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">2</div><span>Assess injuries. Apply first aid from the onboard kit for minor wounds. Do not move injured persons with possible spinal injury.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">3</div><span>Call the LGU Emergency Hotline: <strong>0917-LGU-DAET</strong>. State your name, truck ID, exact location, and nature of emergency.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">4</div><span>Document the scene with photos before any cleanup. Photos must be submitted within 2 hours to the LGU online portal.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">5</div><span>Complete the Incident Report Form (IRF-01) available in the truck glovebox. Submit to the supervisor before end of shift.</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="protocol-card" data-keywords="collection lifting route truck mechanics overload schedule safety">
+                        <div class="protocol-top">
+                            <div>
+                                <h4>Safe Collection Practices</h4>
+                                <p class="protocol-desc">Lifting techniques and route safety</p>
+                            </div>
+                            <div class="protocol-icon"><i data-lucide="hand"></i></div>
+                        </div>
+                        <ul class="protocol-checklists">
+                            <li>Proper body mechanics</li>
+                            <li>Avoid overloading trucks</li>
+                            <li>Follow real-time schedule</li>
+                            <li>3-point contact on truck</li>
+                        </ul>
+                        <button class="btn-read-guide" data-card="collection">Read Full Guide</button>
+                        <div class="protocol-detail" id="detail-collection">
+                            <p>Musculoskeletal injuries from improper lifting are the most common worker injuries. Following these techniques reduces risk by over 70%.</p>
+                            <div class="detail-steps">
+                                <div class="detail-step"><div class="detail-step-num">1</div><span>Always bend at the knees, not the waist. Keep the load close to your body and lift with your legs, not your back.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">2</div><span>Never lift a waste bag over 25kg alone. Use a two-person lift for heavy containers. Use the wheeled cart for bins over 50kg.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">3</div><span>Do not overload the truck beyond its rated capacity. Overloading causes brake failure, tire blowouts, and spill incidents.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">4</div><span>Maintain 3-point contact (two hands, one foot or two feet, one hand) when mounting or dismounting the truck at all times.</span></div>
+                                <div class="detail-step"><div class="detail-step-num">5</div><span>Follow the assigned route in the EcoMate schedule. Route deviations require supervisor approval and must be logged in the app.</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="no-results" id="no-results">
+                    <i data-lucide="search-x"></i>
+                    No guidelines match your search.
+                </div>
+
+            </div>
+
+            <div class="guideline-col-right">
+                <h3>Quick Resources</h3>
+                <div class="resources-block">
+
+                    <button class="btn-resource" id="btn-download">
+                        <i data-lucide="download"></i>
+                        Download Equipment Checklist
+                    </button>
+
+                    <button class="btn-resource" id="btn-video">
+                        <i data-lucide="play-circle"></i>
+                        View Video: Proper PPE Usage
+                    </button>
+
+                    <button class="btn-resource" id="btn-hotline">
+                        <i data-lucide="phone"></i>
+                        LGU Safety Hotline
+                    </button>
+
+                    <div class="compliance-badge">
+                        <div class="comp-badge-header">
+                            <i data-lucide="check-circle-2"></i>
+                            COMPLIANCE BADGE
+                        </div>
+                        <p>All protocols reviewed and approved by LGU Admin for the Q2 2026 period.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="guide-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="guide-modal-title">Full Guide</h3>
+                <button class="modal-close" id="guide-modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="guide-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="hotline-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>LGU Safety Hotlines</h3>
+                <button class="modal-close" id="hotline-modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0;">Save these numbers in your phone before every shift.</p>
+                <div class="hotline-grid">
+                    <div class="hotline-card">
+                        <span>LGU Emergency</span>
+                        <strong>0917-548-3238</strong>
+                        <p>Available 24/7</p>
+                    </div>
+                    <div class="hotline-card">
+                        <span>Waste Management</span>
+                        <strong>054-440-1234</strong>
+                        <p>Mon–Sat, 6AM–6PM</p>
+                    </div>
+                    <div class="hotline-card">
+                        <span>Daet Fire Station</span>
+                        <strong>054-440-0117</strong>
+                        <p>Emergency Only</p>
+                    </div>
+                    <div class="hotline-card">
+                        <span>Provincial Hospital</span>
+                        <strong>054-440-5678</strong>
+                        <p>Emergency Triage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { auth, db } from '../js/firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        lucide.createIcons();
+
+        // ── Sidebar ──────────────────────────────────────
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const openSidebar  = () => { sidebar.classList.add('open');    overlay.classList.add('open'); };
+        const closeSidebar = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+        document.querySelectorAll('.worker-nav a').forEach(a =>
+            a.addEventListener('click', () => { if (window.innerWidth <= 1024) closeSidebar(); })
+        );
+
+        // ── Toast ────────────────────────────────────────
+        let toastTimer;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            clearTimeout(toastTimer);
+            t.textContent = msg;
+            t.classList.add('show');
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Auth + Profile (with photo) ──────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            try {
+                const snap     = await getDoc(doc(db, 'users', user.uid));
+                const data     = snap.exists() ? snap.data() : {};
+                const fullName = data.fullName || 'Worker';
+                const initial  = fullName.trim().charAt(0).toUpperCase();
+                const avatar   = document.getElementById('avatar-circle');
+                if (avatar) {
+                    if (data.photoBase64) {
+                        avatar.innerHTML = `<img src="${data.photoBase64}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                            alt="${fullName}">`;
+                    } else {
+                        avatar.innerHTML = `<span style="color:white;font-weight:700;font-size:1rem;">${initial}</span>`;
+                    }
+                }
+            } catch (e) {
+                console.error('Profile fetch error:', e);
+            }
+        });
+
+        // ── Search ───────────────────────────────────────
+        const searchInput = document.getElementById('search-input');
+        const noResults   = document.getElementById('no-results');
+
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('#protocol-list .protocol-card');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const title    = card.querySelector('h4').textContent.toLowerCase();
+                const keywords = (card.dataset.keywords || '').toLowerCase();
+                const items    = Array.from(card.querySelectorAll('.protocol-checklists li'))
+                                    .map(li => li.textContent.toLowerCase()).join(' ');
+                const haystack = title + ' ' + keywords + ' ' + items;
+
+                if (!q || haystack.includes(q)) {
+                    card.classList.remove('hidden');
+                    visible++;
+                } else {
+                    card.classList.add('hidden');
+                    const detail = card.querySelector('.protocol-detail');
+                    const btn    = card.querySelector('.btn-read-guide');
+                    if (detail) detail.classList.remove('open');
+                    if (btn)    { btn.textContent = 'Read Full Guide'; btn.classList.remove('open'); }
+                }
+            });
+
+            noResults.style.display = visible === 0 ? 'flex' : 'none';
+            lucide.createIcons();
+        });
+
+        // ── Expand / Collapse guide detail ───────────────
+        const guideModal      = document.getElementById('guide-modal');
+        const guideModalTitle = document.getElementById('guide-modal-title');
+        const guideModalBody  = document.getElementById('guide-modal-body');
+
+        document.querySelectorAll('.btn-read-guide').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card     = btn.closest('.protocol-card');
+                const detailId = 'detail-' + btn.dataset.card;
+                const detail   = document.getElementById(detailId);
+                const title    = card.querySelector('h4').textContent;
+
+                if (window.innerWidth < 768) {
+                    guideModalTitle.textContent = title;
+                    guideModalBody.innerHTML    = detail.innerHTML;
+                    guideModal.classList.add('open');
+                    lucide.createIcons();
+                } else {
+                    const isOpen = detail.classList.contains('open');
+                    document.querySelectorAll('.protocol-detail.open').forEach(d => {
+                        d.classList.remove('open');
+                        const sibBtn = d.closest('.protocol-card').querySelector('.btn-read-guide');
+                        if (sibBtn) { sibBtn.textContent = 'Read Full Guide'; sibBtn.classList.remove('open'); }
+                    });
+                    if (!isOpen) {
+                        detail.classList.add('open');
+                        btn.textContent = 'Close Guide';
+                        btn.classList.add('open');
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            });
+        });
+
+        function closeModal(el) { el.classList.remove('open'); }
+
+        document.getElementById('guide-modal-close').addEventListener('click', () => closeModal(guideModal));
+        guideModal.addEventListener('click', (e) => { if (e.target === guideModal) closeModal(guideModal); });
+
+        // ── Hotline Modal ────────────────────────────────
+        const hotlineModal = document.getElementById('hotline-modal');
+        document.getElementById('btn-hotline').addEventListener('click', () => {
+            hotlineModal.classList.add('open');
+            lucide.createIcons();
+        });
+        document.getElementById('hotline-modal-close').addEventListener('click', () => closeModal(hotlineModal));
+        hotlineModal.addEventListener('click', (e) => { if (e.target === hotlineModal) closeModal(hotlineModal); });
+
+        // ── Download Checklist ───────────────────────────
+        document.getElementById('btn-download').addEventListener('click', () => {
+            const parts = [
+                '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+                '<title>EcoMate Equipment Checklist<\/title>',
+                '<style>',
+                'body{font-family:Arial,sans-serif;max-width:600px;margin:2rem auto;color:#263238}',
+                'h1{color:#2E7D32;font-size:1.4rem;margin-bottom:.25rem}',
+                'p.sub{color:#78909C;font-size:.85rem;margin-bottom:1.5rem}',
+                'h2{font-size:1rem;color:#2E7D32;margin:1.5rem 0 .5rem;border-bottom:1px solid #ECEFF1;padding-bottom:.25rem}',
+                'ul{list-style:none;padding:0}',
+                'li{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.9rem;border-bottom:1px solid #F5F5F5}',
+                'li::before{content:"\\2610";font-size:1.1rem;color:#2E7D32;margin-right:4px}',
+                '.footer{margin-top:2rem;font-size:.75rem;color:#78909C;text-align:center}',
+                '<\/style><\/head><body>',
+                '<h1>EcoMate LGU Worker — Equipment Checklist<\/h1>',
+                '<p class="sub">To be completed before each collection shift. Q2 2026 · LGU Daet<\/p>',
+                '<h2>Personal Protective Equipment<\/h2><ul>',
+                '<li>Puncture-resistant gloves<\/li><li>Reflective high-vis vest<\/li>',
+                '<li>N95 safety mask<\/li><li>Steel-toe boots<\/li><li>Eye protection (hazmat shifts)<\/li>',
+                '<\/ul><h2>Truck Pre-Shift Check<\/h2><ul>',
+                '<li>Fuel level checked<\/li><li>Onboard first-aid kit stocked<\/li>',
+                '<li>Hazard lights functional<\/li><li>Compactor mechanism tested<\/li><li>Load capacity verified<\/li>',
+                '<\/ul><h2>Documentation<\/h2><ul>',
+                '<li>Route manifest signed<\/li><li>Incident Report Form (IRF-01) on board<\/li>',
+                '<li>Collection log sheet prepared<\/li>',
+                '<\/ul><div class="footer">EcoMate · LGU Daet Waste Management · Printed ' + new Date().toLocaleDateString() + '<\/div>',
+                '<\/body><\/html>'
+            ];
+            const blob = new Blob([parts.join('')], { type: 'text/html' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = 'ecomate-equipment-checklist.html';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Checklist downloaded ✓');
+        });
+
+        // ── Video Button ─────────────────────────────────
+        document.getElementById('btn-video').addEventListener('click', () => {
+            window.open('https://www.youtube.com/results?search_query=proper+PPE+usage+waste+collection+workers', '_blank', 'noopener');
+            showToast('Opening video guide…');
+        });
+
+    </script>
+
+    <script type="module" src="../js/navigation.js"></script>
+
+</body>
+</html>

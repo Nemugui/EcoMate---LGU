@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – EcoMate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --dark-green:    #1B5E20;
+            --bg-light:      #F8F9FA;
+            --card-beige:    #FAF3E0;
+            --text-primary:  #263238;
+            --text-muted:    #78909C;
+            --border-color:  #ECEFF1;
+            --white:         #FFFFFF;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ════ SIDEBAR TOGGLE ════ */
+        .sidebar-toggle {
+            display: none;
+            position: fixed; top: 1rem; left: 1rem; z-index: 200;
+            background: var(--primary-green); color: white;
+            border: none; border-radius: 10px;
+            width: 36px; height: 36px;
+            align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4); z-index: 99;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ════ SIDEBAR ════ */
+        .worker-sidebar {
+            width: 280px; background: var(--primary-green); color: var(--white);
+            padding: 2rem 1.5rem; display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05); transition: transform 0.3s ease;
+        }
+        .sidebar-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; }
+        .sidebar-header img { border-radius: 50%; width: 48px; height: 48px; border: 2px solid rgba(255,255,255,0.2); }
+        .sidebar-header-info h1 { font-size: 1.1rem; font-weight: 700; }
+        .sidebar-header-info span { font-size: 0.75rem; opacity: 0.8; }
+
+        .worker-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+        .worker-nav a {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.25rem; color: rgba(255,255,255,0.8);
+            text-decoration: none; font-weight: 500; font-size: 0.95rem;
+            border-radius: 12px; transition: all 0.3s ease;
+        }
+        .worker-nav a:hover, .worker-nav a.active {
+            background: rgba(255,255,255,0.15); color: var(--white); font-weight: 600;
+        }
+        .worker-nav a i { width: 20px; height: 20px; flex-shrink: 0; }
+
+        /* ════ MAIN CONTENT ════ */
+        .main-content {
+            flex: 1; margin-left: 280px; padding: 2rem 3rem;
+            display: flex; flex-direction: column;
+            min-width: 0; width: calc(100% - 280px); overflow-x: hidden;
+        }
+
+        /* ════ HEADER ════ */
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+        }
+        .header-title h2 { color: var(--primary-green); font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .header-title p  { color: var(--text-muted); font-size: 0.85rem; }
+        .header-actions  { display: flex; align-items: center; gap: 1.5rem; }
+
+        .avatar-circle {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--primary-green);
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0; cursor: pointer; overflow: hidden;
+        }
+        .avatar-initial {
+            color: white; font-weight: 700; font-size: 1rem;
+            line-height: 1; user-select: none;
+        }
+        /* Header avatar can also show a photo */
+        #header-avatar-img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;
+        }
+
+        /* ════ SCHEDULE BANNER ════ */
+        .schedule-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            border-radius: 16px; padding: 1.25rem 2rem;
+            color: white; align-items: center; gap: 1.5rem;
+            flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .sb-divider { width: 1px; height: 34px; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+        .sb-label   { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; opacity: 0.75; }
+        .sb-value   { font-size: 0.95rem; font-weight: 700; margin-top: 2px; }
+        .sch-badge  { padding: 4px 12px; border-radius: 20px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+        .sch-badge.ongoing   { background: #FFF9C4; color: #F57F17; }
+        .sch-badge.completed { background: #C8E6C9; color: #1B5E20; }
+        .sch-badge.pending   { background: rgba(255,255,255,0.2); color: white; }
+
+        /* ════ PROFILE GRID ════ */
+        .profile-grid {
+            display: grid; grid-template-columns: 2fr 1fr;
+            gap: 1.5rem; align-items: start;
+        }
+
+        /* ── LEFT card ── */
+        .profile-details-card {
+            background: var(--card-beige); border-radius: 20px;
+            padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); position: relative;
+        }
+        .pd-top { display: flex; gap: 2rem; margin-bottom: 1.75rem; }
+
+        /* ════ PHOTO UPLOAD AREA ════ */
+        .pd-photo-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+
+        .pd-photo {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            background: var(--primary-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pd-photo:hover {
+            box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+            transform: scale(1.02);
+        }
+
+        /* The actual image element */
+        #pd-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            display: none; /* hidden until loaded */
+        }
+
+        .pd-photo-initial {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            user-select: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hover overlay */
+        .pd-photo-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.52);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+        .pd-photo:hover .pd-photo-overlay { opacity: 1; }
+
+        .pd-photo-overlay-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            color: white;
+        }
+        .pd-photo-overlay-inner i { width: 22px; height: 22px; }
+        .pd-photo-overlay-text {
+            font-size: 0.6rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+
+        /* Uploading spinner overlay */
+        .pd-photo-uploading {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            border-radius: 16px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+        .pd-photo-uploading.active { display: flex; }
+        .upload-spinner {
+            width: 32px; height: 32px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* Hidden file input */
+        #photo-file-input { display: none; }
+
+        .pd-info-grid {
+            flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1.25rem 2rem; align-content: start;
+        }
+        .pd-section-label {
+            grid-column: 1 / -1;
+            font-size: 0.68rem; font-weight: 800; color: var(--primary-green);
+            text-transform: uppercase; letter-spacing: 1px;
+            padding-bottom: 8px; border-bottom: 2px solid #E8F5E9;
+        }
+        .pd-info-block { display: flex; flex-direction: column; }
+        .pd-info-block h5 {
+            font-size: 0.62rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;
+        }
+        .pd-info-block .val {
+            font-size: 1rem; font-weight: 700; color: var(--text-primary);
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .pd-info-block .val.muted { font-size: 0.88rem; color: var(--text-muted); font-weight: 600; }
+        .badge-verified {
+            background: #C8E6C9; color: #1B5E20;
+            padding: 2px 8px; border-radius: 20px;
+            font-size: 0.58rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap;
+        }
+
+        /* Inline editable fields */
+        .pd-editable { display: none; flex-direction: column; gap: 0.5rem; }
+        .pd-edit-input {
+            padding: 0.6rem 0.875rem; border: 1.5px solid var(--border-color);
+            border-radius: 10px; font-size: 0.9rem; font-family: 'Inter', sans-serif;
+            background: var(--white); outline: none; transition: border-color 0.2s;
+            color: var(--text-primary); width: 100%;
+        }
+        .pd-edit-input:focus { border-color: var(--primary-green); }
+
+        /* Truck box */
+        .truck-box {
+            display: none; background: var(--white); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 1.25rem 1.5rem;
+            align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem;
+        }
+        .truck-icon {
+            width: 42px; height: 42px; background: #E8F5E9; color: var(--primary-green);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .truck-details { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .truck-col h6 {
+            font-size: 0.62rem; color: var(--text-muted); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;
+        }
+        .truck-col span { font-size: 0.95rem; font-weight: 800; color: var(--primary-green); }
+        .truck-col span.neutral { color: var(--text-primary); }
+        .truck-status-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 0.9rem; font-weight: 700; }
+        .truck-status-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #9E9E9E; }
+        .truck-status-dot.active::before   { background: #4CAF50; }
+        .truck-status-dot.inactive::before { background: #F44336; }
+
+        /* Edit / Save buttons row */
+        .pd-action-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .btn-edit-profile {
+            background: var(--primary-green); color: white; border: none; border-radius: 50px;
+            padding: 0.8rem 1.75rem; font-size: 0.875rem; font-weight: 700;
+            font-family: 'Inter', sans-serif; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 6px 16px rgba(27,94,32,0.3); transition: transform 0.2s, background 0.2s;
+        }
+        .btn-edit-profile:hover { transform: translateY(-2px); background: var(--dark-green); }
+        .btn-cancel-edit {
+            display: none;
+            background: var(--bg-light); color: var(--text-primary);
+            border: 1.5px solid var(--border-color); border-radius: 50px;
+            padding: 0.8rem 1.5rem; font-size: 0.875rem; font-weight: 700;
+            font-family: 'Inter', sans-serif; cursor: pointer;
+            align-items: center; gap: 8px; transition: background 0.2s;
+        }
+        .btn-cancel-edit:hover { background: #ECEFF1; }
+
+        /* ── RIGHT card ── */
+        .account-actions-card {
+            background: var(--card-beige); border-radius: 20px; padding: 2rem 1.75rem;
+            display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .account-actions-card h4 { font-size: 1.05rem; font-weight: 800; color: var(--primary-green); margin-bottom: 2px; }
+        .account-actions-card .aa-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-bottom: 1.5rem; }
+
+        .action-menu-btn {
+            background: var(--white); color: var(--text-primary); border: none;
+            padding: 1rem 1.25rem; border-radius: 12px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.9rem; font-weight: 600; font-family: 'Inter', sans-serif;
+            margin-bottom: 0.65rem; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); text-align: left; width: 100%;
+        }
+        .action-menu-btn .fi { color: var(--primary-green); width: 18px; height: 18px; flex-shrink: 0; }
+        .action-menu-btn .ch { margin-left: auto; color: #CFD8DC; width: 16px; height: 16px; flex-shrink: 0; }
+        .action-menu-btn:hover { background: #F1F8E9; }
+
+        .spacer { flex: 1; min-height: 1.5rem; }
+        .hr-line { height: 1px; background: var(--border-color); margin: 0.5rem 0 1rem; }
+
+        .btn-sign-out-red {
+            background: transparent; border: none; color: #D32F2F;
+            font-size: 0.875rem; font-weight: 700; font-family: 'Inter', sans-serif;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            gap: 8px; width: 100%; padding: 0.9rem; border-radius: 12px; transition: background 0.2s;
+        }
+        .btn-sign-out-red:hover { background: #FFEBEE; }
+
+        /* ════ MODALS ════ */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; backdrop-filter: blur(3px);
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: var(--white); border-radius: 24px; width: 100%; max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(20px) scale(0.97); transition: transform 0.25s ease; overflow: hidden;
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1.5px solid var(--border-color); background: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); transition: all 0.2s; flex-shrink: 0;
+        }
+        .modal-close:hover { background: #FFEBEE; border-color: #EF9A9A; color: #C62828; }
+        .modal-body {
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;
+            max-height: 65vh; overflow-y: auto;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input {
+            padding: 0.8rem 1rem; border: 1.5px solid var(--border-color);
+            border-radius: 10px; font-size: 0.9rem; font-family: 'Inter', sans-serif;
+            background: var(--bg-light); outline: none; transition: border-color 0.2s; color: var(--text-primary);
+        }
+        .form-group input:focus { border-color: var(--primary-green); }
+        .form-group input[readonly] { color: var(--text-muted); cursor: not-allowed; background: #F0F0F0; }
+        .modal-footer {
+            padding: 1rem 1.5rem 1.5rem; display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color);
+        }
+        .btn-modal-cancel {
+            flex: 1; padding: 0.875rem; border-radius: 50px;
+            border: 1.5px solid var(--border-color); background: var(--bg-light);
+            color: var(--text-primary); font-size: 0.875rem; font-weight: 700;
+            font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-modal-cancel:hover { background: #ECEFF1; }
+        .btn-modal-primary {
+            flex: 1; padding: 0.875rem; border-radius: 50px; border: none;
+            background: var(--primary-green); color: white; font-size: 0.875rem; font-weight: 700;
+            font-family: 'Inter', sans-serif; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 4px 15px rgba(46,125,50,0.25); transition: all 0.2s;
+        }
+        .btn-modal-primary:hover:not(:disabled) { background: var(--dark-green); transform: translateY(-1px); }
+        .btn-modal-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+        /* Password strength */
+        .pw-strength { height: 4px; border-radius: 4px; background: #ECEFF1; overflow: hidden; }
+        .pw-strength-fill { height: 100%; border-radius: 4px; width: 0; transition: width 0.3s, background 0.3s; }
+
+        /* ════ LOADER ════ */
+        #page-loader {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.92); z-index: 999;
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid #E8F5E9;
+            border-top-color: var(--primary-green); border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ════ TOAST ════ */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 998;
+            padding: 0.9rem 1.5rem; border-radius: 12px;
+            font-size: 0.875rem; font-weight: 600; max-width: 320px;
+            opacity: 0; transform: translateY(12px); pointer-events: none;
+            transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .toast.show   { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .toast.success { background: var(--primary-green); color: white; }
+        .toast.error   { background: #D32F2F; color: white; }
+
+        /* ════ RESPONSIVE ════ */
+        @media (max-width: 1024px) {
+            .worker-sidebar { transform: translateX(-100%); padding-top: 4.5rem; }
+            .worker-sidebar.open { transform: translateX(0); }
+            .sidebar-toggle { display: flex; }
+            .main-content { margin-left: 0; width: 100%; padding: 1.5rem; padding-top: 5rem; }
+        }
+        @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .main-content { padding: 1rem; padding-top: 5rem; }
+            .pd-top { flex-direction: column; }
+            .pd-info-grid { grid-template-columns: 1fr; }
+            .top-header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: flex-end; }
+            .modal-footer { flex-direction: column; }
+            .pd-action-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Page Loader -->
+<div id="page-loader">
+    <div class="spinner"></div>
+    <span style="color:var(--text-muted);font-size:0.85rem;font-weight:600;">Loading your profile…</span>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Mobile Toggle -->
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+    <i data-lucide="menu" style="width:18px;height:18px;"></i>
+</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- Sidebar -->
+<aside class="worker-sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="../images/daetLGU.png" alt="Logo">
+        <div class="sidebar-header-info">
+            <h1>Daet Portal</h1>
+            <span>LGU Worker</span>
+        </div>
+    </div>
+    <nav class="worker-nav">
+        <a href="workerdashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="workerschedule.html"><i data-lucide="calendar"></i> Schedule</a>
+        <a href="workerreports.html"><i data-lucide="clipboard-list"></i> Reports &amp; Tasks</a>
+        <a href="workerguideline.html"><i data-lucide="shield"></i> Safety Guidelines</a>
+    </nav>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+
+    <header class="top-header">
+        <div class="header-title">
+            <h2>My Profile</h2>
+            <p>Manage your personal information and account settings</p>
+        </div>
+        <div class="header-actions">
+            <div class="avatar-circle" title="My Profile">
+                <img id="header-avatar-img" src="" alt="Avatar">
+                <span class="avatar-initial" id="header-initial">W</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Schedule Banner -->
+    <div class="schedule-banner" id="schedule-banner">
+        <i data-lucide="calendar-clock" style="width:26px;height:26px;opacity:0.8;flex-shrink:0;"></i>
+        <div><div class="sb-label">Latest Schedule</div><div class="sb-value" id="sb-date">—</div></div>
+        <div class="sb-divider"></div>
+        <div><div class="sb-label">Time</div><div class="sb-value" id="sb-time">—</div></div>
+        <div class="sb-divider"></div>
+        <div><div class="sb-label">Route</div><div class="sb-value" id="sb-route">—</div></div>
+        <div class="sb-divider"></div>
+        <div><div class="sb-label">Truck</div><div class="sb-value" id="sb-truck">—</div></div>
+        <div class="sb-divider"></div>
+        <div>
+            <div class="sb-label">Status</div>
+            <span class="sch-badge" id="sb-status">—</span>
+        </div>
+    </div>
+
+    <!-- Profile Grid -->
+    <div class="profile-grid">
+
+        <!-- LEFT -->
+        <div class="profile-details-card">
+            <div class="pd-top">
+
+                <!-- Profile photo -->
+                <div class="pd-photo-container">
+                    <div class="pd-photo" id="pd-photo" title="Click to change photo">
+                        <!-- Actual photo (shown when available) -->
+                        <img id="pd-photo-img" src="" alt="Profile Photo">
+                        <!-- Initial letter fallback -->
+                        <span class="pd-photo-initial" id="pd-photo-initial">W</span>
+                        <!-- Hover overlay -->
+                        <div class="pd-photo-overlay">
+                            <div class="pd-photo-overlay-inner">
+                                <i data-lucide="camera"></i>
+                                <span class="pd-photo-overlay-text">Change Photo</span>
+                            </div>
+                        </div>
+                        <!-- Upload spinner -->
+                        <div class="pd-photo-uploading" id="photo-uploading">
+                            <div class="upload-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden file input -->
+                <input type="file" id="photo-file-input" accept="image/*">
+
+                <div class="pd-info-grid">
+                    <div class="pd-section-label">Personal &amp; Work Details</div>
+
+                    <!-- Full Name -->
+                    <div class="pd-info-block">
+                        <h5>Full Name</h5>
+                        <span class="val" id="pd-name">—</span>
+                        <div class="pd-editable" id="edit-name-wrap">
+                            <input class="pd-edit-input" type="text" id="inline-name" placeholder="Full name">
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="pd-info-block">
+                        <h5>Designated Role</h5>
+                        <span class="val">
+                            <span id="pd-role">—</span>
+                            <span class="badge-verified">✓ VERIFIED</span>
+                        </span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="pd-info-block" style="grid-column:1/-1;">
+                        <h5>Email Address</h5>
+                        <span class="val muted" id="pd-email">—</span>
+                    </div>
+
+                    <!-- Assigned Area -->
+                    <div class="pd-info-block">
+                        <h5>Assigned Area &nbsp;<span style="font-size:0.55rem;background:#E8F5E9;color:#2E7D32;padding:1px 6px;border-radius:20px;font-weight:800;letter-spacing:0.4px;">FROM TRUCK</span></h5>
+                        <span class="val" id="pd-area">—</span>
+                    </div>
+
+                    <!-- Member Since -->
+                    <div class="pd-info-block">
+                        <h5>Member Since</h5>
+                        <span class="val" id="pd-since">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Truck Box -->
+            <div class="truck-box" id="truck-box">
+                <div class="truck-icon">
+                    <i data-lucide="truck" style="width:20px;height:20px;"></i>
+                </div>
+                <div class="truck-details">
+                    <div class="truck-col"><h6>Truck ID</h6><span id="t-id">—</span></div>
+                    <div class="truck-col"><h6>Model</h6><span class="neutral" id="t-model">—</span></div>
+                    <div class="truck-col"><h6>Route</h6><span class="neutral" id="t-route">—</span></div>
+                    <div class="truck-col"><h6>Fuel</h6><span class="neutral" id="t-fuel">—</span></div>
+                    <div class="truck-col"><h6>Status</h6><span class="truck-status-dot" id="t-status">—</span></div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="pd-action-row">
+                <button class="btn-edit-profile" id="btn-toggle-edit">
+                    <i data-lucide="edit-3" style="width:15px;height:15px;"></i>
+                    <span id="btn-edit-label">Edit Profile</span>
+                </button>
+                <button class="btn-cancel-edit" id="btn-cancel-edit">
+                    <i data-lucide="x" style="width:15px;height:15px;"></i> Cancel
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="account-actions-card">
+            <h4>Account Actions</h4>
+            <p class="aa-sub">Manage security &amp; preferences</p>
+
+            <button class="action-menu-btn" id="btn-open-pw">
+                <i data-lucide="lock" class="fi"></i>
+                Change Password
+                <i data-lucide="chevron-right" class="ch"></i>
+            </button>
+            <button class="action-menu-btn" id="btn-open-contact">
+                <i data-lucide="contact" class="fi"></i>
+                Update Contact Info
+                <i data-lucide="chevron-right" class="ch"></i>
+            </button>
+            <button class="action-menu-btn" onclick="window.location.href='workerreports.html'">
+                <i data-lucide="history" class="fi"></i>
+                View Activity Log
+                <i data-lucide="chevron-right" class="ch"></i>
+            </button>
+
+            <div class="spacer"></div>
+            <div class="hr-line"></div>
+
+            <button class="btn-sign-out-red" id="btn-signout">
+                <i data-lucide="log-out" style="width:18px;height:18px;"></i> Sign Out
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL: Change Password -->
+<div class="modal-overlay" id="modal-password">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Change Password</h3>
+            <button class="modal-close" data-close="modal-password">
+                <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="pw-current" placeholder="Enter current password">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="pw-new" placeholder="At least 6 characters">
+                <div class="pw-strength"><div class="pw-strength-fill" id="pw-bar"></div></div>
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="pw-confirm" placeholder="Repeat new password">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" data-close="modal-password">Cancel</button>
+            <button class="btn-modal-primary" id="btn-change-pw">
+                <i data-lucide="shield-check" style="width:15px;height:15px;"></i> Update Password
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Contact Info -->
+<div class="modal-overlay" id="modal-contact">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Update Contact Info</h3>
+            <button class="modal-close" data-close="modal-contact">
+                <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;background:var(--bg-light);padding:1.25rem;border-radius:12px;">
+                For security reasons, contact information changes (phone number or email) require supervisor approval. Please coordinate with your area supervisor or the LGU admin office.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-cancel" data-close="modal-contact">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase + Logic -->
+<script type="module">
+import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut,
+         updatePassword, EmailAuthProvider, reauthenticateWithCredential }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc,
+         collection, query, where, getDocs, updateDoc }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
+    authDomain:        "ecomate-4c54f.firebaseapp.com",
+    projectId:         "ecomate-4c54f",
+    storageBucket:     "ecomate-4c54f.firebasestorage.app",
+    messagingSenderId: "626101359921",
+    appId:             "1:626101359921:web:c95f7b0fca79ff8ce60c10",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const $   = id => document.getElementById(id);
+const tx  = (id, v) => { const e = $(id); if (e) e.textContent = v ?? "—"; };
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+
+function fmtDate(val) {
+    if (!val) return "—";
+    const d = val.toDate ? val.toDate() : new Date(val);
+    return d.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+}
+
+function showToast(msg, type = "success") {
+    const t = $("toast");
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => { t.className = "toast"; }, 3500);
+}
+
+function openModal(id)  { $(id).classList.add("open"); }
+function closeModal(id) { $(id).classList.remove("open"); }
+
+function roleLabel(role) {
+    if (!role) return "Worker";
+    const r = role.toLowerCase();
+    if (r === "worker") return "Waste Worker";
+    if (r === "driver") return "Driver";
+    if (r === "supervisor") return "Supervisor";
+    return cap(role);
+}
+
+/* ────────────────────────────────────────────
+   PHOTO HELPERS
+──────────────────────────────────────────── */
+
+/**
+ * Show a photo (base64 data-URI or https URL) in all the right places.
+ * Pass null/undefined to reset to the initial-letter fallback.
+ */
+function applyPhoto(src) {
+    const img          = $("pd-photo-img");
+    const initial      = $("pd-photo-initial");
+    const headerImg    = $("header-avatar-img");
+    const headerInitial = $("header-initial");
+
+    if (src) {
+        img.onload = () => {
+            img.style.display    = "block";
+            initial.style.display = "none";
+        };
+        img.onerror = () => {
+            img.style.display    = "none";
+            initial.style.display = "";
+        };
+        img.src = src;
+
+        // Also update tiny header avatar
+        headerImg.onload = () => {
+            headerImg.style.display     = "block";
+            headerInitial.style.display = "none";
+        };
+        headerImg.src = src;
+    } else {
+        img.style.display    = "none";
+        initial.style.display = "";
+        headerImg.style.display     = "none";
+        headerInitial.style.display = "";
+    }
+}
+
+function setInitial(name) {
+    const letter = name ? name.charAt(0).toUpperCase() : "W";
+    tx("header-initial",   letter);
+    tx("pd-photo-initial", letter);
+}
+
+/* ────────────────────────────────────────────
+   PHOTO UPLOAD  (base64 → Firestore)
+──────────────────────────────────────────── */
+
+/** Compress + convert a File to a base64 data-URI (≤ ~200 KB JPEG) */
+function fileToBase64(file, maxPx = 400, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("Could not read file."));
+        reader.onload  = e => {
+            const img = new Image();
+            img.onerror = () => reject(new Error("Could not decode image."));
+            img.onload  = () => {
+                // Scale down if needed
+                let { width, height } = img;
+                if (width > maxPx || height > maxPx) {
+                    const ratio = Math.min(maxPx / width, maxPx / height);
+                    width  = Math.round(width  * ratio);
+                    height = Math.round(height * ratio);
+                }
+                const canvas = document.createElement("canvas");
+                canvas.width  = width;
+                canvas.height = height;
+                canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL("image/jpeg", quality));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handlePhotoUpload(file) {
+    if (!file) return;
+
+    // Validate type
+    if (!file.type.startsWith("image/")) {
+        showToast("Please choose a valid image file.", "error");
+        return;
+    }
+    // Validate size (original, before compression) — 10 MB cap
+    if (file.size > 10 * 1024 * 1024) {
+        showToast("Image is too large. Please choose one under 10 MB.", "error");
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) { showToast("Not signed in.", "error"); return; }
+
+    // Show uploading spinner
+    $("photo-uploading").classList.add("active");
+
+    try {
+        // 1. Compress to base64
+        const base64 = await fileToBase64(file);
+
+        // 2. Save to Firestore
+        await updateDoc(doc(db, "users", user.uid), { photoBase64: base64 });
+
+        // 3. Update UI everywhere
+        applyPhoto(base64);
+        showToast("Profile photo updated!");
+    } catch (err) {
+        console.error("Photo upload error:", err);
+        showToast("Failed to save photo: " + err.message, "error");
+    } finally {
+        $("photo-uploading").classList.remove("active");
+        // Reset file input so the same file can be re-selected if needed
+        $("photo-file-input").value = "";
+    }
+}
+
+// Click on photo → open file picker
+$("pd-photo").addEventListener("click", () => $("photo-file-input").click());
+
+// File chosen → upload
+$("photo-file-input").addEventListener("change", e => {
+    const file = e.target.files?.[0];
+    if (file) handlePhotoUpload(file);
+});
+
+/* ────────────────────────────────────────────
+   AUTH GATE
+──────────────────────────────────────────── */
+onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = "../html/index.html"; return; }
+    try { await loadProfile(user); }
+    catch (e) { console.error(e); showToast("Failed to load profile.", "error"); }
+});
+
+/* ────────────────────────────────────────────
+   LOAD PROFILE
+──────────────────────────────────────────── */
+async function loadProfile(user) {
+    const uSnap = await getDoc(doc(db, "users", user.uid));
+    if (!uSnap.exists()) throw new Error("No user document");
+    const u = uSnap.data();
+
+    const name = u.fullName || "";
+
+    tx("pd-name",  name);
+    tx("pd-email", u.email || user.email);
+    tx("pd-role",  roleLabel(u.role));
+    tx("pd-area",  "—");
+    tx("pd-since", fmtDate(u.createdAt));
+    setInitial(name);
+
+    window.__uid      = user.uid;
+    window.__auth     = auth;
+    window.__userName = name;
+
+    $("page-loader").style.display = "none";
+    lucide.createIcons();
+
+    // ── Load photo ──
+    // Check photoBase64 first (new field), then legacy photoURL
+    if (u.photoBase64) {
+        applyPhoto(u.photoBase64);
+    } else if (u.photoURL) {
+        applyPhoto(u.photoURL);
+    }
+    // If neither exists, the initial letter stays visible — nothing more needed.
+
+    // Parallel fetches
+    const now    = new Date();
+    const yyyyMM = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+
+    const [truckSnap, schedSnap] = await Promise.all([
+        u.truckId
+            ? getDocs(query(collection(db, "trucks"), where("truckId", "==", u.truckId)))
+            : Promise.resolve(null),
+        getDocs(query(collection(db, "schedules"), where("assignedWorkerUid", "==", user.uid))),
+    ]);
+
+    // Truck box
+    if (truckSnap && !truckSnap.empty) {
+        const t = truckSnap.docs[0].data();
+        tx("t-id",    t.truckId);
+        tx("t-model", t.model);
+        tx("t-route", t.route);
+        tx("t-fuel",  t.fuel != null ? t.fuel + "%" : "—");
+        tx("t-status", cap(t.status));
+        $("t-status").className = "truck-status-dot " + (t.status === "active" ? "active" : "inactive");
+        $("truck-box").style.display = "flex";
+        tx("pd-area", t.route || "—");
+    }
+
+    // Schedules
+    let latest = null;
+    schedSnap.forEach(d => {
+        const s = d.data();
+        if (!latest || (s.date && s.date > latest.date)) latest = s;
+    });
+
+    if (latest) {
+        tx("sb-date",  latest.date);
+        tx("sb-time",  `${latest.startTime} – ${latest.endTime}`);
+        tx("sb-route", latest.route);
+        tx("sb-truck", latest.truck);
+        const badge = $("sb-status");
+        badge.textContent = cap(latest.status);
+        badge.className   = "sch-badge " + (latest.status === "ongoing"   ? "ongoing"
+                                          : latest.status === "completed" ? "completed" : "pending");
+        $("schedule-banner").style.display = "flex";
+    }
+
+    lucide.createIcons();
+}
+
+/* ────────────────────────────────────────────
+   EDIT MODE
+──────────────────────────────────────────── */
+let editMode = false;
+
+function enterEditMode(name) {
+    editMode = true;
+    $("inline-name").value = name || "";
+    $("edit-name-wrap").style.display = "flex";
+    $("pd-name").style.display = "none";
+    $("btn-toggle-edit").innerHTML =
+        '<i data-lucide="save" style="width:15px;height:15px;"></i> <span>Save Changes</span>';
+    $("btn-cancel-edit").style.display = "flex";
+    lucide.createIcons();
+}
+
+function exitEditMode() {
+    editMode = false;
+    $("edit-name-wrap").style.display = "none";
+    $("pd-name").style.display = "";
+    $("btn-toggle-edit").innerHTML =
+        '<i data-lucide="edit-3" style="width:15px;height:15px;"></i> <span>Edit Profile</span>';
+    $("btn-cancel-edit").style.display = "none";
+    lucide.createIcons();
+}
+
+$("btn-toggle-edit").addEventListener("click", async () => {
+    if (!editMode) { enterEditMode(window.__userName); return; }
+
+    const btn  = $("btn-toggle-edit");
+    const name = $("inline-name").value.trim();
+    if (!name) { showToast("Name cannot be empty.", "error"); return; }
+
+    btn.disabled = true;
+    try {
+        await updateDoc(doc(db, "users", window.__uid), { fullName: name });
+        tx("pd-name", name);
+        setInitial(name);
+        window.__userName = name;
+        showToast("Profile updated successfully!");
+        exitEditMode();
+    } catch (e) {
+        showToast("Update failed: " + e.message, "error");
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+$("btn-cancel-edit").addEventListener("click", exitEditMode);
+
+/* ────────────────────────────────────────────
+   CHANGE PASSWORD
+──────────────────────────────────────────── */
+$("pw-new").addEventListener("input", () => {
+    const len = $("pw-new").value.length;
+    const bar = $("pw-bar");
+    if      (len === 0) { bar.style.width = "0";    bar.style.background = ""; }
+    else if (len < 6)   { bar.style.width = "33%";  bar.style.background = "#EF5350"; }
+    else if (len < 10)  { bar.style.width = "66%";  bar.style.background = "#FFA726"; }
+    else                { bar.style.width = "100%"; bar.style.background = "#4CAF50"; }
+});
+
+$("btn-change-pw").addEventListener("click", async () => {
+    const btn     = $("btn-change-pw");
+    const curr    = $("pw-current").value;
+    const newPw   = $("pw-new").value;
+    const confirm = $("pw-confirm").value;
+    if (!curr || !newPw || !confirm) { showToast("Please fill all fields.", "error"); return; }
+    if (newPw !== confirm)           { showToast("Passwords do not match.", "error"); return; }
+    if (newPw.length < 6)            { showToast("Password must be at least 6 characters.", "error"); return; }
+
+    btn.disabled = true; btn.textContent = "Updating…";
+    try {
+        const user = auth.currentUser;
+        await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, curr));
+        await updatePassword(user, newPw);
+        showToast("Password changed successfully!");
+        closeModal("modal-password");
+        ["pw-current","pw-new","pw-confirm"].forEach(id => $(id).value = "");
+        $("pw-bar").style.width = "0";
+    } catch (e) {
+        const msg = e.code === "auth/wrong-password"    ? "Current password is incorrect."
+                  : e.code === "auth/too-many-requests" ? "Too many attempts. Try again later."
+                  : e.message;
+        showToast(msg, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="shield-check" style="width:15px;height:15px;"></i> Update Password';
+        lucide.createIcons();
+    }
+});
+
+/* ────────────────────────────────────────────
+   SIGN OUT & MODALS
+──────────────────────────────────────────── */
+$("btn-signout").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "../html/login.html";
+});
+
+$("btn-open-pw").addEventListener("click",      () => openModal("modal-password"));
+$("btn-open-contact").addEventListener("click", () => openModal("modal-contact"));
+
+document.querySelectorAll("[data-close]").forEach(b =>
+    b.addEventListener("click", () => closeModal(b.dataset.close))
+);
+document.querySelectorAll(".modal-overlay").forEach(m =>
+    m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); })
+);
+</script>
+
+<script>
+lucide.createIcons();
+
+const toggle  = document.getElementById("sidebar-toggle");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("sidebar-overlay");
+toggle.addEventListener("click",  () => { sidebar.classList.add("open");    overlay.classList.add("open");    });
+overlay.addEventListener("click", () => { sidebar.classList.remove("open"); overlay.classList.remove("open"); });
+document.querySelectorAll(".worker-nav a").forEach(a =>
+    a.addEventListener("click", () => {
+        if (window.innerWidth <= 1024) { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
+    })
+);
+</script>
+</body>
+</html>

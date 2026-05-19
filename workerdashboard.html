@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker's Dashboard - EcoMate</title>
+    <link rel="stylesheet" href="../css/workerdashboard.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Worker Sidebar Nav -->
+    <aside class="worker-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../images/daetLGU.png" alt="Daet Portal Logo">
+            <div class="sidebar-header-info">
+                <h1>Daet Portal</h1>
+                <span>LGU Worker</span>
+            </div>
+        </div>
+
+        <nav class="worker-nav">
+            <a href="workerdashboard.html" class="active">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="workerschedule.html">
+                <i data-lucide="calendar"></i> Schedule
+            </a>
+            <a href="workerreports.html">
+                <i data-lucide="clipboard-list"></i> Reports & Tasks
+            </a>
+            <a href="workerguideline.html">
+                <i data-lucide="shield"></i> Safety Guidelines
+            </a>
+        </nav>
+
+        <div class="worker-sidebar-footer">
+            <button class="btn-sign-out-sidebar" id="btn-sign-out">
+                <i data-lucide="log-out"></i> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-title">
+                <h2>Worker's Dashboard</h2>
+                <p>Monitor, manage, and optimize waste operations</p>
+            </div>
+            <div class="header-actions">
+                <div class="avatar-circle">
+                    <span class="worker-initial" style="color:white;font-weight:700;font-size:1rem;">W</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Summary Metrics -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-info">
+                    <span>Assigned Tasks Today</span>
+                    <h3>12</h3>
+                </div>
+                <div class="summary-icon blue">
+                    <i data-lucide="clipboard-check"></i>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-info">
+                    <span>Completed Tasks</span>
+                    <h3>8</h3>
+                </div>
+                <div class="summary-icon green">
+                    <i data-lucide="check-circle-2"></i>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-info">
+                    <span>Pending Reports</span>
+                    <h3>4</h3>
+                </div>
+                <div class="summary-icon red">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+
+            <!-- Left Column: Schedule & Reports -->
+            <div class="grid-col-left">
+
+                <!-- Today's Schedule -->
+                <div class="beige-card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i data-lucide="calendar"></i> Today's Schedule
+                        </div>
+                        <span class="tag-live">LIVE FEED</span>
+                    </div>
+                    <div class="schedule-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Assigned Reports -->
+                <div class="beige-card">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i data-lucide="alert-circle"></i> Assigned Reports
+                        </div>
+                        <div class="report-pagination-info" id="report-pagination-info"></div>
+                    </div>
+                    <div class="reports-list" id="reports-list">
+                        <!-- Populated by JS -->
+                    </div>
+                    <!-- Pagination Controls -->
+                    <div class="pagination-controls" id="pagination-controls" style="display:none;">
+                        <button class="page-btn" id="prev-page" aria-label="Previous page">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <div class="page-indicators" id="page-indicators"></div>
+                        <button class="page-btn" id="next-page" aria-label="Next page">
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Map & Safety -->
+            <div class="grid-col-right">
+
+                <!-- Active Route Map -->
+                <div class="map-card">
+                    <div class="map-card-header">
+                        <div class="section-title">
+                            <i data-lucide="map-pin"></i> Active Route Map
+                        </div>
+                    </div>
+
+                    <div class="map-card-inner">
+                        <div class="map-tag">
+                            <span>ACTIVE ROUTE MAP</span>
+                            <h6 id="map-route-label">Tap to share location</h6>
+                        </div>
+                    </div>
+
+                    <button class="btn-share-location" id="btn-share-location">
+                        <i data-lucide="navigation"></i>
+                        Share My Location
+                    </button>
+
+                    <div id="location-status"></div>
+                </div>
+
+                <!-- Safety Protocols -->
+                <div class="safety-card">
+                    <div class="safety-card-icon">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <h3>View Safety Protocols</h3>
+                    <p>Essential PPE & Field Procedures</p>
+                    <span class="safety-card-cta">
+                        <i data-lucide="arrow-right"></i> Open Guidelines
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ══ SCHEDULE DETAIL MODAL ══ -->
+    <div class="modal-overlay" id="schedule-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-title">Schedule Details</h3>
+                <button class="modal-close" id="modal-close" aria-label="Close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Route Info Row -->
+                <div class="modal-info-grid">
+                    <div class="modal-info-item">
+                        <span class="modal-label"><i data-lucide="map-pin"></i> Route</span>
+                        <strong id="modal-route">—</strong>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label"><i data-lucide="clock"></i> Time</span>
+                        <strong id="modal-time">—</strong>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label"><i data-lucide="truck"></i> Truck</span>
+                        <strong id="modal-truck">—</strong>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="modal-label"><i data-lucide="activity"></i> Status</span>
+                        <strong id="modal-status-text">—</strong>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="modal-notes-row" id="modal-notes-row">
+                    <span class="modal-label"><i data-lucide="file-text"></i> Notes</span>
+                    <p id="modal-notes">—</p>
+                </div>
+
+                <!-- Assigned Worker(s) -->
+                <div class="modal-assigned-row">
+                    <span class="modal-label"><i data-lucide="users"></i> Assigned Workers</span>
+                    <div id="modal-workers" class="modal-workers-list">—</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-complete-task" id="btn-complete-task">
+                    <i data-lucide="check-circle-2"></i> Mark Complete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/navigation.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Mobile sidebar toggle
+        const toggle  = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('open');    }
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+        toggle.addEventListener('click', openSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.worker-nav a').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeSidebar();
+            });
+        });
+
+        // Safety card → navigate to guidelines
+        const safetyCard = document.querySelector('.safety-card');
+        if (safetyCard) {
+            safetyCard.addEventListener('click', () => {
+                window.location.href = 'workerguideline.html';
+            });
+        }
+
+        // Close modal on overlay click
+        document.getElementById('schedule-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('schedule-modal')) {
+                document.getElementById('schedule-modal').classList.remove('open');
+            }
+        });
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('schedule-modal').classList.remove('open');
+        });
+    </script>
+
+    <script type="module" src="../js/workerdashboard.js"></script>
+
+
+    <!-- ══ REPORT DETAIL MODAL ══ -->
+<div class="modal-overlay" id="report-modal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Report Details</h3>
+      <button class="modal-close" id="report-modal-close" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:1rem;">
+        <img id="rmodal-img" src="" alt="Report image"
+          style="width:100%;max-height:200px;object-fit:cover;border-radius:14px;display:none;">
+        <div id="rmodal-no-img" style="width:100%;height:120px;background:#FFEBEE;
+          border-radius:14px;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="alert-triangle" style="width:40px;height:40px;color:#D32F2F;"></i>
+        </div>
+      </div>
+      <div class="modal-info-grid">
+        <div class="modal-info-item">
+          <span class="modal-label"><i data-lucide="tag"></i> Waste Type</span>
+          <strong id="rmodal-type">—</strong>
+        </div>
+        <div class="modal-info-item">
+          <span class="modal-label"><i data-lucide="activity"></i> Status</span>
+          <strong id="rmodal-status">—</strong>
+        </div>
+        <div class="modal-info-item">
+          <span class="modal-label"><i data-lucide="map-pin"></i> Location</span>
+          <strong id="rmodal-location">—</strong>
+        </div>
+        <div class="modal-info-item">
+          <span class="modal-label"><i data-lucide="clock"></i> Reported</span>
+          <strong id="rmodal-time">—</strong>
+        </div>
+      </div>
+      <div class="modal-notes-row" id="rmodal-desc-row">
+        <span class="modal-label"><i data-lucide="file-text"></i> Description</span>
+        <p id="rmodal-desc">—</p>
+      </div>
+      <div class="modal-notes-row">
+        <span class="modal-label"><i data-lucide="user"></i> Reporter</span>
+        <p id="rmodal-reporter">—</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-complete-task" id="rmodal-btn-resolve">
+        <i data-lucide="check-circle-2"></i> Mark as Resolved
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Report modal close handlers
+  document.getElementById('report-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('report-modal'))
+      document.getElementById('report-modal').classList.remove('open');
+  });
+  document.getElementById('report-modal-close').addEventListener('click', () => {
+    document.getElementById('report-modal').classList.remove('open');
+  });
+</script>
+</body>
+</html>
