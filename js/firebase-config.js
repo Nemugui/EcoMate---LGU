@@ -4,7 +4,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase
 
 const firebaseConfig = {
     apiKey: "AIzaSyAv-c6-7n2Uf9MK3-5u3dt42HklwGcxixg",
-    authDomain: "ecomate-finals.netlify.app", // ← change to your Netlify URL
+    authDomain: "ecomate-4c54f.firebaseapp.com", // ← change to your Netlify URL
     projectId: "ecomate-4c54f",
     storageBucket: "ecomate-4c54f.firebasestorage.app",
     messagingSenderId: "626101359921",
